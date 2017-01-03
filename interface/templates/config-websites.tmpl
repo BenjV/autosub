@@ -1,0 +1,90 @@
+#import autosub
+
+<div class="form-group">&nbsp;
+	<label class="col-sm-2 text-right">Website</label>
+	<label class="col-sm-1">&nbsp;</label>  
+	<label class="col-sm-2 text-center">Username</label> 
+	<label class="col-sm-2 text-center">Password</label>
+	<label class="col-sm-2 text-center">Login Test</label>
+</div>
+
+
+<div class="form-group">
+	<label class="col-sm-2 control-label">Addic7ed 
+		<a data-toggle="tooltip" data-html="true" data-original-title="Tick to use this website. <br><br>Login Test is disabled when search is busy">
+			<span class="glyphicon glyphicon-info-sign"></span>
+		</a>
+	</label>
+	<div class="col-sm-1">
+		#if $autosub.ADDIC7ED:
+			<div class="checkbox-inline"><input type="checkbox" name="addic7ed" checked value="Yes"></div>
+		#else:
+			<div class="checkbox"><input type="checkbox" name="addic7ed" value="Yes"></div>
+		#end if
+	</div>
+	<div class="col-sm-2 form-group-sm"><input type="text" class="form-control" id ="addic7eduser" name="addic7eduser" value="$autosub.ADDIC7EDUSER" placeholder="Username"></div>
+	<div class="col-sm-2 form-group-sm"><input type="password" class="form-control" id = addic7edpasswd name="addic7edpasswd" value="$autosub.ADDIC7EDPASSWD" placeholder="Password"></div>
+	<span id="testAddic7ed-result"> </span>
+	#if $autosub.SEARCHBUSY:
+		<div  align="center"class="col-sm-2 form-group-sm"><input type="button" class="btn btn-default" value="Test" id="testAddic7ed" disabled></div>
+	#else:
+		<div  align="center"class="col-sm-2 form-group-sm"><input type="button" data-toggle="tooltip" title="Login Test" class="btn btn-default" value="Test" id="testAddic7ed"></div>
+	#end if
+</div>
+
+
+<div id="content_opensubtitleslang">
+	<div class="form-group">
+		<label class="col-sm-2 control-label">Opensubtitles 
+			<a data-toggle="tooltip" data-html="true" data-original-title="Tick to use this website. <br><br>Login Test is disabled when search is busy">
+				<span class="glyphicon glyphicon-info-sign"></span>
+			</a>
+		</label>
+		<div class="col-sm-1">
+			#if $autosub.OPENSUBTITLES:
+				<div class="checkbox-inline"><input type="checkbox" name="opensubtitles" checked value="Yes"></div>
+			#else:
+				<div class="checkbox"><input type="checkbox" name="opensubtitles" value="Yes"></div>
+			#end if
+		</div>
+		<div class="col-sm-2 form-group-sm"><input type="text" class="form-control" id="opensubtitlesuser" name="opensubtitlesuser" value="$autosub.OPENSUBTITLESUSER" placeholder="Username"></div>
+		<div class="col-sm-2 form-group-sm"><input type="password" class="form-control" id="opensubtitlespasswd" name="opensubtitlespasswd" value="$autosub.OPENSUBTITLESPASSWD" placeholder="Password"></div>
+		<span id="testOpenSubtitles-result" text-left></span>
+		#if $autosub.SEARCHBUSY :
+			<div align="center" class= "col-sm-2 form-group-sm"><input type="button" disabled class="btn btn-default" value="Test" id="testOpenSubtitles"></div>
+		#else:
+			<div align="center" class= "col-sm-2 form-group-sm"><input type="button" class="btn btn-default" value="Test" id="testOpenSubtitles"></div>
+		#end if
+	</div>
+</div>
+
+<div class="form-group">
+	<label class="col-sm-2 control-label">Podnapisi 
+		<a data-toggle="tooltip" data-original-title="Tick to use this website.">
+			<span class="glyphicon glyphicon-info-sign"></span>
+		</a>
+	</label>
+	<div class="col-sm-5">
+		#if $autosub.PODNAPISI:
+			<div class="checkbox-inline"><input type="checkbox" name="podnapisi" checked value="Yes"></div>
+		#else:
+			<div class="checkbox"><input type="checkbox" name="podnapisi" value="Yes"></div>
+		#end if
+	</div>
+</div>
+
+<div class="form-group">
+	<label class="col-sm-2 control-label">Subscene 
+		<a data-toggle="tooltip" data-original-title="Tick to use this website.">
+			<span class="glyphicon glyphicon-info-sign"></span>
+		</a>
+	</label>
+	<div class="col-sm-5">
+		#if $autosub.SUBSCENE:
+			<div class="checkbox-inline"><input type="checkbox" name="subscene" checked value="Yes"></div>
+		#else:
+			<div class="checkbox"><input type="checkbox" name="subscene" value="Yes"></div>
+		#end if
+	</div>
+</div>
+

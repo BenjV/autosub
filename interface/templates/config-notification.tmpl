@@ -1,0 +1,536 @@
+#import autosub
+
+#include $os.path.join($autosub.PATH.encode(), "interface/templates/header.tmpl")
+
+    <script type="text/javascript">
+    <!--
+        autosubRoot = "$autosub.WEBROOT";
+    //-->
+	</script>
+
+<form role="form" class="form-horizontal" method="post" action="$autosub.WEBROOT/config/saveNotification">
+
+<div class="page-header"><h1>Configuration <small>Notifications</small></h1></div>
+<div class="well well-sm">
+
+		<hr>
+		<div class="form-group">
+			<label for="Email" class="col-sm-2 control-label"><img src="$autosub.WEBROOT/images/notifiers/email.png" width="25px" height="24px" alt="" /> <b>Mail</b></label>
+			<div class="col-sm-10">
+			<select name="notifymail" id="notifymail" class="form-control enabler">
+				<option value="True" #if $autosub.NOTIFYMAIL == True then 'selected="selected"' else ""#>Enabled</option>
+				<option value="False" #if $autosub.NOTIFYMAIL == False then 'selected="selected"' else ""#>Disabled</option>
+			</select>
+			<br>Send notifications via Email.
+			</div>
+		</div>
+		
+		<div id="content_notifymail">
+			<div class="form-group">
+				<label for="MailServer" class="col-sm-2 control-label">Server <a data-placement="bottom" data-toggle="tooltip" data-original-title="What mail server would you like to use?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<div class="col-sm-10">
+				<input type="text" class="form-control" name="mailsrv" id="mailsrv" value="$autosub.MAILSRV" placeholder="smtp.gmail.com:587">
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label for="MailFrom" class="col-sm-2 control-label">From <a data-placement="bottom" data-toggle="tooltip" data-original-title="From which address will the notification be sent?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<div class="col-sm-10">
+				<input type="text" class="form-control" name="mailfromaddr" id="mailfromaddr" value="$autosub.MAILFROMADDR" placeholder="example@gmail.com">
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label for="MailTo" class="col-sm-2 control-label">To <a data-placement="bottom" data-toggle="tooltip" data-original-title="To which address will the notification be sent?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<div class="col-sm-10">
+				<input type="text" class="form-control" name="mailtoaddr" id="mailtoaddr" value="$autosub.MAILTOADDR" placeholder="example@gmail.com">
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label for="MailUsername" class="col-sm-2 control-label">Username <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is your username on this server?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<div class="col-sm-10">
+				<input type="text" class="form-control" name="mailusername" id="mailusername" value="$autosub.MAILUSERNAME" placeholder="example@gmail.com">
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label for="MailPassword" class="col-sm-2 control-label">Password <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the password belonging to this username?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<div class="col-sm-10">
+				<input type="password" class="form-control" name="mailpassword" id="mailpassword" value="$autosub.MAILPASSWORD" placeholder="mysecretpassword">
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label for="MailSubject" class="col-sm-2 control-label">Subject <a data-placement="bottom" data-toggle="tooltip" data-original-title="What should the subject be? (the download subtitle file will be added at the end of the subject)"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<div class="col-sm-10">
+				<input type="text" class="form-control" name="mailsubject" id="mailsubject" value="$autosub.MAILSUBJECT" placeholder="Subject info">
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label for="MailEncryption" class="col-sm-2 control-label">Encryption <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the encryption method?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<div class="col-sm-10">
+				<input type="text" class="form-control" name="mailencryption" id="mailencryption" value="$autosub.MAILENCRYPTION" placeholder="TLS">
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label for="MailAuthentication" class="col-sm-2 control-label">Authentication <a data-placement="bottom" data-toggle="tooltip" data-original-title="What Auth Mechanism should be used? (Don't change this if you don't know what you are doing!)"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<div class="col-sm-10">
+				<input type="text" class="form-control" name="mailauth" id="mailauth" value="$autosub.MAILAUTH" placeholder="">
+				</div>
+			</div>
+			
+			<div align="right">
+				#if $autosub.SEARCHBUSY :
+					<span id="testMail-result">Test button is disabled during search</span><br>
+					<input type="button" disabled class="btn btn-default" value="Test Mail" id="testMail" />
+				#else:
+					<span id="testMail-result">Click below to test Mail.</span><br>
+					<input type="button" class="btn btn-default" value="Test Mail" id="testMail" /> 
+				#end if
+				<input type="submit" value="Save Changes" class="btn btn-primary" />
+			</div>
+		</div>
+		
+		<hr>
+		<div class="form-group">
+			<label for="Twitter" class="col-sm-2 control-label"><img src="$autosub.WEBROOT/images/notifiers/twitter.png" width="25px" height="24px" alt="" /> <b><a href="https://twitter.com/" target="_blank">Twitter</a></b></label>
+			<div class="col-sm-10">
+			<select name="notifytwitter" id="notifytwitter" class="form-control enabler">
+				<option value="True" #if $autosub.NOTIFYTWITTER == True then 'selected="selected"' else ""#>Enabled</option>
+				<option value="False" #if $autosub.NOTIFYTWITTER == False then 'selected="selected"' else ""#>Disabled</option>
+			</select>
+			<br>Post notifications on Twitter.
+			</div>
+		</div>
+		
+		<div id="content_notifytwitter">
+			<div class="form-group">
+				<label for="TwitterKey" class="col-sm-2 control-label">Key <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the key for Twitter?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<div class="col-sm-10">
+				<input type="text" class="form-control" name="twitterkey" id="twitterkey" value="$autosub.TWITTERKEY" placeholder="token key">
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label for="TwitterSecret" class="col-sm-2 control-label">Secret <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the secret code for Twitter?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<div class="col-sm-10">
+				<input type="text" class="form-control" name="twittersecret" id="twittersecret" value="$autosub.TWITTERSECRET" placeholder="token secret">
+				</div>
+			</div>
+
+			<div align="right">
+				#if $autosub.SEARCHBUSY :
+					<span id="testTwitter-result">Buttons are disabled during search.</span><br>
+					<input type="button" disabled value="Register Twitter" onClick="parent.location='/config/regTwitter'" class="btn btn-default" /> 
+					<input type="button" disabled class="btn btn-default" value="Test Twitter" id="testTwitter" /> 
+				#else:
+					<span id="testTwitter-result">Click below to test Twitter.</span><br>
+					<input type="button" value="Register Twitter" onClick="parent.location='/config/regTwitter'" class="btn btn-default" /> 
+					<input type="button" class="btn btn-default" value="Test Twitter" id="testTwitter" /> 
+				#end if
+				<input type="submit" value="Save Changes" class="btn btn-primary" />
+			</div>
+		</div>
+
+		<hr> 
+		<div class="form-group">
+			<label for="Pushalot" class="col-sm-2 control-label"><img src="$autosub.WEBROOT/images/notifiers/pushalot.png" width="25px" height="24px" alt="" /> <b><a href="https://pushalot.com/" target="_blank">Pushalot</a></b></label>
+			<div class="col-sm-10">
+			<select name="notifypushalot" id="notifypushalot" class="form-control enabler">
+				<option value="True" #if $autosub.NOTIFYPUSHALOT == True then 'selected="selected"' else ""#>Enabled</option>
+				<option value="False" #if $autosub.NOTIFYPUSHALOT == False then 'selected="selected"' else ""#>Disabled</option>
+			</select>
+			<br>Notifier for Windows Phone and Windows 8.
+			</div>
+		</div>
+		
+		<div id="content_notifypushalot">
+			<div class="form-group">
+				<label for="PushalotAPI" class="col-sm-2 control-label">API <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the API key for Pushalot?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<div class="col-sm-10">
+				<input type="text" class="form-control" name="pushalotapi" id="pushalotapi" value="$autosub.PUSHALOTAPI" placeholder="Pushalot API key">
+				</div>
+			</div>
+			
+			<div align="right">
+				#if $autosub.SEARCHBUSY :
+					<span id="testPushalot-result">Test button is disabled during search.</span><br>
+					<input type="button" disabled class="btn btn-default" value="Test Pushalot" id="testPushalot" />
+				#else:
+					<span id="testPushalot-result">Click below to test Pushalot.</span><br>
+					<input type="button" class="btn btn-default" value="Test Pushalot" id="testPushalot" />
+				#end if
+				<input type="submit" value="Save Changes" class="btn btn-primary" />
+			</div>
+		</div>
+
+		<hr>
+		<div class="form-group">
+			<label for="Pushbullet" class="col-sm-2 control-label"><img src="$autosub.WEBROOT/images/notifiers/pushbullet.png" width="25px" height="24px" alt="" /> <b><a href="https://www.pushbullet.com" target="_blank">Pushbullet</a></b></label>
+			<div class="col-sm-10">
+			<select name="notifypushbullet" id="notifypushbullet" class="form-control enabler">
+				<option value="True" #if $autosub.NOTIFYPUSHBULLET == True then 'selected="selected"' else ""#>Enabled</option>
+				<option value="False" #if $autosub.NOTIFYPUSHBULLET == False then 'selected="selected"' else ""#>Disabled</option>
+			</select>
+			<br>Notification system.
+			</div>
+		</div>
+
+		<div id="content_notifypushbullet">
+			<div class="form-group">
+				<label for="PushbulletAPI" class="col-sm-2 control-label">API <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the API key for Pushbullet?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<div class="col-sm-10">
+				<input type="text" class="form-control" name="pushbulletapi" id="pushbulletapi" value="$autosub.PUSHBULLETAPI" placeholder="Pushbullet API key">
+				</div>
+			</div>
+			
+			<div align="right">
+				#if $autosub.SEARCHBUSY :
+					<span id="testPushbullet-result">Test button is disabled during search.</span><br>
+					<input type="button" disabled class="btn btn-default" value="Test Pushbullet" id="testPushbullet" />
+				#else:
+					<span id="testPushbullet-result">Click below to test Pushbullet.</span><br>
+					<input type="button" class="btn btn-default" value="Test Pushbullet" id="testPushbullet" />
+				#end if
+				<input type="submit" value="Save Changes" class="btn btn-primary" />
+			</div>
+		</div>
+		
+		<hr>
+		<div class="form-group">
+			<label for="NotifyMyAndroid" class="col-sm-2 control-label"><img src="$autosub.WEBROOT/images/notifiers/nma.png" width="25px" height="24px" alt="" /> <b><a href="https://www.notifymyandroid.com/" target="_blank">Notify My Android</a></b></label>
+			<div class="col-sm-10">
+			<select name="notifynma" id="notifynma" class="form-control enabler">
+				<option value="True" #if $autosub.NOTIFYNMA == True then 'selected="selected"' else ""#>Enabled</option>
+				<option value="False" #if $autosub.NOTIFYNMA == False then 'selected="selected"' else ""#>Disabled</option>
+			</select>
+			<br>Notification system for Android users.
+			</div>
+		</div>
+		
+		<div id="content_notifynma">
+			<div class="form-group">
+				<label for="NotifyMyAndroidAPI" class="col-sm-2 control-label">API <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the API key for NMA?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<div class="col-sm-10">
+				<input type="text" class="form-control" name="nmaapi" id="nmaapi" value="$autosub.NMAAPI" placeholder="NMA API key">
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label for="NotifyMyAndroidPriority" class="col-sm-2 control-label">Priority <a data-placement="bottom" data-toggle="tooltip" data-original-title="What priority should be used to send the notification? Default is Normal."><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<div class="col-sm-10">
+					#set priormapper = {-2 : 'Very Low', -1 : 'Moderate', 0 : 'Normal', 1 : 'High', 2 : 'Emergency'}
+					<select name="nmapriority" id="nmapriority" class="form-control">
+						#for $prior in $range(-2, 3, 1):
+							#if $prior == $autosub.NMAPRIORITY
+								<option value="$prior" selected="selected">$priormapper[$prior]</option>
+							#else
+								<option value="$prior">$priormapper[$prior]</option>
+							#end if
+						#end for
+					</select>
+				</div>
+			</div>
+			
+			<div align="right">
+				#if $autosub.SEARCHBUSY :
+					<span id="testNotifyMyAndroid-result">Test button is disabled during search.</span><br>
+					<input type="button" disabled class="btn btn-default" value="Test Notify My Android" id="testNotifyMyAndroid" />
+				#else :
+					<span id="testNotifyMyAndroid-result">Click below to test Notify My Android.</span><br>
+					<input type="button" class="btn btn-default" value="Test Notify My Android" id="testNotifyMyAndroid" />
+				#end if
+				<input type="submit" value="Save Changes" class="btn btn-primary" />
+			</div>
+		</div>
+		
+		<hr>
+		<div class="form-group">
+			<label for="Boxcar2" class="col-sm-2 control-label"><img src="$autosub.WEBROOT/images/notifiers/boxcar2.png" width="25px" height="24px" alt="" /> <b><a href="http://www.boxcar.io/sign-in" target="_blank">Boxcar2</a></b></label>
+			<div class="col-sm-10">
+				<select name="notifyboxcar2" id="notifyboxcar2" class="form-control enabler">
+					<option value="True" #if $autosub.NOTIFYBOXCAR2 == True then 'selected="selected"' else ""#>Enabled</option>
+					<option value="False" #if $autosub.NOTIFYBOXCAR2 == False then 'selected="selected"' else ""#>Disabled</option>
+				</select>
+				<br>Boxcar2 is a notifier for iOS and OSX.
+			</div>
+		</div>
+		
+		<div id="content_notifyboxcar2">
+			<div class="form-group">
+				<label for="Boxcar2Token" class="col-sm-2 control-label">Access Token <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is your access token for Boxcar2?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" name="boxcar2token" id="boxcar2token" value="$autosub.BOXCAR2TOKEN" placeholder="Boxcar2 access token">
+				</div>
+			</div>
+			
+			<div align="right">
+				#if $autosub.SEARCHBUSY :
+					<span id="testBoxcar2-result">Test button is disabled during search.</span><br>
+					<input type="button" disabled class="btn btn-default" value="Test Boxcar2" id="testBoxcar2" />
+				#else:
+					<span id="testBoxcar2-result">Click below to test Boxcar2.</span><br>
+					<input type="button" class="btn btn-default" value="Test Boxcar2" id="testBoxcar2" />
+				#end if
+				<input type="submit" value="Save Changes" class="btn btn-primary" />
+			</div>
+		</div>
+		
+		<hr>
+		<div class="form-group">
+			<label for="Pushover" class="col-sm-2 control-label"><img src="$autosub.WEBROOT/images/notifiers/pushover.png" width="25px" height="24px" alt="" /> <b><a href="https://pushover.net/" target="_blank">Pushover</a></b></label>
+			<div class="col-sm-10">
+				<select name="notifypushover" id="notifypushover" class="form-control enabler">
+					<option value="True" #if $autosub.NOTIFYPUSHOVER == True then 'selected="selected"' else ""#>Enabled</option>
+					<option value="False" #if $autosub.NOTIFYPUSHOVER == False then 'selected="selected"' else ""#>Disabled</option>
+				</select>
+				<br>Pushover is a platform for iPhone and Android users.
+			</div>
+		</div>
+		
+		<div id="content_notifypushover">
+			<div class="form-group">
+				<label for="AppAPI" class="col-sm-2 control-label">Appication API 
+					<a data-placement="bottom" data-toggle="tooltip" data-original-title="What is your Application-API key for Pushover?"><span class="glyphicon glyphicon-info-sign"></span></a>
+				</label>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" name="pushoverappkey" id="pushoverappkey" value="$autosub.PUSHOVERAPPKEY" placeholder="Pushover Applicatie Key">
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="UserAPI" class="col-sm-2 control-label">User API 
+					<a data-placement="bottom" data-toggle="tooltip" data-original-title="What is your user-API key for Pushover?"><span class="glyphicon glyphicon-info-sign"></span></a>
+				</label>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" name="pushoveruserkey" id="pushoveruserkey" value="$autosub.PUSHOVERUSERKEY" placeholder="Pushover User Key">
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="PushoverPriority" class="col-sm-2 control-label">Priority <a data-placement="bottom" data-toggle="tooltip" data-original-title="What priority should be used to send the notification? Default is Normal."><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<div class="col-sm-10">
+					#set priormapper = {-2 : 'Very Low', -1 : 'Low', 0 : 'Normal', 1 : 'High', 2 : 'Emergency'}
+					<select name="pushoverpriority" id="pushoverpriority" class="form-control">
+						#for $prior in $range(-2, 3, 1):
+							#if $prior == $autosub.PUSHOVERPRIORITY
+								<option value="$prior" selected="selected">$priormapper[$prior]</option>
+							#else
+								<option value="$prior">$priormapper[$prior]</option>
+							#end if
+						#end for
+					</select>
+				</div>
+			</div>
+			<div align="right">
+				#if $autosub.SEARCHBUSY :
+					<span id="testPushover-result">Test button is disabled during search.</span><br>
+					<input type="button" disabled class="btn btn-default" value="Test Pushover" id="testPushover" />
+				#else:
+					<span id="testPushover-result">Click below to test Pushover.</span><br>
+					<input type="button" class="btn btn-default" value="Test Pushover" id="testPushover" /> 
+				#end if
+				<input type="submit" value="Save Changes" class="btn btn-primary" />
+			</div>
+
+		</div>
+		
+		<hr>
+		<div class="form-group">
+			<label for="Growl" class="col-sm-2 control-label"><img src="$autosub.WEBROOT/images/notifiers/growl.png" width="25px" height="24px" alt="" /> <b><a href="http://www.growl.info" target="_blank">Growl</a></b></label>
+			<div class="col-sm-10">
+			<select name="notifygrowl" id="notifygrowl" class="form-control enabler">
+				<option value="True" #if $autosub.NOTIFYGROWL == True then 'selected="selected"' else ""#>Enabled</option>
+				<option value="False" #if $autosub.NOTIFYGROWL == False then 'selected="selected"' else ""#>Disabled</option>
+			</select>
+			<br>Notifier for OSX and Windows.
+			</div>
+		</div>
+		
+		<div id="content_notifygrowl">
+			<div class="form-group">
+				<label for="GrowlHost" class="col-sm-2 control-label">Host <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the address of the Growl server?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<div class="col-sm-10">
+				<input type="text" class="form-control" name="growlhost" id="growlhost" value="$autosub.GROWLHOST" placeholder="127.0.0.1">
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label for="GrowlPort" class="col-sm-2 control-label">Port <a data-placement="bottom" data-toggle="tooltip" data-original-title="What port should we use?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<div class="col-sm-10">
+				<input type="text" class="form-control" name="growlport" id="growlport" value="$autosub.GROWLPORT" placeholder="23053">
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label for="GrowlPassword" class="col-sm-2 control-label">Password <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the password?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<div class="col-sm-10">
+				<input type="password" class="form-control" name="growlpass" id="growlpass" value="$autosub.GROWLPASS" placeholder="mysecretpassword">
+				</div>
+			</div>
+			
+			<div class="alert alert-info" align="center">
+				<strong>Reminder!</strong> You always have to test Growl, otherwise the application will not register.
+			</div>
+			
+			<div align="right">
+				#if $autosub.SEARCHBUSY :
+					<span id="testGrowl-result">Test button is disabled during search.</span><br>
+					<input type="button" disabled class="btn btn-default" value="Test Growl" id="testGrowl" />
+				#else:
+					<span id="testGrowl-result">Click below to test Growl.</span><br>
+					<input type="button" class="btn btn-default" value="Test Growl" id="testGrowl" />
+				#end if
+				<input type="submit" value="Save Changes" class="btn btn-primary" />
+			</div>
+		</div>
+		
+		<hr>
+		<div class="form-group">
+			<label for="Prowl" class="col-sm-2 control-label"><img src="$autosub.WEBROOT/images/notifiers/prowl.png" width="25px" height="24px" alt="" /> <b><a href="http://www.prowlapp.com/" target="_blank">Prowl</a></b></label>
+			<div class="col-sm-10">
+			<select name="notifyprowl" id="notifyprowl" class="form-control enabler">
+				<option value="True" #if $autosub.NOTIFYPROWL == True then 'selected="selected"' else ""#>Enabled</option>
+				<option value="False" #if $autosub.NOTIFYPROWL == False then 'selected="selected"' else ""#>Disabled</option>
+			</select>
+			<br>Prowl is the Growl client for iPhone users.
+			</div>
+		</div>
+		
+		<div id="content_notifyprowl">
+			<div class="form-group">
+				<label for="ProwlAPI" class="col-sm-2 control-label">API <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the API key for Prowl?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<div class="col-sm-10">
+				<input type="text" class="form-control" name="prowlapi" id="prowlapi" value="$autosub.PROWLAPI" placeholder="API key">
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label for="ProwlPriority" class="col-sm-2 control-label">Priority <a data-placement="bottom" data-toggle="tooltip" data-original-title="What priority should be used to send the notification? Default is Normal"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<div class="col-sm-10">
+				#set priormapper = {-2 : 'Very Low', -1 : 'Moderate', 0 : 'Normal', 1 : 'High', 2 : 'Emergency'}
+				<select name="prowlpriority" id="prowlpriority" class="form-control">
+				#for $prior in $range(-2, 3, 1):
+					#if $prior == $autosub.PROWLPRIORITY
+						<option value="$prior" selected="selected">$priormapper[$prior]</option>
+					#else
+						<option value="$prior">$priormapper[$prior]</option>
+					#end if
+				#end for
+				</select>
+				</div>
+			</div>
+			
+			<div align="right">
+				#if $autosub.SEARCHBUSY :
+					<span id="testProwl-result">Test button is disabled during search.</span><br>
+					<input type="button" disabled class="btn btn-default" value="Test Prowl" id="testProwl" />
+				#else:
+					<span id="testProwl-result">Click below to test Prowl.</span><br>
+					<input type="button" class="btn btn-default" value="Test Prowl" id="testProwl" />
+				#end if
+				<input type="submit" value="Save Changes" class="btn btn-primary" />
+			</div>
+		</div>
+
+		<hr>
+		<div class="form-group">
+			<label for="Telegram" class="col-sm-2 control-label"><img src="$autosub.WEBROOT/images/notifiers/telegram.png" width="25px" height="24px" alt="" /> <b><a href="http://www.telegram.org/" target="_blank">Telegram</a></b></label>
+			<div class="col-sm-10">
+			<select name="notifytelegram" id="notifytelegram" class="form-control enabler">
+				<option value="True" #if $autosub.NOTIFYTELEGRAM == True then 'selected="selected"' else ""#>Enabled</option>
+				<option value="False" #if $autosub.NOTIFYTELEGRAM == False then 'selected="selected"' else ""#>Disabled</option>
+			</select>
+			<br>Telegram is the messenger for all platforms.
+			</div>
+		</div>
+		
+		<div id="content_notifytelegram">
+			<div class="form-group">
+				<label for="TelegramAPI" class="col-sm-2 control-label">API <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is your Telegram bot API token?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<div class="col-sm-10">
+				<input type="text" class="form-control" name="telegramapi" id="telegramapi" value="$autosub.TELEGRAMAPI" placeholder="your Telegram bot API token">
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label for="TelegramId" class="col-sm-2 control-label">Id <a data-placement="bottom" data-toggle="tooltip" data-original-title="The Telegram user/group id to send the message to"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<div class="col-sm-10">
+				<input type="text" class="form-control" name="telegramid" id="telegramid" value="$autosub.TELEGRAMID" placeholder="The Telegram user/group id">
+				</div>
+			</div>
+			
+			<div align="right">
+				#if $autosub.SEARCHBUSY :
+					<span id="testTelegram-result">Test button is disabled during search.</span><br>
+					<input type="button" disabled class="btn btn-default" value="Test Telegram" id="testTelegram" />
+				#else:
+					<span id="testTelegram-result">Click below to test Telegram.</span><br>
+					<input type="button" class="btn btn-default" value="Test Telegram" id="testTelegram" />
+				#end if
+				<input type="submit" value="Save Changes" class="btn btn-primary" />
+			</div>
+		</div>
+
+		<hr>
+		<div class="form-group">
+			<label for="PlexMediaServer" class="col-sm-2 control-label"><img src="$autosub.WEBROOT/images/notifiers/plex.png" width="25px" height="24px" alt="" /> <b><a href="https://www.plex.tv/" target="_blank">Plex Media Server</a></b></label>
+			<div class="col-sm-10">
+			<select name="notifyplex" id="notifyplex" class="form-control enabler">
+				<option value="True" #if $autosub.NOTIFYPLEX == True then 'selected="selected"' else ""#>Enabled</option>
+				<option value="False" #if $autosub.NOTIFYPLEX == False then 'selected="selected"' else ""#>Disabled</option>
+			</select>
+			<br>Update the media library of your Plex Media Server.
+			</div>
+		</div>
+		
+		<div id="content_notifyplex">
+			<div class="form-group">
+				<label for="plexserverhost" class="col-sm-2 control-label">Host <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the IP address of your Plex server?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<div class="col-sm-10">
+				<input type="text" class="form-control" name="plexserverhost" id="plexserverhost" value="$autosub.PLEXSERVERHOST" placeholder="127.0.0.1">
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label for="plexserverport" class="col-sm-2 control-label">Port <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the port of your Plex server? Default is 32400."><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<div class="col-sm-10">
+				<input type="text" class="form-control" name="plexserverport" id="plexserverport" value="$autosub.PLEXSERVERPORT" placeholder="32400">
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="plexserverusername" class="col-sm-2 control-label">Username <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the username of your Plex server?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<div class="col-sm-10">
+				<input type="text" class="form-control" name="plexserverusername" id="plexserverusername" value="$autosub.PLEXSERVERUSERNAME">
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="plexserverpassword" class="col-sm-2 control-label">Password <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the password of your Plex server?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<div class="col-sm-10">
+				<input type="password" class="form-control" name="plexserverpassword" id="plexserverpassword" value="$autosub.PLEXSERVERPASSWORD">
+				</div>
+			</div>
+			
+			<div align="right">
+				#if $autosub.SEARCHBUSY :
+					<span id="testPlex-result">Test button is disabled during search.</span><br>
+					<input type="button" disabled class="btn btn-default" value="Test Plex" id="testPlex" /> 
+				#else:
+					<span id="testPlex-result">Click below to test Plex.</span><br>
+					<input type="button" class="btn btn-default" value="Test Plex" id="testPlex" />
+				#end if
+				<input type="submit" value="Save Changes" class="btn btn-primary" />
+			</div>
+		</div>
+		
+		<hr>	
+</div>
+<input type="submit" value="Save Changes" class="btn btn-primary" />
+</form>
+
+<div style="position: fixed; bottom: 10px; right: 20px;"><a href="#top"><i class="glyphicon glyphicon-arrow-up"></i></a></div>
+
+#include $os.path.join($autosub.PATH.encode(), "interface/templates/footer.tmpl")

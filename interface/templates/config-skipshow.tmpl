@@ -1,0 +1,35 @@
+#import autosub
+#import cgi
+
+#include $os.path.join($autosub.PATH, "interface/templates/header.tmpl")
+
+		<div class="page-header"><h1>Skipshow</h1></div>
+		
+   		<div class="well well-small" align="center"><font size="3"><b>Skip a show or season</b></font></div>
+		<div class="well well-small" align="center">
+
+		<form method='post' action=/config/skipShow>
+		
+			<table class="table-config">
+
+				<tr>
+					<td class="td-first-config"><a data-placement="right" data-toggle="tooltip" data-original-title="The show that we will skip.">Show</a></td>
+					<td class="pull-right">$title</td>
+				</tr>
+				
+				<tr>
+					<td class="td-first-config"><a data-placement="right" data-toggle="tooltip" data-original-title="Which season should we skip?">Which season?</a></td>
+					<td class="pull-right"><input type="text" name="season" class="input-xxlarge"></td>
+				</tr>
+			
+			</table>
+		
+			Note: enter 0 to skip the show completely, enter 00 to skip special show.
+			#set $title_escaped = $cgi.escape($title, True)
+			<input type="hidden" name="title" value="$title_escaped">
+		
+		</div>
+		<input type="submit" value="Save" class="btn" />
+		</form>
+
+#include $os.path.join($autosub.PATH, "interface/templates/footer.tmpl")

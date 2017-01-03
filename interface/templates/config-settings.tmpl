@@ -1,0 +1,83 @@
+#import autosub
+#from autosub.Config import displayNamemapping, displayAddic7edmapping
+#set $namemapping = displayNamemapping()
+#set $addic7edmapping = displayAddic7edmapping()
+
+#include $os.path.join($autosub.PATH.encode(), "interface/templates/header.tmpl")
+
+    <script type="text/javascript">
+    <!--
+        autosubRoot = "$autosub.WEBROOT";
+    //-->
+	</script>
+
+<form role="form" class="form-horizontal" method="post" action="$autosub.WEBROOT/config/saveConfig">
+		<div class="page-header"><h3>Configuration 
+			<small><a href="#general"> General</a></small>
+			<small><a href="#websites">Websites</a></small> 
+			<small><a href="#logfile">Logfile</a></small> 
+			<small><a href="#namemapping">Namemapping</a></small> 
+			<small><a href="#addic7edmapping">Addic7ed ID's</a></small> 
+			<small><a href="#skipshow">Skipshow</a></small> 
+			<small><a href="#webserver">Webserver</a></small></h3>
+		</div>
+		<a id="general"></a>
+   		<div class="well well-sm center well-header"><b>General</b></div>
+		<div class="well well-sm">
+		#include $os.path.join($autosub.PATH.encode(), "interface/templates/config-general.tmpl")		
+		</div>
+		<input type="submit" value="Save Changes" class="btn btn-primary" />
+		<a id="websites"></a>
+		<hr>
+		
+		<div class="well well-sm center well-header"><b>Websites</b></div>
+		<div class="well well-sm">
+		#include $os.path.join($autosub.PATH.encode(), "interface/templates/config-websites.tmpl")
+		</div>
+		<input type="submit" value="Save Changes" class="btn btn-primary" />
+		
+		<a id="logfile"></a>
+		<hr>
+		
+		<div class="well well-sm center well-header"><b>Logfile</b></div>
+		<div class="well well-sm">
+		#include $os.path.join($autosub.PATH.encode(), "interface/templates/config-logfile.tmpl")
+		</div>
+		<input type="submit" value="Save Changes" class="btn btn-primary" />
+		<a id="namemapping"></a>
+		<hr>
+		
+   		<div class="well well-sm center well-header"><b>Namemapping</b> <a data-placement="right" data-toggle="tooltip" data-original-title="This allows you to link a show to the IMDB.com number. This is the ID that you can see in the URL of the show. For example, www.imdb.com/title/tt2193021 will result in: Arrow = 2193021"><span class="glyphicon glyphicon-info-sign"></span></a></div>
+		<div class="well well-sm" align="center">
+		<textarea rows="10" cols="75" name="usernamemapping" class="form-control">$namemapping</textarea>
+		</div>
+		<input type="submit" value="Save Changes" class="btn btn-primary" />
+		<a id="addic7edmapping"></a>
+		<hr>
+		
+		<div class="well well-sm center well-header"><b>Addic7ed ID mapping</b> <a data-placement="right" data-toggle="tooltip" data-original-title="This allows you to link the IMDB.com number to the Addic7ed ID. This is the ID that you can see in the URL of the show. For example, http://www.addic7ed.com/show/3005 will result in: 2193021 = 3005"><span class="glyphicon glyphicon-info-sign"></span></a></div>
+		<div class="well well-sm" align="center">
+		<textarea rows="10" cols="75" name="useraddic7edmapping" class="form-control">$addic7edmapping</textarea>
+		</div>
+		<input type="submit" value="Save Changes" class="btn btn-primary" />
+		<a id="skipshow"></a>
+		<hr>
+		
+		<div class="well well-sm center well-header"><b>Skipshow</b> <a data-placement="right" data-toggle="tooltip" data-original-title="This allows you to skip a Show. For example: Serie Name(or ImdbId) = 4.11,5 (This will skip season 4 episode 11 and season 5 of show)."><span class="glyphicon glyphicon-info-sign"></span></a></div>
+		<div class="well well-sm" align="center">
+		<textarea rows="10" cols="75" name="skipshow" class="form-control">$autosub.Config.displaySkipshow</textarea>
+		</div>
+		<input type="submit" value="Save Changes" class="btn btn-primary" />
+		<a id="webserver"></a>
+		<hr>
+		
+		<div class="well well-sm center well-header"><b>Webserver</b></div>
+		<div class="well well-sm" align="center">
+		#include $os.path.join($autosub.PATH.encode(), "interface/templates/config-webserver.tmpl")
+		</div>
+		<input type="submit" value="Save Changes" class="btn btn-primary" />
+
+</form>
+<div style="position: fixed; bottom: 10px; right: 20px;"><a href="#top"><i class="icon-arrow-up"></i></a></div>
+
+#include $os.path.join($autosub.PATH.encode(), "interface/templates/footer.tmpl")
