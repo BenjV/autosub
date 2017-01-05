@@ -184,7 +184,7 @@ def Initialize():
     else:
         versionnumber = version.autosubversion
 
-    VERSION = int(versionnumber.split('.')[0]) * 1000 + int(versionnumber.split('.')[1]) * 100 + int(versionnumber.split('.')[2]) * 10
+    VERSION = int(versionnumber.split('.')[0]) * 1000 + int(versionnumber.split('.')[1]) * 100 + int(versionnumber.split('.')[2]) * 1
     VERSIONURL =  u'https://raw.githubusercontent.com/BenjV/autosub/master/autosub/version.py'
     ADDICMAPURL = u'https://raw.githubusercontent.com/BenjV/autosub/master/AddicMapping.txt'
     ZIPURL =  u'https://github.com/BenjV/autosub/archive/master.zip'

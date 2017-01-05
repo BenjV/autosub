@@ -121,8 +121,16 @@ def UpdateAutoSub():
     #    os.execv(sys.executable, args)
     # Get the version number from github
     GithubVersion = CheckVersion()
-    if autosub.VERSION >= int(GithubVersion.split('.')[0]) * 1000 + int(GithubVersion.split('.')[1]) * 100 + int(GithubVersion.split('.')[2]) * 10:
-        message = 'No update available. Current version: ' + autosubversion + '. GitHub version: ' + GithubVersion
+    Update = False
+    if int(GithubVersion.split('.')[0]) > int(autosub.version.autosubversion.split('.')[0]) :
+        Update = True
+    elif int(GithubVersion.split('.')[1]) > int(autosub.version.autosubversion.split('.')[1]) :
+        Update = True
+    elif int(GithubVersion.split('.')[2]) >int(autosub.version.autosubversion.split('.')[2]) :
+        Update = True
+
+    if not Update:
+        message = 'No update available. Current version: ' + autosub.version.autosubversion + '. GitHub version: ' + GithubVersion
         log.info('UpdateAutoSub: %s' % message)
         return message
     else:

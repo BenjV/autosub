@@ -127,11 +127,9 @@ def createDatabase():
     try: 
         connection=sqlite3.connect(autosub.DBFILE)
         cursor=connection.cursor() 
-        cursor.execute("CREATE TABLE episode_cache (episode_imdb_id TEXT UNIQUE PRIMARY KEY, serie_os_id TEXT, season TEXT, episode TEXT);")
-        cursor.execute("CREATE INDEX episode_index ON episode_cache(serie_os_id, season, episode);")
-        cursor.execute("CREATE TABLE show_id_cache (imdb_id TEXT UNIQUE PRIMARY KEY, a7_id TEXT, os_id TEXT, show_name TEXT);")
+        cursor.execute("CREATE TABLE show_id_cache (show_name TEXT UNIQUE PRIMARY KEY, imdb_id TEXT, a7_id TEXT, tvdb_id TEXT, tvdb_name TEXT);")
         cursor.execute("CREATE TABLE last_downloads (id INTEGER PRIMARY KEY, show_name TEXT, season TEXT, episode TEXT, quality TEXT, source TEXT, language TEXT, codec TEXT, timestamp DATETIME, releasegrp TEXT, subtitle TEXT, destination TEXT);")
-        cursor.execute("PRAGMA user_version = 9")
+        cursor.execute("PRAGMA user_version = 10")
         connection.commit()
         connection.close()
         print "createDatabase: Succesfully created the sqlite database"
@@ -193,14 +191,22 @@ def upgradeDb(from_version, to_version):
             cursor.execute("DROP TABLE IF EXISTS a7id_cache;")
             cursor.execute("DROP TABLE IF EXISTS info;")
             cursor.execute("PRAGMA user_version = 8")
-        if from_version == 8 and to_version == 9:
+        if from_version == 8 or to_version == 9:
             # Drop Episode chache because we went from screenscraping to API for Opensubtitles
             cursor.execute("DROP TABLE IF EXISTS episode_cache;")
             # Drop this table because we need another layout
             cursor.execute("DROP TABLE IF EXISTS show_id_cache;")
             # Create this table again with the new layout.
             cursor.execute("CREATE TABLE IF NOT EXISTS show_id_cache (show_name TEXT UNIQUE PRIMARY KEY, imdb_id TEXT, a7_id TEXT, tvdb_id TEXT, tvdb_name TEXT);")
-            cursor.execute("PRAGMA user_version = 9")
+            cursor.execute("PRAGMA user_version = 10")
+        if from_version == 9 or to_version == 10:
+            # Drop Episode chache because we went from screenscraping to API for Opensubtitles
+            cursor.execute("DROP TABLE IF EXISTS episode_cache;")
+            # Drop this table because we need another layout
+            cursor.execute("DROP TABLE IF EXISTS show_id_cache;")
+            # Create this table again with the new layout.
+            cursor.execute("CREATE TABLE IF NOT EXISTS show_id_cache (show_name TEXT UNIQUE PRIMARY KEY, imdb_id TEXT, a7_id TEXT, tvdb_id TEXT, tvdb_name TEXT);")
+            cursor.execute("PRAGMA user_version = 10")
         connection.commit()
         connection.close()
         autosub.DBVERSION = version.dbversion
