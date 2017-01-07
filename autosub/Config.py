@@ -73,9 +73,14 @@ def ReadConfig():
     if cfg.has_option(section, 'minmatchscore'):        autosub.MINMATCHSCORE       = cfg.getint(section, 'minmatchscore')
     if cfg.has_option(section, 'searchinterval'):       autosub.SEARCHINTERVAL      = cfg.getint(section, 'searchinterval')
     if cfg.has_option(section, "browserrefresh"):       autosub.BROWSERREFRESH      = cfg.getint(section, "browserrefresh")
-    if cfg.has_option(section, "path"):                 autosub.PATH                = cfg.get(section, "path")
-    if cfg.has_option(section, "rootpath"):             autosub.SERIESPATH          = cfg.get(section, "rootpath")
-    if cfg.has_option(section, "seriespath"):           autosub.SERIESPATH          = cfg.get(section, "seriespath")
+    if cfg.has_option(section, "path"):                 autosub.PATH                = os.path.normpath(cfg.get(section, "path"))
+    if cfg.has_option(section, "rootpath"):             autosub.SERIESPATH          = os.path.normpath(cfg.get(section, "rootpath"))
+    if cfg.has_option(section, "seriespath"):           autosub.SERIESPATH          = os.path.normpath(cfg.get(section, "seriespath"))
+    if autosub.SERIESPATH  == '.':
+        autosub.SERIESPATH  = u''
+    if cfg.has_option(section, "bckpath"):              autosub.BCKPATH             = os.path.normpath(cfg.get(section, "bckpath"))
+    if autosub.BCKPATH  =='.':
+        autosub.BCKPATH = u''
     if cfg.has_option(section, "subeng"):               autosub.SUBENG              = cfg.get(section, "subeng")
     if cfg.has_option(section, "subnl"):                autosub.SUBNL               = cfg.get(section, "subnl")
     if cfg.has_option(section, "postprocesscmd"):       autosub.POSTPROCESSCMD      = cfg.get(section, "postprocesscmd")
@@ -136,8 +141,8 @@ def ReadConfig():
     if cfg.has_option(section, 'webserverip'):   autosub.WEBSERVERIP   = cfg.get(section, 'webserverip')
     if cfg.has_option(section, 'webserverport'): autosub.WEBSERVERPORT = int(cfg.get(section, 'webserverport'))
     if cfg.has_option(section, 'webroot'):       autosub.WEBROOT       = cfg.get(section, 'webroot')
-    if cfg.has_option(section, 'username'):      autosub.USERNAME      = cfg.get(section, 'username')
-    if cfg.has_option(section, 'password'):      autosub.PASSWORD      = cfg.get(section, 'password')
+    if cfg.has_option(section, 'username'):      autosub.USERNAME      = str(cfg.get(section, 'username'))
+    if cfg.has_option(section, 'password'):      autosub.PASSWORD      = str(cfg.get(section, 'password'))
 
     # ********************
     # * SkipShow Section *
@@ -248,7 +253,8 @@ def WriteConfig():
     section = 'config'
     cfg.add_section(section)
     cfg.set(section, "path", autosub.PATH )
-    cfg.set(section, "seriespath", autosub.SERIESPATH) 
+    cfg.set(section, "seriespath", autosub.SERIESPATH)
+    cfg.set(section, "bckpath", autosub.BCKPATH)
     cfg.set(section, 'downloaddutch', str(autosub.DOWNLOADDUTCH))
     cfg.set(section, 'downloadeng', str(autosub.DOWNLOADENG))
     cfg.set(section, "subeng", autosub.SUBENG)

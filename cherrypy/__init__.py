@@ -97,7 +97,7 @@ tree = _cptree.Tree()
 try:
     __version__ = pkg_resources.require('cherrypy')[0].version
 except Exception:
-    __version__ = '8.6.0'
+    __version__ = '8.7.0'
 
 
 # Timeout monitor. We add two channels to the engine

@@ -18,7 +18,7 @@ def test_notify(boxcar2token):
 
 def send_notify(lang, subtitlefile, videofile, website):
     log.debug("Boxcar2: Trying to send a notification.")
-    title = 'Auto-Sub Bootstrap Bill'
+    title = 'AutoSub'
     message = "%s downloaded from %s" %(subtitlefile, website)
     boxcar2token = autosub.BOXCAR2TOKEN
     return _send_notify(message, title, boxcar2token)
@@ -39,7 +39,7 @@ def _send_notify(message, title, boxcar2token):
         'user_credentials': boxcar2token,
         'notification[title]': title + " - " + msg,
         'notification[long_message]': msg,
-        'notification[source_name]': "Auto-Sub Bootstrap Bill"
+        'notification[source_name]': "AutoSub"
     })
     
     # send the request to boxcar2

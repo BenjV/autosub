@@ -1,9 +1,5 @@
 README 
 
-Important info.
-Due to changes in the Website of Opensubtitle the scraper for Opensubtitles does not work anymore.
-Until this is fixed it is no longer possible to use Opensubtitles
-
 +--- AutoSub
      |
      +--- Uses SubtitleSeeker API, supporting the following website:
@@ -16,7 +12,7 @@ Until this is fixed it is no longer possible to use Opensubtitles
      |
      +--- Addic7ed support.
      |    +--- Requires account.
-     |    \--- Limited downloads per 24 hours. (Regular: 30 - VIP: 55)
+     |    \--- Limited downloads per 24 hours. (Regular: 20 - VIP: 40)
      |
      +--- Notifications
      |    +--- Windows & Windows Phone

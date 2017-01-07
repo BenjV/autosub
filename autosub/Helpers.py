@@ -12,7 +12,7 @@ from string import capwords
 import time
 import urllib
 import codecs
-import os,sys
+import os,sys,shutil
 from ast import literal_eval
 import library.requests as requests
 from library import version
@@ -24,7 +24,7 @@ from distutils.dir_util import remove_tree
 from autosub.Db import idCache
 import autosub.ID_lookup
 from autosub.Addic7ed import Addic7edAPI
-
+from autosub.Config import ReadConfig
 # Settings
 log = logging.getLogger('thelogger')
 
@@ -68,6 +68,64 @@ def RunCmd(cmd):
     shellerr = process.stderr.read()
     process.wait()
     return shell, shellerr
+
+def Backup():
+    if not autosub.BCKPATH:
+        return 'No backup/restore folder in config defined.'
+
+    if not os.path.exists(autosub.BCKPATH):
+        return 'Backup/restore folder does not exists.'
+
+    dest = os.path.join(autosub.BCKPATH, os.path.splitext(os.path.split(autosub.CONFIGFILE)[1])[0] + '.bck')
+    try:
+        shutil.copy(autosub.CONFIGFILE,dest)
+    except Exception as error:
+        log.error('Backup: %s, error is: %s' %(autosub.CONFIGFILE,error))
+        return error
+    try:
+        src = os.path.join(autosub.PATH,'database.db')
+        shutil.copy(src,os.path.join(autosub.BCKPATH,'database.bck'))
+    except Exception as error:
+        log.error('Backup: %s, error is: %s' %(src,error))
+        return error
+    log.info('Backup: Config and Database backuped to %s' % autosub.BCKPATH)
+    return 'Succesfully backuped the config and database files to:<BR> %s' % autosub.BCKPATH
+
+def Restore():
+    if not autosub.BCKPATH:
+        return 'No backup/restore folder in config defined.'
+
+    if not os.path.exists(autosub.BCKPATH):
+        return 'Backup/restore folder does not exists.'
+
+    src = os.path.join(autosub.BCKPATH,'database.bck')
+    dest = os.path.join(os.path.split(autosub.CONFIGFILE)[0],'database.db')
+    if os.path.isfile(src):
+        try:
+            shutil.copy(src,dest)
+            DatabaseRestored = True
+        except Exception as error:
+            log.error('Restore: %s, error is: %s' %(src,error))
+    else:
+        log.info('Restore: No database backup found so keeping the old one')
+
+    src =  os.path.join(autosub.BCKPATH, os.path.splitext(os.path.split(autosub.CONFIGFILE)[1])[0] + '.bck')
+    if os.path.isfile(src):
+        try:
+            shutil.copy(src,autosub.CONFIGFILE)
+            ReadConfig()
+        except Exception as error:
+            log.error('Restore: %s, error is: %s' %(src,error))
+            return error
+    else:
+        log.info('Restore: No config found so keeping the old one')
+        return 'No config backup found, keeping the old one.'
+    if DatabaseRestored :
+        log.info('Restore: Config and Database restored from %s' % autosub.BCKPATH)
+        return 'Succesfully restored the config and database from:<BR> %s' % autosub.BCKPATH
+    else:
+        log.info('Restore: Only Config restored from %s' % autosub.BCKPATH)
+        return 'Succesfully restored the config but not the database from:<BR> %s' % autosub.BCKPATH
 
 def CheckVersion():
     '''

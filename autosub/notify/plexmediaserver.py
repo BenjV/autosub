@@ -18,8 +18,14 @@ def test_update_library(plexserverhost, plexserverport, plexserverusername, plex
 
 def send_update_library():
     log.info("Plex Media Server: Trying to update the TV shows library.")
-    plexserverhost = autosub.PLEXSERVERHOST
-    plexserverport = int(autosub.PLEXSERVERPORT)
+    if not autosub.PLEXSERVERPORT :
+        plexserverhost = "127.0.0.1"
+    else:
+        plexserverhost = autosub.PLEXSERVERHOST
+    if not autosub.PLEXSERVERPORT:
+        plexserverport = "32400"
+    else:
+        plexserverport = autosub.PLEXSERVERPORT.strip()
     plexserverusername = autosub.PLEXSERVERUSERNAME
     plexserverpassword = autosub.PLEXSERVERPASSWORD
     plexservertoken = autosub.PLEXSERVERTOKEN
@@ -75,12 +81,15 @@ def _update_library(plexserverhost, plexserverport, plexserverusername, plexserv
 
         if plexservertoken:
             #Add X-Plex-Token header for myPlex support workaround
-            response = requests.get('%s/%s?X-Plex-Token=%s' % (
-                "%s:%s" % (plexserverhost, plexserverport),
-                'library/sections',
-                plexservertoken
-            ))
-
+            try:
+                response = requests.get('%s/%s?X-Plex-Token=%s' % (
+                    "%s:%s" % (plexserverhost, plexserverport),
+                    'library/sections',
+                    plexservertoken
+                ))
+            except Exception as error:
+                log.error("plexmediaserver: Error from get header. Error is: %s" % error)
+                return False
             xml_sections = ET.fromstring(response.text)
     try:
         sections = xml_sections.findall('Directory')

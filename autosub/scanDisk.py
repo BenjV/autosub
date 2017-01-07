@@ -182,10 +182,13 @@ class scanDisk():
     """
     def run(self):
         log.info("scanDisk: Starting round of local disk checking at %s" % autosub.SERIESPATH)
-
+        if autosub.SERIESPATH == u'':
+            log.info('scanDisk: No seriepath defined.')
+            return True
         seriespaths = [x.strip() for x in autosub.SERIESPATH.split(',')]
         for seriespath in seriespaths:
-
+            if not os.path.exists(seriespath):
+                continue
             if not os.path.exists(seriespath):
                 log.error("scanDir: Serie Search path %s does not exist, aborting..." % seriespath)
                 continue

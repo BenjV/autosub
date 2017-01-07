@@ -108,17 +108,20 @@ def main(argv=None):
     LogPath,LogFile = os.path.split(autosub.LOGFILE)
     if not LogFile:
         LogFile = u"AutoSubService.log"
-    try:
-        if not os.path.exists(LogPath):
-            try:
-                os.makedirs(LogPath)
-            except Exception as error:
-                print "Could not create log folder, fallback to default"
-                LogPath = autosub.PATH
-    except Exception as error:
+    if LogPath:
+        try:
+            if not os.path.exists(LogPath):
+                try:
+                    os.makedirs(LogPath)
+                except Exception as error:
+                    print "Could not create log folder, fallback to default"
+                    LogPath = autosub.PATH
+        except Exception as error:
+            LogPath = autosub.PATH
+    else:
         LogPath = autosub.PATH
-    autosub.LOGFILE = os.path.join(LogPath,LogFile)
 
+    autosub.LOGFILE = os.path.join(LogPath,LogFile)
     autosub.NODE_ID = getnode()
 
     import autosub.AutoSub
@@ -135,9 +138,10 @@ def main(argv=None):
         os.chdir(autosub.PATH)
 
     autosub.PID = str(os.getpid())
+    PidLine = autosub.PID +'\n'
     try:
         with open('autosub.pid' , "w", 0) as pidfile:
-            pidfile.write(autosub.PID + '\n')
+            pidfile.write(PidLine)
     except Exception as error:
         log.error('AutoSub: Could not create the PID file. Error is:', error)
         sys.exit(1)

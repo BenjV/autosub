@@ -2,8 +2,8 @@
 # The Webserver module
 #
 
-
 import cherrypy
+
 import logging
 from ast import literal_eval
 
@@ -15,7 +15,7 @@ except:
     print "ERROR!!! Cheetah is not installed yet. Download it from: http://pypi.python.org/pypi/Cheetah/2.4.4"
 
 import threading
-import time
+import time,os
 import autosub.Config
 from autosub.Db import lastDown, flushcache
 from autosub.version import autosubversion
@@ -134,7 +134,7 @@ class Config:
 
     @cherrypy.expose  
     def saveConfig(self, subeng, skipstringnl, skipstringen, skipfoldersnl,skipfoldersen, subnl, postprocesscmd, 
-                   logfile, seriespath, subcodec,  username, 
+                   logfile, seriespath, bckpath, subcodec,  username, 
                    password, webroot, skipshow, lognum, loglevelconsole, loglevel, 
                    webserverip, webserverport, usernamemapping, useraddic7edmapping,
                    opensubtitlesuser, opensubtitlespasswd,  addic7eduser, addic7edpasswd, addic7ed=None,opensubtitles=None, podnapisi=None, subscene=None, 
@@ -150,7 +150,8 @@ class Config:
             return str(tmpl)
                    
         # Set all internal variables
-        autosub.SERIESPATH = seriespath
+        autosub.SERIESPATH = os.path.normpath(seriespath)
+        autosub.BCKPATH = os.path.normpath(bckpath)
         autosub.LOGFILE = logfile
         autosub.DOWNLOADENG = True if downloadeng else False
         autosub.DOWNLOADDUTCH = True if downloaddutch else False
@@ -194,7 +195,8 @@ class Config:
 
         if autosub.LOGLEVELCONSOLE != int(loglevelconsole):
             autosub.LOGLEVELCONSOLE =int(loglevelconsole)
-            autosub.CONSOLE.level = autosub.LOGLEVELCONSOLE
+            if autosub.DAEMON!=True:
+                autosub.CONSOLE.level = autosub.LOGLEVELCONSOLE
         autosub.WEBSERVERIP = webserverip
         autosub.WEBSERVERPORT = int(webserverport)
         autosub.USERNAME = username
@@ -537,6 +539,24 @@ class Home:
             tmpl.modalheader = "Information"
             return str(tmpl) 
         threading.Timer(5, autosub.AutoSub.stop).start()
+        return str(tmpl)
+
+    @cherrypy.expose
+    def backup(self):
+        message = autosub.Helpers.Backup()
+        tmpl = PageTemplate(file="interface/templates/home.tmpl")
+        tmpl.message = message
+        tmpl.displaymessage = "Yes"
+        tmpl.modalheader = "Information"     
+        return str(tmpl)
+
+    @cherrypy.expose
+    def restore(self):
+        message = autosub.Helpers.Restore()
+        tmpl = PageTemplate(file="interface/templates/home.tmpl")
+        tmpl.message = message
+        tmpl.displaymessage = "Yes"
+        tmpl.modalheader = "Information"     
         return str(tmpl)
 
     @cherrypy.expose
