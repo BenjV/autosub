@@ -138,9 +138,9 @@ def ReadConfig():
     section = 'webserver'
     if not cfg.has_section(section): cfg.add_section(section)
 
-    if cfg.has_option(section, 'webserverip'):   autosub.WEBSERVERIP   = cfg.get(section, 'webserverip')
+    if cfg.has_option(section, 'webserverip'):   autosub.WEBSERVERIP   = str(cfg.get(section, 'webserverip'))
     if cfg.has_option(section, 'webserverport'): autosub.WEBSERVERPORT = int(cfg.get(section, 'webserverport'))
-    if cfg.has_option(section, 'webroot'):       autosub.WEBROOT       = cfg.get(section, 'webroot')
+    if cfg.has_option(section, 'webroot'):       autosub.WEBROOT       = str(cfg.get(section, 'webroot'))
     if cfg.has_option(section, 'username'):      autosub.USERNAME      = str(cfg.get(section, 'username'))
     if cfg.has_option(section, 'password'):      autosub.PASSWORD      = str(cfg.get(section, 'password'))
 
