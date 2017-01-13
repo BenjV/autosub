@@ -22,8 +22,7 @@ def _send_notify(message, twitterkey, twittersecret):
         twitterkey = autosub.TWITTERKEY
             
     if not twittersecret:
-        twittersecret = autosub.TWITTERSECRET
-            
+        twittersecret = autosub.TWITTERSECRET      
     try:
         api = twitter.Api(CONSUMER_KEY, CONSUMER_SECRET, twitterkey, twittersecret)
         api.PostUpdate(message[:140])
@@ -40,7 +39,8 @@ def test_notify(twitterkey, twittersecret):
 
 def send_notify(lang, subtitlefile, videofile, website):
     log.debug("Twitter: Trying to send a notification.")
-    message = "%s downloaded from %s" %(subtitlefile, website)
+    NonUrlName = subtitlefile.replace('.',u".\u200B")
+    message = "%s downloaded from %s" %(NonUrlName, website)
     twitterkey = autosub.TWITTERKEY
     twittersecret = autosub.TWITTERSECRET
     return _send_notify(message, twitterkey, twittersecret)
