@@ -1,5 +1,6 @@
 README 
 
+
 +--- AutoSub
      |
      +--- Uses SubtitleSeeker API, supporting the following website:
@@ -12,7 +13,7 @@ README
      |
      +--- Addic7ed support.
      |    +--- Requires account.
-     |    \--- Limited downloads per 24 hours. (Regular: 20 - VIP: 40)
+     |    \--- Limited downloads per 24 hours. (Regular: 30 - VIP: 55)
      |
      +--- Notifications
      |    +--- Windows & Windows Phone
@@ -74,10 +75,23 @@ Requirements for running AutoSub:
 - Install Cheetah : https://pypi.python.org/pypi/Cheetah/2.4.4
 - Python2.7
 
-For Synology users use python from the SynoCommunity this has cheetah already included
+For windows users you can use this cheetah versie which include the binary namemapper
+http://www.lfd.uci.edu/~gohlke/pythonlibs/
+
+Download the cheetah package from there and install it with pip like this:
+Cheetah-2.4.4-cp27-none-win_amd64.whl for windows 64
+or
+Cheetah-2.4.4-cp27-none-win32 for 32 bits windows
+
+pip install Cheetah-2.4.4-cp27-none-win_amd64
+
+If you already have a python-only cheetah version installed you must uninstall it with pip first.
+
+For Synology users: use python from the SynoCommunity this has cheetah already included
 
 You can use a version lower than python2.7 but as an additional dependency, you have to install
 the python html5lib module: https://pypi.python.org/pypi/html5lib/1.0b3
+
 
 
 
