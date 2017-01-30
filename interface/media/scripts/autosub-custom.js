@@ -22,7 +22,8 @@ jQuery.fn.dataTableExt.oSort['euro-date-desc'] = function(a,b) {
 
 $(document).ready(function () {
 
-	$('#wanted').dataTable({ 
+	$('#wanted').dataTable({
+		"deferRender": true,
 		"bStateSave": true,
 		"fnStateSave": function (oSettings, oData) { localStorage.setItem( 'AutoSub-Wanted', JSON.stringify(oData) ); },
 		"fnStateLoad": function (oSettings) { return JSON.parse( localStorage.getItem('AutoSub-Wanted') ); },
@@ -35,7 +36,8 @@ $(document).ready(function () {
 		"fnDrawCallback": function(oSettings) {$("a").tooltip()}
 	});
 
-	$('#downloaded').dataTable({ 
+	$('#downloaded').dataTable({
+		"deferRender": true,
 		"bStateSave": true,
 		"fnDrawCallback": function(oSettings) {$("a").tooltip()},
 		"fnStateSave": function (oSettings, oData) { localStorage.setItem( 'AutoSub-Downloaded', JSON.stringify(oData) ); },
