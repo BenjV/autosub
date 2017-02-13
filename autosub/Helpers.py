@@ -472,7 +472,7 @@ def getShowid(ShowName):
                     if TvdbCacheName:
                         TvdbShowName = TvdbCacheName
                     elif checkAPICallsTvdb():
-                        # still no tvdb name we fetch it form the tvdb website
+                        # still no tvdb name we fetch it from the tvdb website
                         TvdbShowName,TvdbId = Tvdb.getShowName(ImdbNameMappingId)
                         if TvdbShowName:
                             autosub.NAMEMAPPING[Name.upper()][1] = TvdbShowName
@@ -498,7 +498,7 @@ def getShowid(ShowName):
                             UpdateCache = True
             break
     if UpdateCache:
-        idCache().setId(TvdbShowName.upper(), ImdbId, AddicId, TvdbId, TvdbShowName)
+        idCache().setId(ShowName.upper(), ImdbId, AddicId, TvdbId, TvdbShowName)
     if ImdbNameMappingId: ImdbId = ImdbNameMappingId
     if not TvdbShowName: TvdbShowName = ShowName
     if AddicUserId: AddicId = AddicUserId

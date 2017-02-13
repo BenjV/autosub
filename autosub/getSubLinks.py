@@ -172,7 +172,7 @@ def Opensubtitles(Wanted):
         log.error('Opensubtitles: Error from Opensubtitles search API')
         return ScoreListNL,ScoreListEN
     if Subs['status'] != '200 OK':
-        log.debug('Opensubtitles: No subs found for %s on Opensubtitles.' % Wanted['releaseName'])
+        log.debug('Opensubtitles: No subs found for %s on Opensubtitles.' % Wanted['file'])
         return ScoreListNL,ScoreListEN
     NameDict = {}
     for Sub in Subs['data']:
