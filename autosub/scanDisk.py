@@ -41,7 +41,16 @@ def walkDir(path):
         SkipFoldersEN = autosub.SKIPFOLDERSEN.split(",") if len(autosub.SKIPFOLDERSEN) > 0  else []
         for idx,folder in enumerate(SkipFoldersEN):
             SkipFoldersEN[idx] = os.path.normpath(os.path.join(path,folder.strip(" \/")))
-    for dirname, dirnames, filenames in os.walk(path, True, WalkError):
+    for dirnamebytes, dirnames, filenames in os.walk(str(path), True, WalkError):
+        try:
+            dirname = dirnamebytes.decode('utf8')
+        except:
+            try:
+                dirname = dirnamebytes.decode('windows-1252')
+                os.rename(dirnamebytes, dirname)
+            except:
+                log.debug('scanDisk: Unknown foldername formatting, so skipping a folder.')
+                continue
         SkipThisFolderNL = False
         for skip in SkipFoldersNL:
             if dirname.startswith(skip):
@@ -77,7 +86,19 @@ def walkDir(path):
             continue
         langs = []
         FileDict = {}
-        for filename in filenames:
+        for filenamebytes in filenames:
+            try:
+                filename = filenamebytes.decode('utf8')
+            except:
+                try:
+                    filename = filenamebytes.decode('windows-1252')
+                    try:
+                        os.rename(filenamebytes, filename)
+                    except:
+                        log.debug('scanDisk: problem renaming a file. Error is: %s' % error)
+                except Exception as error:
+                    log.debug('scanDisk: Unknown filename formatting, so skipping this file.')
+                    continue
             if autosub.SEARCHSTOP:
                 log.info('scanDisk: Forced Stop by user')
                 return
@@ -171,7 +192,7 @@ def walkDir(path):
                     autosub.WANTEDQUEUE.append(FileDict)
                     time.sleep(0)
             except Exception as error:
-                log.error('scanDir: Problem scanning file %s. Error is: %s' %(filename, error))
+                log.error('scanDisk: Problem scanning file %s. Error is: %s' %(filename, error))
     return
 
 
@@ -190,14 +211,14 @@ class scanDisk():
             if not os.path.exists(seriespath):
                 continue
             if not os.path.exists(seriespath):
-                log.error("scanDir: Serie Search path %s does not exist, aborting..." % seriespath)
+                log.error("scanDisk: Serie Search path %s does not exist, aborting..." % seriespath)
                 continue
 
             try:
                 walkDir(seriespath)
             except Exception as error:
-                log.error('scanDir: Something went wrong scanning the folders. Message is: %s' % error)
+                log.error('scanDisk: Something went wrong scanning the folders. Message is: %s' % error)
                 return False
 
-        log.info("scanDir: Finished round of local disk checking")
+        log.info("scanDisk: Finished round of local disk checking")
         return True

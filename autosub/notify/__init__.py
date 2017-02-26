@@ -19,6 +19,7 @@ from autosub.notify import pushbullet
 from autosub.notify import pushover
 from autosub.notify import boxcar2
 from autosub.notify import plexmediaserver
+from autosub.notify import kodimediaserver
 from autosub.notify import telegram
 
 log = logging.getLogger('thelogger')  
@@ -78,3 +79,8 @@ def notifySend(lang, subtitlefile, videofile, website):
     if autosub.NOTIFYPLEX:
         log.debug("Notification: Plex Media Server is enabled")
         plexmediaserver.send_update_library()
+
+    if autosub.NOTIFYKODI:
+        log.debug("Notification: Kodi Media Server is enabled")
+        if not (autosub.SEARCHBUSY and autosub.KODIUPDATEONCE):
+            kodimediaserver.send_update_library()

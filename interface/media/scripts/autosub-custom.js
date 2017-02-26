@@ -172,7 +172,26 @@ $(document).ready(function () {
 			function (data) { $('#testPlex-result').html(data); 
 		});
     });
-	
+
+	$('#testKodi').click(function () {
+	    $('#testKodi-result').html('<span><img src="' + autosubRoot + '/images/loading16.gif"> Testing Kodi Media Server...</span>');
+	    var kodiserverhost = $("#kodiserverhost").val();
+	    var kodiserverport = $("#kodiserverport").val();
+	    var kodiserverusername = $("#kodiserverusername").val();
+	    var kodiserverpassword = $("#kodiserverpassword").val();
+	    var dummy = Date.now();
+	    $.get(autosubRoot + "/config/testKodi", {
+	        'kodiserverhost': kodiserverhost,
+	        'kodiserverport': kodiserverport,
+	        'kodiserverusername': kodiserverusername,
+	        'kodiserverpassword': kodiserverpassword,
+	        'dummy': dummy
+	    },
+			function (data) {
+			    $('#testKodi-result').html(data);
+			});
+	});
+
 	$('#RetrieveAddic7edCount').click(function () {
         $('#Addic7edCount-result').html('<span><img src="' + autosubRoot + '/images/loading16.gif"> Retrieving Addic7ed download count, this will take a minute...</span>');
 		$.get(autosubRoot + "/config/RetrieveAddic7edCount",

@@ -76,11 +76,9 @@ def ReadConfig():
     if cfg.has_option(section, "path"):                 autosub.PATH                = os.path.normpath(cfg.get(section, "path"))
     if cfg.has_option(section, "rootpath"):             autosub.SERIESPATH          = os.path.normpath(cfg.get(section, "rootpath"))
     if cfg.has_option(section, "seriespath"):           autosub.SERIESPATH          = os.path.normpath(cfg.get(section, "seriespath"))
-    if autosub.SERIESPATH  == '.':
-        autosub.SERIESPATH  = u''
+    if autosub.SERIESPATH  == '.':                      autosub.SERIESPATH  = u''
     if cfg.has_option(section, "bckpath"):              autosub.BCKPATH             = os.path.normpath(cfg.get(section, "bckpath"))
-    if autosub.BCKPATH  =='.':
-        autosub.BCKPATH = u''
+    if autosub.BCKPATH  =='.':                          autosub.BCKPATH = u''
     if cfg.has_option(section, "subeng"):               autosub.SUBENG              = cfg.get(section, "subeng")
     if cfg.has_option(section, "subnl"):                autosub.SUBNL               = cfg.get(section, "subnl")
     if cfg.has_option(section, "postprocesscmd"):       autosub.POSTPROCESSCMD      = cfg.get(section, "postprocesscmd")
@@ -244,7 +242,12 @@ def ReadConfig():
     if cfg.has_option(section, 'plexserverport'): autosub.PLEXSERVERPORT            = cfg.get(section, 'plexserverport')
     if cfg.has_option(section, 'plexserverusername'): autosub.PLEXSERVERUSERNAME    = cfg.get(section, 'plexserverusername')
     if cfg.has_option(section, 'plexserverpassword'): autosub.PLEXSERVERPASSWORD    = cfg.get(section, 'plexserverpassword')
-
+    if cfg.has_option(section, 'notifykodi'): autosub.NOTIFYKODI                     = cfg.getboolean(section, 'notifykodi')
+    if cfg.has_option(section, 'kodiserverhost'): autosub.KODISERVERHOST            = cfg.get(section, 'kodiserverhost')
+    if cfg.has_option(section, 'kodiserverport'): autosub.KODISERVERPORT            = cfg.get(section, 'kodiserverport')
+    if cfg.has_option(section, 'kodiserverusername'): autosub.KODISERVERUSERNAME    = cfg.get(section, 'kodiserverusername')
+    if cfg.has_option(section, 'kodiserverpassword'): autosub.KODISERVERPASSWORD    = cfg.get(section, 'kodiserverpassword')
+    if cfg.has_option(section, 'kodiupdateonce'): autosub.KODIUPDATEONCE            = cfg.getboolean(section, 'kodiupdateonce')
 
 def WriteConfig():
     cfg = SafeConfigParser()
@@ -356,6 +359,13 @@ def WriteConfig():
         cfg.set(section, "plexserverport", autosub.PLEXSERVERPORT)
         cfg.set(section, "plexserverusername", autosub.PLEXSERVERUSERNAME)
         cfg.set(section, "plexserverpassword", autosub.PLEXSERVERPASSWORD)
+    if autosub.NOTIFYKODI:
+        cfg.set(section, "notifykodi", str(autosub.NOTIFYKODI))
+        cfg.set(section, "kodiserverhost", autosub.KODISERVERHOST)
+        cfg.set(section, "kodiserverport", autosub.KODISERVERPORT)
+        cfg.set(section, "kodiserverusername", autosub.KODISERVERUSERNAME)
+        cfg.set(section, "kodiserverpassword", autosub.KODISERVERPASSWORD)
+        cfg.set(section, "kodiupdateonce", str(autosub.KODIUPDATEONCE))
 
     section = 'skipshow'
     cfg.add_section(section)

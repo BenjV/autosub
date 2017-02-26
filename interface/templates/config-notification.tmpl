@@ -525,8 +525,67 @@
 				<input type="submit" value="Save Changes" class="btn btn-primary" />
 			</div>
 		</div>
+		<hr>
+
+		<div class="form-group">
+			<label for="kodiMediaServer" class="col-sm-2 control-label"><img src="$autosub.WEBROOT/images/notifiers/kodi.png" width="25px" height="24px" alt="" /> <b><a href="https://www.kodi.tv/" target="_blank">Kodi Media Server</a></b></label>
+			<div class="col-sm-10">
+			<select name="notifykodi" id="notifykodi" class="form-control enabler">
+				<option value="True" #if $autosub.NOTIFYKODI == True then 'selected="selected"' else ""#>Enabled</option>
+				<option value="False" #if $autosub.NOTIFYKODI == False then 'selected="selected"' else ""#>Disabled</option>
+			</select>
+			<br>Update the media library of your Kodi Media Server.
+			</div>
+		</div>
 		
-		<hr>	
+		<div id="content_notifykodi">
+			<div class="form-group">
+				<label for="kodiserverhost" class="col-sm-2 control-label">Host <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the IP address of your Kodi server?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<div class="col-sm-10">
+				<input type="text" class="form-control" name="kodiserverhost" id="kodiserverhost" value="$autosub.KODISERVERHOST" placeholder="127.0.0.1">
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label for="kodiserverport" class="col-sm-2 control-label">Port <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the port of your Kodi server? Default is 9090."><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<div class="col-sm-10">
+				<input type="text" class="form-control" name="kodiserverport" id="kodiserverport" value="$autosub.KODISERVERPORT" placeholder="9090">
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="kodiserverusername" class="col-sm-2 control-label">Username <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the username of your Kodi server?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<div class="col-sm-10">
+				<input type="text" class="form-control" name="kodiserverusername" id="kodiserverusername" value="$autosub.KODISERVERUSERNAME">
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="kodiserverpassword" class="col-sm-2 control-label">Password <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the password of your Kodi server?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<div class="col-sm-10">
+				<input type="password" class="form-control" name="kodiserverpassword" id="kodiserverpassword" value="$autosub.KODISERVERPASSWORD">
+				</div>
+			</div>
+		    <div class="col-sm-8">
+			    #if $autosub.KODIUPDATEONCE == True:
+				    <input type="checkbox" name="kodiupdateonce" checked value="Yes">&emsp;Update Kodi library only once per search round
+			    #else:
+				    <input type="checkbox" name="kodiupdateonce" value="Yes">&emsp;Update Kodi library only once per search round and not for after every downloaded sub.
+			    #end if
+		    </div>			
+			<div align="right">
+				#if $autosub.SEARCHBUSY :
+					<span id="testKodi-result">Test button is disabled during search.</span><br>
+					<input type="button" disabled class="btn btn-default" value="Test Kodi" id="testKodi" /> 
+				#else:
+					<span id="testKodi-result">Click below to test Kodi.</span><br>
+					<input type="button" class="btn btn-default" value="Test Kodi" id="testKodi" />
+				#end if
+				<input type="submit" value="Save Changes" class="btn btn-primary" />
+			</div>
+		</div>
+
+        <hr>	
 </div>
 <input type="submit" value="Save Changes" class="btn btn-primary" />
 </form>

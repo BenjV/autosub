@@ -15,7 +15,7 @@ from autosub.Db import idCache
 from autosub.Helpers import UpdateA7IdMapping
 from autosub.downloadSubs import DownloadSub
 from autosub.OpenSubtitles import OpenSubtitlesLogin, OpenSubtitlesLogout
-
+from autosub.notify import kodimediaserver
 # Settings
 log = logging.getLogger('thelogger')
 
@@ -27,6 +27,7 @@ class checkSub():
     """
     def run(self):
         autosub.SEARCHBUSY = True
+        autosub.DOWNLOADED = False
         StartTime = time.time()
         autosub.DBCONNECTION = sqlite3.connect(autosub.DBFILE)
         autosub.DBIDCACHE = idCache()
@@ -120,4 +121,7 @@ class checkSub():
         autosub.SEARCHTIME = time.time() - StartTime
         autosub.SEARCHBUSY = False
         autosub.SEARCHSTOP = False
+        if autosub.DOWNLOADED and autosub.NOTIFYKODI and autosub.KODIUPDATEONCE:
+            kodimediaserver.send_update_library()
+
         return True

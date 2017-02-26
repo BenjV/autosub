@@ -315,6 +315,7 @@ def DownloadSub(Wanted,SubList):
                 break
     if Downloaded:
         log.info("downloadSubs: Subtitle %s is downloaded from %s" % (Sub['releaseName'],Sub['website']))
+        autosub.DOWNLOADED =True
     else:
         log.debug("downloadSubs: Could not download any correct subtitle file for %s" % Wanted['file'])
         return False   

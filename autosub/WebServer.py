@@ -224,7 +224,8 @@ class Config:
                          mailusername, mailpassword, mailsubject, mailencryption, mailauth, growlhost, growlport, 
                          growlpass, nmaapi, twitterkey, twittersecret, notifyprowl, prowlapi, prowlpriority, notifytelegram, telegramapi, telegramid,
                          notifypushalot, pushalotapi, notifypushbullet, pushbulletapi, notifypushover, pushoverappkey,pushoveruserkey, pushoverpriority,
-                         nmapriority, notifyboxcar2, boxcar2token, notifyplex, plexserverhost, plexserverport, plexserverusername, plexserverpassword):
+                         nmapriority, notifyboxcar2, boxcar2token, notifyplex, plexserverhost, plexserverport, plexserverusername, plexserverpassword,
+                         notifykodi, kodiserverhost, kodiserverport, kodiserverusername, kodiserverpassword,kodiupdateonce=None):
 
         # Set all internal notify variables
         autosub.NOTIFYMAIL = notifymail
@@ -267,6 +268,12 @@ class Config:
         autosub.PLEXSERVERPORT = plexserverport
         autosub.PLEXSERVERUSERNAME = plexserverusername
         autosub.PLEXSERVERPASSWORD = plexserverpassword
+        autosub.NOTIFYKODI = notifykodi
+        autosub.KODISERVERHOST = kodiserverhost
+        autosub.KODISERVERPORT = kodiserverport
+        autosub.KODISERVERUSERNAME = kodiserverusername
+        autosub.KODISERVERPASSWORD = kodiserverpassword
+        autosub.KODIUPDATEONCE = True if kodiupdateonce else False
 
         # Now save to the configfile
         message = autosub.Config.WriteConfig()
@@ -375,8 +382,7 @@ class Config:
         if result:
             return "Auto-Sub successfully sent a test message with <strong>Boxcar2</strong>."
         else:
-            return "Failed to send a test message with <strong>Boxcar2</strong>."
-   
+            return "Failed to send a test message with <strong>Boxcar2</strong>." 
    
     @cherrypy.expose
     def testPlex(self, plexserverhost, plexserverport, plexserverusername, plexserverpassword, dummy):
@@ -387,7 +393,17 @@ class Config:
             return "Auto-Sub successfully updated the media library on your <strong>Plex Media Server</strong>."
         else:
             return "Failed to update the media library on your <strong>Plex Media Server</strong>."
-    
+
+    @cherrypy.expose
+    def testKodi(self, kodiserverhost, kodiserverport, kodiserverusername, kodiserverpassword, dummy):
+        
+        log.info("Notification: Testing Kodi Media Server")
+        result = notify.kodimediaserver.test_update_library(kodiserverhost, kodiserverport, kodiserverusername, kodiserverpassword)
+        if result:
+            return "Auto-Sub successfully updated the media library on your <strong>Kodi Media Server</strong>."
+        else:
+            return "Failed to update the media library on your <strong>Kodi Media Server</strong>."
+
     @cherrypy.expose
     def testAddic7ed(self, addic7eduser, addic7edpasswd, dummy):
         if autosub.Addic7ed.Addic7edAPI().login(addic7eduser, addic7edpasswd):
