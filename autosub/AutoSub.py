@@ -112,7 +112,7 @@ def start():
             },
             '/favicon.ico':{
             'tools.staticfile.on' : True,
-            'tools.staticfile.filename' : os.path.join(autosub.PATH, 'interface/media/images/favicon.ico')
+            'tools.staticfile.filename' : os.path.join(autosub.PATH, 'interface/media/images/lynx.ico')
             }    
         }
     

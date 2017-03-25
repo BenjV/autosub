@@ -29,7 +29,11 @@ def FindName(Url,Root,Tag):
         Result = Session.get(Url)
     except:
         return None
-    PageRoot = ET.fromstring(Result.content)
+    try:
+        PageRoot = ET.fromstring(Result.content)
+    except Exception as error:
+        log.error("FindName: error parsing info from Tvdb. Error =%s" %error)
+        return None
     try:
         for node in PageRoot.findall(Root):
             try:

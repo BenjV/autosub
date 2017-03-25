@@ -256,17 +256,14 @@ def UpdateA7IdMapping():
             Result.encoding ='utf-8'
             GithubMapping = {}
             GithubMapping = json.loads(Result.text)
-            if GithubMapping:
-                LastAddicId = GithubMapping[max(GithubMapping, key=GithubMapping.get)]
-                if int(LastAddicId) > int(autosub.ADDICHIGHID):
-                    autosub.ADDICHIGHID = LastAddicId
-                    log.debug('UpdateNameMapping: Addic7ed Id mapping is updated.')
-                    for NameMap in GithubMapping.iterkeys():
-                        if NameMap.isdigit() and GithubMapping[NameMap].isdigit():
-                            if not NameMap in autosub.ADDIC7EDMAPPING.keys():
-                                autosub.ADDIC7EDMAPPING[NameMap] = GithubMapping[NameMap]
-                        else:
-                            log.debug('UpdateNameMapping: Addic7ed namemapping from github is coruptted. %s = %s' %(NameMap,GithubMapping[NameMap])) 
+            if GithubMapping and autosub.ADDICHIGHID != len(GithubMapping):
+                autosub.ADDICHIGHID = len(GithubMapping)
+                log.info('UpdateNameMapping: Addi7ed namemapping is updated from github.')
+                for NameMap in GithubMapping.iterkeys():
+                    if NameMap.isdigit() and GithubMapping[NameMap].isdigit():
+                        autosub.ADDIC7EDMAPPING[NameMap] = GithubMapping[NameMap]
+                    else:
+                        log.debug('UpdateNameMapping: Addic7ed namemapping from github is coruptted. %s = %s' %(NameMap,GithubMapping[NameMap])) 
         except Exception as error:
             log.debug('UpdateA7IdMapping: Problem get AddicIdMapping from github. %s' % error)
     return
@@ -597,48 +594,3 @@ def getAttr(name):
             rv = o[name]
         return rv
     return inner_func
-
-#class API:
-#    """
-#    One place to rule them all, a function that handels all the request to the servers
-
-#    Keyword arguments:
-#    url - the URL that is requested
-    
-#    """
-#    def __init__(self,url):
-#        self.errorcode = None        
-#        self.req = None
-#        self.req = urllib2.Request(url)
-#        self.req.add_header("User-agent", autosub.USERAGENT)
-#        self.connect()
-        
-#    def connect(self):
-#        import socket
-#        socket.setdefaulttimeout(autosub.TIMEOUT)
-        
-#        try:
-#            self.resp = urllib2.urlopen(self.req)
-#            self.errorcode = self.resp.getcode()
-#        except urllib2.HTTPError, e:
-#            self.errorcode = e.getcode()
-        
-#        if self.errorcode == 200:
-#            log.debug("API: HTTP Code: 200: OK!")
-#        elif self.errorcode == 429:
-#            # don't know if this code is valid for subtitleseeker
-#            log.debug("API: HTTP Code: 429 You have exceeded your number of allowed requests for this period.")
-#            log.error("API: You have exceeded your number of allowed requests for this period. (1000 con/day))")
-#            log.warning("API: Forcing a 1 minute rest to relieve subtitleseeker.com. If you see this info more then once. Cleanup your wanted list!")
-#            time.sleep(54)
-#        elif self.errorcode == 503:
-#            log.debug("API: HTTP Code: 503 You have exceeded your number of allowed requests for this period (MyMovieApi).")
-#            log.error("API: You have exceeded your number of allowed requests for this period. (either 30 con/m or 2500 con/day))")
-#            log.warning("API: Forcing a 1 minute rest to relieve mymovieapi.com. If you see this info more then once. Cleanup your wanted list!")
-#            time.sleep(54)
-        
-#        log.debug("API: Resting for 6 seconds to prevent 429 errors")
-#        time.sleep(6) #Max 0.5 connections each second
-    
-#    def close(self):
-#        self.resp.close()

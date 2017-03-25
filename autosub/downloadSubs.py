@@ -97,12 +97,12 @@ def openSubtitles(SubId, SubCodec):
         try:
             SubData = SubDataBytes.decode(SubCodec,errors='replace')
         except Exception as error:
-            log.error('downloadSubs: Error decoding sub from opensubtitles. Message is: %s' % error) 
+            log.error('downloadSubs: Error decoding sub from opensubtitles. Message is: %s' % error)
             return None
         return(SubData)
     else:
         if Result['status'][:3] == '407':
-            autosub.OPENSUBTITLESTOKEN = 'limit'
+            autosub.OPENSUBTITLESTOKEN = None
         log.error('Opensubtitles: Error from Opensubtitles downloadsubs API. Message : %s' % Result['status'])
         return None
 
@@ -192,11 +192,15 @@ def MyPostProcess(Wanted,SubSpecs,Language):
     if 'EpisodeTitle' in Wanted.keys():
         EpisodeName = Wanted['EpisodeTitle']
     else:
-        EpisodeName = GetEpisodeName(ImdbId,TvdbId,SeasonNum, EpisodeNum) +'?'
+        try:
+            EpisodeName = GetEpisodeName(ImdbId,TvdbId,SeasonNum, EpisodeNum)
+        except:
+            EpisodeName = 'unknown name'
         try:
             EpisodeName = re.sub(r'[\0/:*?"<>|\\]', r'',EpisodeName)
         except Exception as error:
             log.debug('MyPostProcess: Error removing chars from EpisodeName')
+
     Head,SubExt   = os.path.splitext(SubSpecs)
     log.debug('PostProcess: EpisodeName is %s' % EpisodeName)
 
@@ -303,6 +307,9 @@ def DownloadSub(Wanted,SubList):
         if Sub['website'] == 'opensubtitles.org':
             log.debug("downloadSubs: Api for opensubtitles.org is chosen for subtitle %s" % Wanted['file'])
             SubData = openSubtitles(Sub['url'],Sub['SubCodec'])
+                #Add the subfile tot the bad sub list if not a correct sub to prevent downloading it again.
+            if not SubData and autosub.OPENSUBTITLESTOKEN:
+                autosub.OPENSUBTITLESBADSUBS.append(Sub['IDSubtitleFile'])
         elif Sub['website'] == 'addic7ed.com':
             log.debug("downloadSubs: Scraper for Addic7ed.com is chosen for subtitle %s" % Wanted['file'])
             SubData = autosub.ADDIC7EDAPI.download(Sub['url'])

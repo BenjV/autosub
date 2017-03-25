@@ -431,7 +431,7 @@ class Addic7edAPI():
         time.sleep(10)
         try:
             PageBuffer = self.get('/panel.php')
-            if re.findall(autosub.ADDIC7EDUSER,PageBuffer):
+            if re.findall(autosub.ADDIC7EDUSER.upper(),PageBuffer.upper()):
                 Temp = re.findall(r'<a href=[\'"]mydownloads.php\'>([^<]+)', PageBuffer)[0].split(" ")
                 autosub.DOWNLOADS_A7 = int(Temp[0])
                 autosub.DOWNLOADS_A7MAX = int(Temp[2])
