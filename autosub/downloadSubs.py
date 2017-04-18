@@ -90,10 +90,14 @@ def openSubtitles(SubId, SubCodec):
         if SubCodec:
             if 'UTF' in SubCodec.upper() or SubCodec == 'Unknown':
                 SubCodec = detect(SubDataBytes)['encoding']
-            if not SubCodec:
+            elif '1252' in SubCodec:
                 SubCodec = u'windows-1252'
+            elif '850' in SubCodec:
+                SubCodec = u'cp850'
         else:
-            SubCodec = u'windows-1252'
+            SubCodec = detect(SubDataBytes)['encoding']
+            if not 'UTF' in SubCodec.upper():
+                SubCodec = u'windows-1252'
         try:
             SubData = SubDataBytes.decode(SubCodec,errors='replace')
         except Exception as error:
@@ -309,7 +313,7 @@ def DownloadSub(Wanted,SubList):
             SubData = openSubtitles(Sub['url'],Sub['SubCodec'])
                 #Add the subfile tot the bad sub list if not a correct sub to prevent downloading it again.
             if not SubData and autosub.OPENSUBTITLESTOKEN:
-                autosub.OPENSUBTITLESBADSUBS.append(Sub['IDSubtitleFile'])
+                autosub.OPENSUBTITLESBADSUBS.append(Sub['url'])
         elif Sub['website'] == 'addic7ed.com':
             log.debug("downloadSubs: Scraper for Addic7ed.com is chosen for subtitle %s" % Wanted['file'])
             SubData = autosub.ADDIC7EDAPI.download(Sub['url'])

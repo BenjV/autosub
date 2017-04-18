@@ -137,7 +137,7 @@ def CheckVersion():
 
     GithubVersion = None
     try:
-        response = requests.get(autosub.VERSIONURL)
+        response = requests.get(autosub.VERSIONURL,verify=autosub.CERTIFICATEPATH)
         Temp = response.text.split("'")
         if 'Alpha' in Temp[1]:
             GithubVersion = Temp[1].split(' ')[1]
@@ -252,7 +252,7 @@ def UpdateA7IdMapping():
 # Get the latest id mapping for Addic7ed from github
     with requests.Session() as GithubSession:
         try:
-            Result = GithubSession.get(autosub.ADDICMAPURL)
+            Result = GithubSession.get(autosub.ADDICMAPURL,verify=autosub.CERTIFICATEPATH)
             Result.encoding ='utf-8'
             GithubMapping = {}
             GithubMapping = json.loads(Result.text)
