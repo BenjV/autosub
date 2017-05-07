@@ -160,6 +160,7 @@ def Opensubtitles(Wanted):
     Data['imdbid' ] = Wanted['ImdbId']
     Data['season']  = Wanted['season']
     Data['episode'] = Wanted['episode']
+
     log.debug('getSubLinks: Opensubtitles search started for %s.' % Wanted['ImdbId'])
     time.sleep(3)
     if not OpenSubtitlesNoOp():
@@ -175,9 +176,12 @@ def Opensubtitles(Wanted):
         log.debug('Opensubtitles: No subs found for %s on Opensubtitles.' % Wanted['file'])
         return ScoreListNL,ScoreListEN
     NameDict = {}
+
     for Sub in Subs['data']:
         try:
-            if (int(Sub['SubBad']) > 0                               or 
+            if ( int(Sub['SeriesEpisode']) != int(Wanted['episode']) or
+               int(Sub['SeriesSeason']) != int(Wanted['season'])     or
+               int(Sub['SubBad']) > 0                                or 
                not Sub['MovieReleaseName']                           or 
                not Sub['IDSubtitleFile']                             or 
                (Sub['SubHearingImpaired'] != '0' and not autosub.HI) or
@@ -188,7 +192,9 @@ def Opensubtitles(Wanted):
         NameDict.clear()
         NameDict = ProcessFilename(Sub['MovieReleaseName'],Wanted['container'])
         if not NameDict:
-            continue
+            NameDict = ProcessFilename(Sub['SubFileName'],Wanted['container'])
+            if not NameDict:
+                continue
          # here we score the subtitle and if it's high enough we add it to the list 
         score = autosub.Helpers.scoreMatch(NameDict,Wanted)
         if score == 0:
