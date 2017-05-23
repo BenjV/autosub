@@ -64,7 +64,7 @@ def SubtitleSeeker(Wanted, sourceWebsites):
             if score == 0:
                 continue
             log.debug('SubtitleSeeker: Score = %s of %s for %s sub of %s on %s.' % (score, autosub.MINMATCHSCORE, Item['language'], Item['release'], Item['site']))
-            if score >= autosub.MINMATCHSCORE:
+            if autosub.MINMATCHSCORE & score >= autosub.MINMATCHSCORE:
                 if Item['language'] == autosub.ENGLISH:
                     ScoreListEN.append({'score':score, 'url':Item['url'] , 'website':Item['site'].lower(),'Lang':Item['language'], 'releaseName':Item['release'],'SubCodec':u''})
                 if Item['language'] == autosub.DUTCH:
@@ -132,8 +132,9 @@ def Addic7ed( Wanted):
                 score = autosub.Helpers.scoreMatch(version, Wanted)
                 if score == 0:
                     continue
-                log.debug('Addic7ed: Score = %s of %s for %s sub of %s.' % (score, autosub.MINMATCHSCORE, SubInfo[3], releasename))
-                if score >= autosub.MINMATCHSCORE:
+                Test = '{0:04b}'.format(score)
+                log.debug('Addic7ed: Score = %s of %s for %s sub of %s.' % ('{0:04b}'.format(score), '{0:04b}'.format(autosub.MINMATCHSCORE), SubInfo[3], releasename))
+                if autosub.MINMATCHSCORE & score >= autosub.MINMATCHSCORE:
                     if not 'EpisodeTitle' in Wanted.keys():
                         try:
                             Wanted['EpisodeTitle'] = re.findall('">(.*?)</a>', SubInfo[2])[0]
@@ -199,8 +200,8 @@ def Opensubtitles(Wanted):
         score = autosub.Helpers.scoreMatch(NameDict,Wanted)
         if score == 0:
             continue
-        log.debug('Opensubtitles: Score = %s of %s for %s sub of %s.' % (score, autosub.MINMATCHSCORE, Sub['LanguageName'], Sub['MovieReleaseName']))
-        if score >= autosub.MINMATCHSCORE:
+        log.debug('Opensubtitles: Score = %s of %s for %s sub of %s.' % ('{0:04b}'.format(score), '{0:04b}'.format(autosub.MINMATCHSCORE),Sub['LanguageName'], Sub['MovieReleaseName']))
+        if autosub.MINMATCHSCORE & score >= autosub.MINMATCHSCORE:
             if Sub['LanguageName'] == autosub.DUTCH:
                 ScoreListNL.append({'score':score, 'url':Sub['IDSubtitleFile'] , 'website':'opensubtitles.org','releaseName':Sub['MovieReleaseName'], 'SubCodec':Sub['SubEncoding'],'Lang':Sub['LanguageName']})
             if Sub['LanguageName'] == autosub.ENGLISH:
