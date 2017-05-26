@@ -41,7 +41,7 @@ class checkSub():
         if autosub.OPENSUBTITLES:
             Info += 'Opensubtitles, '
         if autosub.SUBSCENE:
-            Info += 'Sunscene, '
+            Info += 'Subscene, '
         if autosub.PODNAPISI:
             Info += 'Podnapisi, '
         if Info:
