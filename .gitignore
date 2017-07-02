@@ -86,6 +86,8 @@ ENV/
 # Rope project settings
 .ropeproject
 
+#API Keys
+
 # =========================
 # Operating System Files
 # =========================
