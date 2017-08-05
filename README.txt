@@ -1,19 +1,31 @@
-README 
+README
+
+Past developers:
+     zyronix (script for website Bierdopje)
+	 Donny (added bootstrap User interface)
+	 collincab (Changed from Bierdopje to SubtitleSeeker and Addic7ed)
+
+Current developer:
+     Benj (added Opensubtitle support)
 
 
 +--- AutoSub
      |
      +--- Uses SubtitleSeeker API, supporting the following website:
+	 |    +--- Limited API calls(= search request) per 24 hours. (2500)
      |    +--- Podnapisi
      |    +--- Subscene
      |
      +--- Opensubtitles support.
      |    +--- Requires account.
-     |    \--- Limited downloads per 24 hours. (Regular: 30 - VIP: 55)
+     |    \--- Limited downloads per 24 hours. (Regular: 200 - VIP: 1000)
      |
      +--- Addic7ed support.
      |    +--- Requires account.
-     |    \--- Limited downloads per 24 hours. (Regular: 30 - VIP: 55)
+     |    \--- Limited downloads per 24 hours. (Regular: 40 - VIP: 80)
+	 |
+	 +--- Tvdb API-V2 support (neccesary as of 1-10-2017)
+	 |    \--- Requires account.
      |
      +--- Notifications
      |    +--- Windows & Windows Phone
@@ -31,6 +43,7 @@ README
      |         +--- Email
      |         +--- Twitter
      |         +--- Telegram
+	 |         +--- Kodi Media server
      |         \--- Plex Media Server
      |
      \--- Features
@@ -41,12 +54,26 @@ README
           +--- Select the suffix you want to use for the language (only one suffix can be empty)
           +--- Choose if you want to search for an other language if the dutch sub is not available
           +--- Remove English subtitle when the Dutch subtitle has been downloaded.
+		  +--- Option to choose the minmatch score
+		  +--- Option to also download hearing impaired subs (applies only for Addic7ed and Opensubtitles)
+		  +--- Option to set the search interfall in hours (minimum is 6 hours)
+		  +--- Option to automatically refresh the browser screen (choose 0 for not refreshing)
+		  +--- Option to launch the default browser on strtup of autosub
+		  +--- Option to skip hidden folders
+		  +--- Filters for skipping strings and folders available
+		  +--- Filters to skip shows, episodes or seasons
+		  +--- Option to choose the codec for the stored sub (windows-1252 or utf-8)
           +--- Configure a custom post-process script.
+		  +--- Check for available updates
+		  +--- Updateable from pulldown menu
           +--- 
           \--- Home tables.
                +--- Both
                |    +--- Select 10, 25, 50, 100, All items to display. Options are stored using localStorage.
-               |    \--- Search field, which allows you to search on show name.
+               |    +--- Search field, which allows you to search on show name.
+			   |    +--- Selected minmatch items are shown in red coulor
+			   |    +--- Preview of last part of subtitle available
+			   |    \--- Addic7ed and ImdbId's listed are also link to those websites
                +--- Wanted
                |    +--- Option to skip show when clicking on the wrench symbol.
                |    +--- Red Color shows which match criteria is used (e.g. Source, Quality, Codec , Release Group)
