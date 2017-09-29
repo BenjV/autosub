@@ -187,11 +187,11 @@ class Config:
         if autosub.LOGSIZE != int(logsize)*1024:
             autosub.LOGSIZE = int(logsize)*1024
             autosub.LOGHANDLER.maxBytes = autosub.LOGSIZE
-
-        if autosub.LOGLEVELCONSOLE != int(loglevelconsole):
-            autosub.LOGLEVELCONSOLE =int(loglevelconsole)
-        if autosub.DAEMON!=True:
+        if autosub.DAEMON == True:
             autosub.CONSOLE.level = 50
+        else:
+            if autosub.LOGLEVELCONSOLE != int(loglevelconsole):
+                autosub.LOGLEVELCONSOLE =int(loglevelconsole)
         autosub.WEBSERVERIP = webserverip
         autosub.WEBSERVERPORT = int(webserverport)
         autosub.USERNAME = username

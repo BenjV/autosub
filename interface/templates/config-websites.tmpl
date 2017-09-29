@@ -5,22 +5,28 @@
 	<label class="col-sm-1">&nbsp;</label>  
 	<label class="col-sm-2 text-center">Username</label> 
 	<label class="col-sm-2 text-center">Account Identifier</label>
-  <label class="col-sm-2 text-center">Account Verification</label>
+    	<label class="col-sm-2 text-center">Account Verification</label>
 </div>
+
 <div class="form-group">
 	<label class="col-sm-2 control-label">TheTVDB
-		<a data-toggle="tooltip" data-html="true" data-original-title="User Credentials for www.TheTVDB.com">
+		<a data-toggle="tooltip" data-html="true" data-original-title="User Credentials for www.TheTVDB.com  <br><br>Test is disabled when search is busy">
 			<span class="glyphicon glyphicon-info-sign"></span>
 		</a>
 	</label>
-  <div class="col-sm-1"></div>
-	<div class="col-sm-2 form-group-sm"><input type="text" class="form-control" id ="tvdbuser" name="tvdbuser" value="$autosub.TVDBUSER" placeholder="Username"></div>
-	<div class="col-sm-2 form-group-sm"><input type="text" class="form-control" id ="tvdbaccountid" name="tvdbaccountid" value="$autosub.TVDBACCOUNTID" placeholder="Account Identifier"></div>
-	<span id="verifyTvdb-result"></span>
-	<div align="center"class="col-sm-2 form-group-sm"><input type="button" class="btn btn-default" value="Test" id="verifyTvdb" data-toggle="tooltip" title="Tvdb Account Verification Test"></div>
+    <div class="col-sm-1" ></div>
+	<div class="col-sm-2 form-group-sm"><input type="text" class="form-control" id ="tvdbuser" name="tvdbuser" value="$autosub.TVDBUSER" placeholder="Tvdb Username"></div>
+	<div class="col-sm-2 form-group-sm"><input type="text" class="form-control" id ="tvdbaccountid" name="tvdbaccountid" value="$autosub.TVDBACCOUNTID" placeholder="Tvdb Account Identifier"></div>
+	<span id="testTvdb-result"> </span>
+	#if $autosub.SEARCHBUSY:
+		<div  align="center"class="col-sm-2 form-group-sm"><input type="button" class="btn btn-default" value="Verify" id="testTvdb" disabled></div>
+	#else:
+		<div  align="center"class="col-sm-2 form-group-sm"><input type="button" data-toggle="tooltip" title="Account Verification Test" class="btn btn-default" value="Verify" id="testTvdb"></div>
+	#end if
 </div>
 
 <hr>
+
 <div class="form-group">&nbsp;
 	<label class="col-sm-2 text-right"></label>
 	<label class="col-sm-1">&nbsp;</label>  
@@ -34,7 +40,7 @@
 			<span class="glyphicon glyphicon-info-sign"></span>
 		</a>
 	</label>
-  <div class="col-sm-1">
+	<div class="col-sm-1">
 		#if $autosub.ADDIC7ED:
 			<div class="checkbox-inline"><input type="checkbox" name="addic7ed" checked value="Yes"></div>
 		#else:
@@ -43,26 +49,28 @@
 	</div>
 	<div class="col-sm-2 form-group-sm"><input type="text" class="form-control" id ="addic7eduser" name="addic7eduser" value="$autosub.ADDIC7EDUSER" placeholder="Username"></div>
 	<div class="col-sm-2 form-group-sm"><input type="password" class="form-control" id = addic7edpasswd name="addic7edpasswd" value="$autosub.ADDIC7EDPASSWD" placeholder="Password"></div>
-	<span id="testAddic7ed-result"></span>
-  #if $autosub.SEARCHBUSY:
+	<span id="testAddic7ed-result"> </span>
+	#if $autosub.SEARCHBUSY:
 		<div  align="center"class="col-sm-2 form-group-sm"><input type="button" class="btn btn-default" value="Test" id="testAddic7ed" disabled></div>
 	#else:
 		<div  align="center"class="col-sm-2 form-group-sm"><input type="button" data-toggle="tooltip" title="Login Test" class="btn btn-default" value="Test" id="testAddic7ed"></div>
 	#end if
 </div>
 
-<div class="form-group">&nbsp;
+
+
+<div class="form-group">
 	<label class="col-sm-2 control-label">Opensubtitles 
 		<a data-toggle="tooltip" data-html="true" data-original-title="Tick to use this website. <br><br>Login Test is disabled when search is busy">
 			<span class="glyphicon glyphicon-info-sign"></span>
 		</a>
 	</label>
 	<div class="col-sm-1">
-    #if $autosub.OPENSUBTITLES:
-      <div class="checkbox-inline"><input type="checkbox" name="opensubtitles" checked value="Yes"></div>
-    #else:
-      <div class="checkbox"><input type="checkbox" name="opensubtitles" value="Yes"></div>
-    #end if
+		#if $autosub.OPENSUBTITLES:
+			<div class="checkbox-inline"><input type="checkbox" name="opensubtitles" checked value="Yes"></div>
+		#else:
+			<div class="checkbox"><input type="checkbox" name="opensubtitles" value="Yes"></div>
+		#end if
 	</div>
 	<div class="col-sm-2 form-group-sm"><input type="text" class="form-control" id="opensubtitlesuser" name="opensubtitlesuser" value="$autosub.OPENSUBTITLESUSER" placeholder="Username"></div>
 	<div class="col-sm-2 form-group-sm"><input type="password" class="form-control" id="opensubtitlespasswd" name="opensubtitlespasswd" value="$autosub.OPENSUBTITLESPASSWD" placeholder="Password"></div>
