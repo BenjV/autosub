@@ -1,54 +1,52 @@
 #import autosub
-#import logging
 
 <div class="form-group">
-	<label for="Logfile" class="col-sm-2 control-label">Logfile
-		<a data-placement="bottom" data-toggle="tooltip" data-original-title="The location and the name of the logfile. When not set, AutoSubService.log will be used. This field is required!">
-			<span class="glyphicon glyphicon-info-sign"></span>
-		</a>
-	</label>
-	<div class="col-sm-5"><input type="text" class="form-control" name="logfile" value="$autosub.LOGFILE" placeholder="$os.path.join($autosub.PATH,"AutoSubService.log")"></div>
+  <label for="Logfile" class="col-sm-2 control-label">
+    Logfile
+    <a data-placement="bottom" data-toggle="tooltip" data-original-title="The location and the name of the logfile. When not set, AutoSubService.log will be used. This field is required!">
+      <span class="glyphicon glyphicon-info-sign"></span>
+    </a>
+  </label>
+  <div class="col-sm-5"><input type="text" class="form-control" name="logfile" value="$autosub.LOGFILE" placeholder="$os.path.join($autosub.PATH," AutoSubService.log")"></div>
 </div>
-	
+
 <div class="form-group">
-	<label for="Loglevel" class="col-sm-2 control-label">Loglevel <a data-placement="bottom" data-toggle="tooltip" data-original-title="Set the loglevel."><span class="glyphicon glyphicon-info-sign"></span></a></label>
-	<div class="col-sm-2">
-	<select name="loglevel" class="form-control">
-		<option value=$logging.INFO #if $logging.getLevelName(autosub.LOGLEVEL).lower() == "info" then 'selected="selected"' else ""#>Info</option>
-		<option value=$logging.CRITICAL #if $logging.getLevelName(autosub.LOGLEVEL).lower() == "critical" then 'selected="selected"' else ""#>Critical</option>
-		<option value=$logging.WARNING #if $logging.getLevelName(autosub.LOGLEVEL).lower() == "warning" then 'selected="selected"' else ""#>Warning</option>
-		<option value=$logging.ERROR #if $logging.getLevelName(autosub.LOGLEVEL).lower() == "error" then 'selected="selected"' else ""#>Error</option>
-		<option value=$logging.DEBUG #if $logging.getLevelName(autosub.LOGLEVEL).lower() == "debug" then 'selected="selected"' else ""#>Debug</option>
-	</select>
-	</div>
+  <label for="Loglevel" class="col-sm-2 control-label">Loglevel <a data-placement="bottom" data-toggle="tooltip" data-original-title="Set the loglevel."><span class="glyphicon glyphicon-info-sign"></span></a></label>
+  <div class="col-sm-2">
+    <select name="loglevel" class="form-control">
+      <option value=$logging.INFO  #if $autosub.LOGLEVEL == 20 then 'selected="selected"' else "" #>Info</option>
+      <option value=$logging.ERROR #if $autosub.LOGLEVEL == 40 then 'selected="selected"' else "" #>Error</option>
+      <option value=$logging.DEBUG #if $autosub.LOGLEVEL == 10 then 'selected="selected"' else "" #>Debug</option>
+    </select>
+  </div>
 </div>
-		
+
 <div class="form-group">
-	<label for="Lognum" class="col-sm-2 control-label">Max logfile # <a data-placement="bottom" data-toggle="tooltip" data-original-title="Set the amount of log files."><span class="glyphicon glyphicon-info-sign"></span></a></label>
-	<div class="col-sm-2">
-	<input type="text" class="form-control" name="lognum" value="$autosub.LOGNUM" placeholder="">
-	</div>
+  <label for="Lognum" class="col-sm-2 control-label">Max logfile # <a data-placement="bottom" data-toggle="tooltip" data-original-title="Set the amount of log files."><span class="glyphicon glyphicon-info-sign"></span></a></label>
+  <div class="col-sm-2">
+    <input type="text" class="form-control" name="lognum" value="$autosub.LOGNUM" placeholder="">
+  </div>
 </div>
 #set $logfilesize = $autosub.LOGSIZE/1024
 <div class="form-group">
-	<label for="Logsize" class="col-sm-2 control-label">Logsize <a data-placement="bottom" data-toggle="tooltip" data-original-title="Set the maximum size of the log files in KiloBytes."><span class="glyphicon glyphicon-info-sign"></span></a></label>
-	<div class="col-sm-2">
-		<div class ="input-group">
-			<input type="text" class="form-control" name="logsize" value="$logfilesize" placeholder="Max log file size(in KiloBytes)">
-			<span class="input-group-addon">Kbytes</span>
-		</div>
-	</div>
+  <label for="Logsize" class="col-sm-2 control-label">Logsize <a data-placement="bottom" data-toggle="tooltip" data-original-title="Set the maximum size of the log files in KiloBytes."><span class="glyphicon glyphicon-info-sign"></span></a></label>
+  <div class="col-sm-2">
+    <div class="input-group">
+      <input type="text" class="form-control" name="logsize" value="$logfilesize" placeholder="Max log file size(in KiloBytes)">
+      <span class="input-group-addon">Kbytes</span>
+    </div>
+  </div>
 </div>
-		
-<div class="form-group">
-	<label for="Loglevelconsole" class="col-sm-2 control-label">Loglevel Console <a data-placement="bottom" data-toggle="tooltip" data-original-title="Set the loglevel for the console."><span class="glyphicon glyphicon-info-sign"></span></a></label>
-	<div class="col-sm-2">
-	<select name="loglevelconsole" class="form-control">
-		<option value=$logging.INFO #if $logging.getLevelName(autosub.LOGLEVELCONSOLE).lower() == "info" then 'selected="selected"' else ""#>Info</option>
-		<option value=$logging.CRITICAL #if $logging.getLevelName(autosub.LOGLEVELCONSOLE).lower() == "critical" then 'selected="selected"' else ""#>Critical</option>
-		<option value=$logging.WARNING #if $logging.getLevelName(autosub.LOGLEVELCONSOLE).lower() == "warning" then 'selected="selected"' else ""#>Warning</option>
-		<option value=$logging.ERROR #if $logging.getLevelName(autosub.LOGLEVELCONSOLE).lower() == "error" then 'selected="selected"' else ""#>Error</option>
-		<option value=$logging.DEBUG #if $logging.getLevelName(autosub.LOGLEVELCONSOLE).lower() == "debug" then 'selected="selected"' else ""#>Debug</option>
-	</select>
+
+#if not autosub.DAEMON
+	<div class="form-group">
+	  <label for="Loglevelconsole" class="col-sm-2 control-label">Loglevel Console <a data-placement="bottom" data-toggle="tooltip" data-original-title="Set the loglevel for the console."><span class="glyphicon glyphicon-info-sign"></span></a></label>
+	  <div class="col-sm-2">
+		<select name="loglevelconsole" class="form-control">
+		  <option value=$logging.INFO  #if $autosub.LOGLEVELCONSOLE == 20 then 'selected="selected"' else "" #>Info</option>
+		  <option value=$logging.ERROR #if $autosub.LOGLEVELCONSOLE == 40 then 'selected="selected"' else "" #>Error</option>
+		  <option value=$logging.DEBUG #if $autosub.LOGLEVELCONSOLE == 10 then 'selected="selected"' else "" #>Debug</option>
+		</select>
+	  </div>
 	</div>
-</div>
+#end if

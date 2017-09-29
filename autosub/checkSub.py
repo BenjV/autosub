@@ -6,19 +6,41 @@
 import logging
 import os
 import time
+from json import loads
 import sqlite3
-
+import requests
 # Autosub specific modules
+import autosub
+import autosub.Addic7ed
 from autosub.getSubLinks import getSubLinks
-import autosub.scanDisk
-from autosub.Db import idCache
-from autosub.Helpers import UpdateA7IdMapping
+from autosub.scanDisk import ScanDisk
 from autosub.downloadSubs import DownloadSub
-from autosub.OpenSubtitles import OpenSubtitlesLogin, OpenSubtitlesLogout
+from autosub.OpenSubtitles import OS_Login, OS_Logout
 from autosub.notify import kodimediaserver
+from autosub.Helpers import CheckVersion
 # Settings
 log = logging.getLogger('thelogger')
 
+def _updGithub():
+# Get the latest id mapping for Addic7ed from github
+    with requests.Session() as GithubSession:
+        try:
+            Result = GithubSession.get(autosub.ADDICMAPURL,verify=autosub.CERTIFICATEPATH)
+            Result.encoding ='utf-8'
+            GithubMapping = {}
+            GithubMapping = loads(Result.text)
+            if GithubMapping and autosub.ADDICHIGHID != len(GithubMapping):
+                autosub.ADDICHIGHID = len(GithubMapping)
+                log.info('Addi7ed namemapping is updated from github.')
+                for NameMap in GithubMapping.iterkeys():
+                    if NameMap.isdigit() and GithubMapping[NameMap].isdigit():
+                        autosub.ADDIC7EDMAPPING[NameMap] = GithubMapping[NameMap]
+                    else:
+                        log.debug('Addic7ed namemapping from github is coruptted. %s = %s' %(NameMap,GithubMapping[NameMap])) 
+        except Exception as error:
+            log.error('Problem get AddicIdMapping from github. %s' % error)
+        CheckVersion()
+    return
 
 class checkSub():
     """
@@ -27,16 +49,16 @@ class checkSub():
     """
     def run(self):
         autosub.SEARCHBUSY = True
+        autosub.REFRESH_LOGPAGE = True
         autosub.DOWNLOADED = False
         StartTime = time.time()
         autosub.DBCONNECTION = sqlite3.connect(autosub.DBFILE)
-        autosub.DBIDCACHE = idCache()
         del autosub.WANTEDQUEUE[:]
 
-        UpdateA7IdMapping()
-        autosub.scanDisk.scanDisk().run()
+        _updGithub()
+        ScanDisk()
         Info = None
-        if autosub.Addic7ed:
+        if autosub.ADDIC7ED:
             Info = 'Addic7ed, '
         if autosub.OPENSUBTITLES:
             Info += 'Opensubtitles, '
@@ -47,12 +69,12 @@ class checkSub():
         if Info:
             Info = Info[:-2]
         else:
-            log.info("checkSub: No website selected in config" )
+            log.info("No website selected in config" )
         if autosub.WANTEDQUEUE and Info:
-            log.info("checkSub: Starting round of subs searching on %s" % Info )                  
+            log.info("Starting round of subs searching on %s" % Info )                  
             # Initiate a session to OpenSubtitles and log in if OpenSubtitles is choosen
             if autosub.OPENSUBTITLES and autosub.OPENSUBTITLESUSER and autosub.OPENSUBTITLESPASSWD:
-                OpenSubtitlesLogin()
+                OS_Login()
             if autosub.ADDIC7ED and autosub.ADDIC7EDUSER and autosub.ADDIC7EDPASSWD:
                 autosub.ADDIC7EDAPI = autosub.Addic7ed.Addic7edAPI()
                 autosub.ADDIC7EDAPI.login()
@@ -65,7 +87,7 @@ class checkSub():
             if not autosub.SEARCHSTOP:
                 while Index < End:
                     if autosub.SEARCHSTOP:
-                        log.info('checkSub: Search stopped by User')
+                        log.info('Search stopped by User')
                         break
                     Wanted = {}
                     Wanted = autosub.WANTEDQUEUE[Index]
@@ -73,16 +95,16 @@ class checkSub():
                         Index += 1
                         continue
 
-                    log.info("checkSub: Searching downloadlink(s) for %s, for %s" % (Wanted['file'], Wanted['langs']))
+                    log.info("Searching downloadlink(s) for %s, for %s" % (Wanted['file'], Wanted['langs']))
                     # get all links above the minimal match score as input for downloadSub
                     SubsNL,SubsEN = getSubLinks(Wanted)
 
                     if not SubsNL and not SubsEN:
-                        log.debug("checkSub: No subs found for %s" % Wanted['file'])
+                        log.debug("No subs found with minmal match score for %s" % Wanted['file'])
                         Index += 1
                         continue
                     if SubsNL:
-                        log.debug('checkSub: Dutch Subtitle(s) found trying to download the highest scored.')
+                        log.debug('Dutch Subtitle(s) found trying to download the highest scored.')
                         if DownloadSub(Wanted,SubsNL):
                             Wanted['langs'].remove(autosub.DUTCH)
                             if not autosub.DOWNLOADENG and autosub.ENGLISH in Wanted['langs']:
@@ -91,11 +113,11 @@ class checkSub():
                             if autosub.ENGLISHSUBDELETE and os.path.exists(os.path.join(Wanted['folder'],Wanted['file'] + Wanted['ENext'])):
                                 try:
                                     os.unlink(os.path.join(Wanted['folder'],Wanted['file'] + Wanted['ENext']))
-                                    log.info("checkSub: Removed English subtitle for : %s" % Wanted['file'])
+                                    log.info("Removed English subtitle for : %s" % Wanted['file'])
                                 except Exception as error:
-                                    log.error("checkSub: Error while trying to remove English subtitle message is:%s." % error)
+                                    log.error("Error while trying to remove English subtitle message is:%s." % error)
                     if SubsEN:
-                        log.debug('checkSub: English Subtitle(s) found trying to download the highest scored.')
+                        log.debug('English Subtitle(s) found trying to download the highest scored.')
                         if DownloadSub(Wanted,SubsEN):
                             Wanted['langs'].remove(autosub.ENGLISH)
                             time.sleep(0)
@@ -107,21 +129,18 @@ class checkSub():
                     else:
                         Index += 1
         else:
-            log.info("checkSub: Nothing to search for." ) 
-        autosub.DBCONNECTION.close()
-        del autosub.DBCONNECTION
-        del autosub.DBIDCACHE
+            log.info("Nothing to search for." ) 
         if autosub.ADDIC7EDAPI:
             autosub.ADDIC7EDAPI.logout()
-
         if autosub.OPENSUBTITLESTOKEN:
-            OpenSubtitlesLogout()
-                                        
-        log.info("checkSub: Finished round of subs Search. Go to sleep until the next round.")
+            OS_Logout()                         
+        log.info("Finished round of subs Search. Go to sleep until the next round.")
+        autosub.DBCONNECTION.close()
         autosub.SEARCHTIME = time.time() - StartTime
         autosub.SEARCHBUSY = False
         autosub.SEARCHSTOP = False
+        autosub.REFRESH_LOGPAGE = False
+        # prevent kodi library update with every download, just once per checksub round.
         if autosub.DOWNLOADED and autosub.NOTIFYKODI and autosub.KODIUPDATEONCE:
             kodimediaserver.send_update_library()
-
         return True

@@ -7,7 +7,6 @@ import urllib
 import urllib2
 import logging
 import autosub
-#import library.requests as requests
 log = logging.getLogger('thelogger')
 
 #    Use Telegram to send notifications
@@ -26,7 +25,7 @@ def test_notify( api_key=None,id=None):
     return _send_notify('This is a test notification from Autosub', api_key,id)
 
 def send_notify(lang, subtitlefile, videofile, website):
-    log.debug("Telegram: Trying to send a notification")
+    log.debug("Trying to send a notification")
     message = "%s downloaded from %s" %(subtitlefile, website)
     return _send_notify(message)
 
@@ -43,7 +42,7 @@ def _send_notify(msg, api_key=None,id=None) :
     id = autosub.TELEGRAMID if id is None else id
     api_key = autosub.TELEGRAMAPI if api_key is None else api_key
 
-    log.debug('telegram: Notification send to ID: %s' % id)
+    log.debug('Notification send to ID: %s' % id)
 
     message = '{0} : {1}'.format('Auto-Sub', msg)
     payload = urllib.urlencode({'chat_id': id, 'text': message})
@@ -53,9 +52,9 @@ def _send_notify(msg, api_key=None,id=None) :
 
     try:
         urllib2.urlopen(req)
-        log.debug('telegram : message sent successfully.')
+        log.debug('Message sent successfully.')
     except Exception as error:
-        log.error('telegram: %s' % error)
+        log.error('%s' % error)
         return False
     return True
 

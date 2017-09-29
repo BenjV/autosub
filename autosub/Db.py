@@ -35,7 +35,7 @@ class idCache():
             else:
                 return None, None, None, None
         except Exception as error:
-            log.error('getId: Database error: %s' % error)
+            log.error('Database error: %s' % error)
             return None, None, None, None
 
     def getInfo(self, ImdbId):
@@ -47,7 +47,7 @@ class idCache():
             else:
                 return None, None, None
         except Exception as error:
-            log.error('getInfo: Database error: %s' % error)
+            log.error('Database error: %s' % error)
             return None, None, None
 
     def setId(self, ShowName, ImdbId, AddicId, TvdbId, TvdbName):
@@ -60,7 +60,7 @@ class idCache():
                 self.cursor.execute(self.query_setId,[ShowName, ImdbId, AddicId, TvdbId, TvdbName])
                 autosub.DBCONNECTION.commit()
         except Exception as error:
-            log.error('setId: Database error: %s' % error)
+            log.error('Database error: %s' % error)
         return
 
 def flushcache():
@@ -113,7 +113,7 @@ class lastDown():
             connection.commit()
             connection.close()
         except Exception as error:
-            log.error('setlastDown: Database error: %s' % error)
+            log.error('Database error: %s' % error)
     
     def flushLastdown(self):
         connection=sqlite3.connect(autosub.DBFILE)
@@ -125,15 +125,14 @@ class lastDown():
 def createDatabase():
     #create the database
     try: 
-        connection=sqlite3.connect(autosub.DBFILE)
-        cursor=connection.cursor() 
+        autosub.DBCONNECTION=sqlite3.connect(autosub.DBFILE)
+        cursor=autosub.DBCONNECTION.cursor() 
         cursor.execute("CREATE TABLE show_id_cache (show_name TEXT UNIQUE PRIMARY KEY, imdb_id TEXT, a7_id TEXT, tvdb_id TEXT, tvdb_name TEXT);")
         cursor.execute("CREATE TABLE last_downloads (id INTEGER PRIMARY KEY, show_name TEXT, season TEXT, episode TEXT, quality TEXT, source TEXT, language TEXT, codec TEXT, timestamp DATETIME, releasegrp TEXT, subtitle TEXT, destination TEXT);")
         cursor.execute("PRAGMA user_version = 10")
-        connection.commit()
-        connection.close()
+        autosub.DBVERSION = 10
+        autosub.DBCONNECTION.commit()
         print "createDatabase: Succesfully created the sqlite database"
-        autosub.DBVERSION = 8
     except:
         print "initDatabase: Could not create database, please check if AutoSub has write access to write the following file %s" %autosub.DBFILE
         os._exit(1)
@@ -147,8 +146,7 @@ def upgradeDb(from_version, to_version):
         for x in range (0, upgrades):
             upgradeDb(from_version + x, from_version + x + 1)
     else:
-        connection=sqlite3.connect(autosub.DBFILE)
-        cursor=connection.cursor()
+        cursor=autosub.DBCONNECTION.cursor()
         if from_version == 1 and to_version == 2:
             #Add codec and timestamp
             #New table, info with dbversion     
@@ -207,33 +205,29 @@ def upgradeDb(from_version, to_version):
             # Create this table again with the new layout.
             cursor.execute("CREATE TABLE IF NOT EXISTS show_id_cache (show_name TEXT UNIQUE PRIMARY KEY, imdb_id TEXT, a7_id TEXT, tvdb_id TEXT, tvdb_name TEXT);")
             cursor.execute("PRAGMA user_version = 10")
-        connection.commit()
-        connection.close()
+        autosub.DBCONNECTION.commit()
         autosub.DBVERSION = version.dbversion
 
 def getDbVersion():
     try:
-        connection=sqlite3.connect(autosub.DBFILE)
-        cursor=connection.cursor()
+        cursor=autosub.DBCONNECTION.cursor()
         dbversion = cursor.execute( "PRAGMA user_version").fetchone()[0]
         if dbversion == 0 :
             dbversion = cursor.execute('SELECT database_version FROM info').fetchone()[0]
-        connection.close() 
         return int(dbversion)
     except:
         return 1
 
 def initDatabase():
-    #check if file is already there
-    dbFile = os.path.join(autosub.PATH, autosub.DBFILE)
-    #dbFile = os.path.normpath("/volume1/sync/AutoSub/Database.db")
-    if not os.path.exists(dbFile):
+    #check if file is already there if not create a database
+    if os.path.exists(autosub.DBFILE):
+        autosub.DBCONNECTION = sqlite3.connect(autosub.DBFILE)
+        autosub.DBVERSION = getDbVersion()
+    else:
         createDatabase()
-    
-    autosub.DBVERSION = getDbVersion()
-    
+    autosub.DBCONNECTION.close()
     if autosub.DBVERSION < version.dbversion:
         upgradeDb(autosub.DBVERSION, version.dbversion)
     elif autosub.DBVERSION > version.dbversion:
-        print "initDatabase: Database version higher than this version of AutoSub supports. Update or remove database!!!"
+        print "initDatabase: Database version higher than this version of AutoSub supports. Update Autosub or remove database!!!"
         os._exit(1)

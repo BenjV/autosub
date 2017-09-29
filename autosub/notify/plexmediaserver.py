@@ -9,7 +9,7 @@ from xml.etree import ElementTree as ET
 log = logging.getLogger('thelogger')
 
 def test_update_library(plexserverhost, plexserverport, plexserverusername, plexserverpassword):
-    log.info("Plex Media Server: Trying to update the TV shows library.")
+    log.info("Trying to update the TV shows library.")
     plexservertoken = None
     if autosub.PLEXSERVERTOKEN:
         plexservertoken = autosub.PLEXSERVERTOKEN
@@ -17,7 +17,7 @@ def test_update_library(plexserverhost, plexserverport, plexserverusername, plex
     return _update_library(plexserverhost, plexserverport, plexserverusername, plexserverpassword, plexservertoken)
 
 def send_update_library():
-    log.info("Plex Media Server: Trying to update the TV shows library.")
+    log.info("Trying to update the TV shows library.")
     if not autosub.PLEXSERVERPORT :
         plexserverhost = "127.0.0.1"
     else:
@@ -54,13 +54,13 @@ def _update_library(plexserverhost, plexserverport, plexserverusername, plexserv
         try:
             response = requests.get(url)
         except:
-            log.error("plexmediaserver: Error while trying to contact plexmedia server")
+            log.error("Error while trying to contact plexmedia server")
             return False
     #SubLines = re.findall('<tr class="epeven completed">(.*?)</tr>', SubOverviewPage, re.S)
     else:
         #Fetch X-Plex-Token if it doesn't exist but a username/password do
         if not plexservertoken and plexserverusername and plexserverpassword:
-            log.info("plexmediaserver: Fetching a new X-Plex-Token from plex.tv")
+            log.info("Fetching a new X-Plex-Token from plex.tv")
             authheader = "Basic %s" % base64.encodestring('%s:%s' % (plexserverusername, plexserverpassword))[:-1]
 
             headers = {
@@ -70,9 +70,9 @@ def _update_library(plexserverhost, plexserverport, plexserverusername, plexserv
                 "X-Plex-Version": "1.0"
             }
             try:
-                response = requests.post("https://plex.tv/users/sign_in.xml", headers=headers);
+                response = requests.post("https://plex.tv/users/sign_in.xml", headers=headers,verify=autosub.CERTIFICATEPATH);
             except:
-                log.error("Plex Media Server: Error while trying to contact plexmediaserver")
+                log.error("Error while trying to contact plexmediaserver")
                 return False
 
             auth_tree = ET.fromstring(response.text)
@@ -88,7 +88,7 @@ def _update_library(plexserverhost, plexserverport, plexserverusername, plexserv
                     plexservertoken
                 ))
             except Exception as error:
-                log.error("plexmediaserver: Error from get header. Error is: %s" % error)
+                log.error("Error from get header. Error is: %s" % error)
                 return False
             xml_sections = ET.fromstring(response.text)
     try:
@@ -96,7 +96,7 @@ def _update_library(plexserverhost, plexserverport, plexserverusername, plexserv
     except:
         pass
     if not sections:
-        log.info("plexmediaserver: Server not running on: %s:%s" % (plexserverhost, plexserverport))
+        log.info("Server not running on: %s:%s" % (plexserverhost, plexserverport))
         return False
 
     for s in sections:
@@ -108,18 +108,18 @@ def _update_library(plexserverhost, plexserverport, plexserverusername, plexserv
                         "library/sections/%s/refresh" % (s.get('key')),
                         plexservertoken
                     ))
-                    log.info("plexmediaserver: TV Shows library (%s) is currently updating." % s.get('title'))
+                    log.info("TV Shows library (%s) is currently updating." % s.get('title'))
                     return True
                 except Exception, e:
-                    log.error("plexmediaserver: Error updating library section: %s" % e)
+                    log.error("Error updating library section: %s" % e)
                     return False
             else:
                 url = "http://%s:%s/library/sections/%s/refresh" % (plexserverhost, plexserverport, s.getAttribute('key'))
                 try:
                     requests.get(url)
-                    log.info("Plex Media Server: TV Shows library is currently updating.")
+                    log.info("TV Shows library is currently updating.")
                     return True
                 except Exception, e:
-                    log.error("Plex Media Server: Error updating library section: %s" % e)
+                    log.error("Error updating library section: %s" % e)
                     return False
     return True

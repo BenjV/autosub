@@ -1,14 +1,14 @@
-import autosub.Scheduler
-import autosub.scanDisk
+import Scheduler
 import autosub.checkSub
 import autosub.WebServer
-
+import autosub
 import logging
 import os
 import cherrypy
-import sys,time
+import sys
+from time import sleep
 import webbrowser
-
+import signal
 import HTMLParser #Don't remove this one, needed for the windows bins
 
 # Settings
@@ -57,14 +57,27 @@ def launchBrowser():
     try:
         webbrowser.open(url, new=1, autoraise=True )
     except:
-        log.error('launchBrowser: Failed')
+        log.error('Failed')
         try:
             print 'retry launch browser'
             webbrowser.open(url, 1, 1)
         except:
-            log.error('launchBrowser: Failed')
+            log.error('Failed')
+
+def SigHandler(signum, frame):
+    autosub.SEARCHSTOP = True
+    cherrypy.engine.exit()
+    try:
+        os.remove(os.path.join(autosub.PATH,'autosub.pid'))
+    except Exception as error:
+        log.error('Could not remove the PID file. Error is: %s' % error)
+    log.info("Got signal. Gracefully Shutting down")
+    os._exit(0)
 
 def start():
+            # setup de signal handler for Terminal en Keyboard interupt.  
+    signal.signal(signal.SIGTERM, SigHandler)
+    signal.signal(signal.SIGINT, SigHandler)
 
     # Only use authentication in CherryPy when a username and password is set by the user
     if autosub.USERNAME and autosub.PASSWORD:
@@ -117,14 +130,14 @@ def start():
         }
     
     cherrypy.tree.mount(autosub.WebServer.WebServerInit(),autosub.WEBROOT, config = conf)
-    log.info("AutoSub: Starting CherryPy webserver")
+    log.info("Starting CherryPy webserver")
 
     # TODO: Let CherryPy log to another log file and not to screen
-    # TODO: CherryPy settings, etc...
+    # TODO: CherryPy settings, etc...satop()
     try:
         cherrypy.server.start()
     except Exception as error:
-        log.error("AutoSub: Could not start webserver. Error is: %s" %error)
+        log.error("Could not start webserver. Error is: %s" %error)
         os._exit(1)
     cherrypy.config.update({'log.screen': False,
                             'log.access_file': '',
@@ -133,32 +146,22 @@ def start():
 
     if autosub.LAUNCHBROWSER and not autosub.UPDATED:
         launchBrowser()
-    time.sleep(1)
-    log.info("AutoSub: Starting the Search thread thread")
+    sleep(1)
+    log.info("Starting the Search thread thread")
     autosub.CHECKSUB = autosub.Scheduler.Scheduler(autosub.checkSub.checkSub(), True, "CHECKSUB")
     autosub.CHECKSUB.thread.start()
 
 
 def stop():
-    log.info("AutoSub: Stopping Search thread")
+    log.info("Stopping Search thread")
     autosub.SEARCHSTOP = True
-    autosub.CHECKSUB.stop = True
-    autosub.CHECKSUB.thread.join(10)
-
+    log.info("Got shutdown command. Gracefully Shutting down")
     cherrypy.engine.exit()
+    while autosub.SEARCHBUSY:
+        sleep(1)
+    autosub.CHECKSUB.thread.join(2)
     try:
         os.remove(os.path.join(autosub.PATH,'autosub.pid'))
     except Exception as error:
-        log.error('AutoSub: Could not remove the PID file. Error is: %s' % error)
-    os._exit(0)
-
-def signal_handler(signum, frame):
-    autosub.SEARCHSTOP = True
-    cherrypy.engine.exit()
-    try:
-        os.remove(os.path.join(autosub.PATH,'autosub.pid'))
-    except Exception as error:
-        log.error('AutoSub: Could not remove the PID file. Error is: %s' % error)
-
-    log.info("AutoSub: got signal. Gracefully Shutting down")
+        log.error('Could not remove the PID file. Error is: %s' % error)
     os._exit(0)

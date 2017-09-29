@@ -13,17 +13,17 @@ def _send_notify(data):
         response = http_handler.getresponse()
         request_status = response.status
     except:
-        log.error("Prowl: Failed to connect to Prowl")
+        log.error("Failed to connect to Prowl")
         return False
        
     if request_status == 200:
-        log.info('Prowl: notification sent.')
+        log.info('notification sent.')
         return True
     elif request_status == 401:
-        log.error("Prowl: Authentication failed, check your API key")
+        log.error("Authentication failed, check your API key")
         return False
     else:
-        log.error("Prowl: notification failed.")
+        log.error("Notification failed.")
         return False
 
 def test_notify(prowlapi, prowlpriority):

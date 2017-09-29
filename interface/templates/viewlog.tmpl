@@ -1,32 +1,30 @@
 #import autosub
-
 #include $os.path.join($autosub.PATH.encode(), "interface/templates/header.tmpl")
 
 <div class="page-header">
-    <h1>LogLevel: <small>
-        #if $loglevel == "All"
-            <a href="$autosub.WEBROOT/log"><u>All</u></a>
-        #else
-            <a href="$autosub.WEBROOT/log">All</a>
-        #end if
-        #if $loglevel == "info"
-            <a href="$autosub.WEBROOT/log/viewLog/info"><u>Info</u></a>
-        #else
-            <a href="$autosub.WEBROOT/log/viewLog/info">Info</a>
-        #end if
-        #if $loglevel == "debug"
-            <a href="$autosub.WEBROOT/log/viewLog/debug"><u>Debug</u></a>
-        #else
-            <a href="$autosub.WEBROOT/log/viewLog/debug">Debug</a>
-        #end if
-        #if $loglevel == "error"
-            <a href="$autosub.WEBROOT/log/viewLog/error"><u>Error</u></a>
-        #else
-            <a href="$autosub.WEBROOT/log/viewLog/error">Error</a>
-        #end if
-    </small></h1>
+  <h3>LogLevel Filter:
+    #if $loglevel == "All"
+      <a href="$autosub.WEBROOT/log"><u>All</u></a>
+    #else
+      <a href="$autosub.WEBROOT/log">All</a>
+    #end if
+    #if $loglevel == "info"
+      <a href="$autosub.WEBROOT/log/viewLog/info"><u>Info</u></a>
+    #else
+      <a href="$autosub.WEBROOT/log/viewLog/info">Info</a>
+    #end if
+    #if $loglevel == "debug"
+      <a href="$autosub.WEBROOT/log/viewLog/debug"><u>Debug</u></a>
+    #else
+      <a href="$autosub.WEBROOT/log/viewLog/debug">Debug</a>
+    #end if
+    #if $loglevel == "error"
+      <a href="$autosub.WEBROOT/log/viewLog/error"><u>Error</u></a>
+    #else
+      <a href="$autosub.WEBROOT/log/viewLog/error">Error</a>
+    #end if
+  </h3>
 </div>
-
 
 <div style="width:100%;height:700px;overflow:auto;overflow-x:hidden;">
 

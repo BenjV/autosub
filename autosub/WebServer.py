@@ -1,10 +1,9 @@
-#
 # The Webserver module
-#
 
 import cherrypy
-
 import logging
+import sys
+import codecs
 from ast import literal_eval
 
 log = logging.getLogger('thelogger')
@@ -13,19 +12,17 @@ try:
     from Cheetah.Template import Template
 except:
     print "ERROR!!! Cheetah is not installed yet. Download it from: http://pypi.python.org/pypi/Cheetah/2.4.4"
-
+    sys.exit(1)
 import threading
-import time,os
+from os.path import normpath, isfile
 import autosub.Config
 from autosub.Db import lastDown, flushcache
 from autosub.version import autosubversion
 import autosub.notify as notify
-
 import autosub.Helpers
-
 from autosub.Addic7ed import Addic7edAPI
-from autosub.OpenSubtitles import OpenSubtitlesLogin
-from autosub.OpenSubtitles import OpenSubtitlesLogout
+from autosub.OpenSubtitles import OS_Login,OS_Logout
+from autosub.Tvdb import GetToken
 
 def redirect(abspath, *args, **KWs):
     assert abspath[0] == '/'
@@ -64,11 +61,6 @@ class Config:
     @cherrypy.expose
     def info(self):
         tmpl = PageTemplate(file="interface/templates/config-info.tmpl")
-        return str(tmpl)  
-
-    @cherrypy.expose
-    def liveinfo(self):
-        tmpl = PageTemplate(file="interface/templates/config-liveinfo.tmpl")
         return str(tmpl)  
 
     @cherrypy.expose
@@ -136,8 +128,9 @@ class Config:
     def saveConfig(self, subeng, skipstringnl, skipstringen, skipfoldersnl,skipfoldersen, subnl, postprocesscmd, 
                    logfile, seriespath, bckpath, subcodec,  username, 
                    password, webroot, skipshow, lognum, loglevelconsole, loglevel, 
-                   webserverip, webserverport, usernamemapping, useraddic7edmapping,
-                   opensubtitlesuser, opensubtitlespasswd,  addic7eduser, addic7edpasswd, addic7ed=None,opensubtitles=None, podnapisi=None, subscene=None, 
+                   webserverip, webserverport, usernamemapping, 
+                   opensubtitlesuser, opensubtitlespasswd,  addic7eduser, addic7edpasswd,useraddic7edmapping, tvdbuser = None,tvdbaccountid = None,
+                   addic7ed=None,opensubtitles=None, podnapisi=None, subscene=None, 
                    wantedfirst = None, browserrefresh = None, skiphiddendirs = None,useaddic7ed=None,launchbrowser=None,interval = None, logsize=None,
                    fallbacktoeng = None, downloadeng = None, englishsubdelete = None, notifyen = None, notifynl = None, downloaddutch = None,
                    mmssource = u'0', mmsquality = u'0', mmscodec = u'0', mmsrelease = u'0',hearingimpaired = None):
@@ -150,8 +143,8 @@ class Config:
             return str(tmpl)
                    
         # Set all internal variables
-        autosub.SERIESPATH = os.path.normpath(seriespath)
-        autosub.BCKPATH = os.path.normpath(bckpath)
+        autosub.SERIESPATH = normpath(seriespath)
+        autosub.BCKPATH = normpath(bckpath)
         autosub.LOGFILE = logfile
         autosub.DOWNLOADENG = True if downloadeng else False
         autosub.DOWNLOADDUTCH = True if downloaddutch else False
@@ -174,6 +167,8 @@ class Config:
         autosub.ADDIC7ED = True if addic7ed else False
         autosub.ADDIC7EDUSER = addic7eduser
         autosub.ADDIC7EDPASSWD = addic7edpasswd.replace("%","%%")
+        autosub.TVDBUSER = tvdbuser
+        autosub.TVDBACCOUNTID = tvdbaccountid
         autosub.BROWSERREFRESH = browserrefresh
         autosub.SKIPSTRINGNL = skipstringnl
         autosub.SKIPSTRINGEN = skipstringen
@@ -195,8 +190,8 @@ class Config:
 
         if autosub.LOGLEVELCONSOLE != int(loglevelconsole):
             autosub.LOGLEVELCONSOLE =int(loglevelconsole)
-            if autosub.DAEMON!=True:
-                autosub.CONSOLE.level = autosub.LOGLEVELCONSOLE
+        if autosub.DAEMON!=True:
+            autosub.CONSOLE.level = 50
         autosub.WEBSERVERIP = webserverip
         autosub.WEBSERVERPORT = int(webserverport)
         autosub.USERNAME = username
@@ -286,8 +281,7 @@ class Config:
      
     @cherrypy.expose
     def testPushalot(self, pushalotapi, dummy):
-        
-        log.info("Notification: Testing Pushalot")
+        log.info("Testing Pushalot")
         result = notify.pushalot.test_notify(pushalotapi)
         if result:
             return "Auto-Sub successfully sent a test message with <strong>Pushalot</strong>."
@@ -296,8 +290,7 @@ class Config:
 
     @cherrypy.expose
     def testPushbullet(self, pushbulletapi, dummy):
-        
-        log.info("Notification: Testing Pushbullet")
+        log.info("Testing Pushbullet")
         result = notify.pushbullet.test_notify(pushbulletapi)
         if result:
             return "Auto-Sub successfully sent a test message with <strong>Pushbullet</strong>."
@@ -306,8 +299,7 @@ class Config:
     
     @cherrypy.expose
     def testMail(self, mailsrv, mailfromaddr, mailtoaddr, mailusername, mailpassword, mailsubject, mailencryption, mailauth, dummy):  
-        
-        log.info("Notification: Testing Mail")
+        log.info("Testing Mail")
         result = notify.mail.test_notify(mailsrv, mailfromaddr, mailtoaddr, mailusername, mailpassword, mailsubject, mailencryption, mailauth)
         if result:
             return "Auto-Sub successfully sent a test message with <strong>Mail</strong>."
@@ -316,8 +308,7 @@ class Config:
     
     @cherrypy.expose
     def testTwitter(self, twitterkey, twittersecret, dummy):
-        
-        log.info("Notification: Testing Twitter")  
+        log.info("Testing Twitter")  
         result = notify.twitter.test_notify(twitterkey, twittersecret)
         if result:
             return "Auto-Sub successfully sent a test message with <strong>Twitter</strong>."
@@ -326,8 +317,7 @@ class Config:
     
     @cherrypy.expose
     def testNotifyMyAndroid(self, nmaapi, nmapriority, dummy):
-        
-        log.info("Notification: Testing Notify My Android")     
+        log.info("Testing Notify My Android")     
         result = notify.nma.test_notify(nmaapi, nmapriority)
         if result:
             return "Auto-Sub successfully sent a test message with <strong>Notify My Android</strong>."
@@ -336,8 +326,7 @@ class Config:
     
     @cherrypy.expose
     def testPushover(self, pushoverappkey, pushoveruserkey, pushoverpriority, dummy):
-        
-        log.info("Notification: Testing Pushover")
+        log.info("Testing Pushover")
         result = notify.pushover.test_notify(pushoverappkey, pushoveruserkey,pushoverpriority)
         if result:
             return "Auto-Sub successfully sent a test message with <strong>Pushover</strong>."
@@ -346,8 +335,7 @@ class Config:
     
     @cherrypy.expose
     def testGrowl(self, growlhost, growlport, growlpass, dummy):
-        
-        log.info("Notification: Testing Growl")
+        log.info("Testing Growl")
         result = notify.growl.test_notify(growlhost, growlport, growlpass)
         if result:
             return "Auto-Sub successfully sent a test message with <strong>Growl</strong>."
@@ -356,8 +344,7 @@ class Config:
     
     @cherrypy.expose
     def testProwl(self, prowlapi, prowlpriority, dummy):
-        
-        log.info("Notification: Testing Prowl")
+        log.info("Testing Prowl")
         result = notify.prowl.test_notify(prowlapi, prowlpriority)
         if result:
             return "Auto-Sub successfully sent a test message with <strong>Prowl</strong>."
@@ -366,8 +353,7 @@ class Config:
 
     @cherrypy.expose
     def testTelegram(self, telegramapi, telegramid, dummy):
-        
-        log.info("Notification: Testing Telegram")
+        log.info("Testing Telegram")
         result = notify.telegram.test_notify(telegramapi, telegramid)
         if result:
             return "Auto-Sub successfully sent a test message with <strong>Telegram</strong>."
@@ -376,8 +362,7 @@ class Config:
 
     @cherrypy.expose
     def testBoxcar2(self, boxcar2token, dummy):
-        
-        log.info("Notification: Testing Boxcar2")
+        log.info("Testing Boxcar2")
         result = notify.boxcar2.test_notify(boxcar2token)
         if result:
             return "Auto-Sub successfully sent a test message with <strong>Boxcar2</strong>."
@@ -386,8 +371,7 @@ class Config:
    
     @cherrypy.expose
     def testPlex(self, plexserverhost, plexserverport, plexserverusername, plexserverpassword, dummy):
-        
-        log.info("Notification: Testing Plex Media Server")
+        log.info("Testing Plex Media Server")
         result = notify.plexmediaserver.test_update_library(plexserverhost, plexserverport, plexserverusername, plexserverpassword)
         if result:
             return "Auto-Sub successfully updated the media library on your <strong>Plex Media Server</strong>."
@@ -396,13 +380,21 @@ class Config:
 
     @cherrypy.expose
     def testKodi(self, kodiserverhost, kodiserverport, kodiserverusername, kodiserverpassword, dummy):
-        
-        log.info("Notification: Testing Kodi Media Server")
+        log.info("Testing Kodi Media Server")
         result = notify.kodimediaserver.test_update_library(kodiserverhost, kodiserverport, kodiserverusername, kodiserverpassword)
         if result:
             return "Auto-Sub successfully updated the media library on your <strong>Kodi Media Server</strong>."
         else:
             return "Failed to update the media library on your <strong>Kodi Media Server</strong>."
+ 
+    @cherrypy.expose
+    def verifyTvdb(self, tvdbuser, tvdbaccountid, dummy):
+        if not (tvdbuser and tvdbaccountid):
+            return "<strong>No input</strong>."
+        if GetToken(tvdbuser,tvdbaccountid):
+            return "<strong>Success</strong>."
+        else:
+            return "<strong>Failure</strong>."
 
     @cherrypy.expose
     def testAddic7ed(self, addic7eduser, addic7edpasswd, dummy):
@@ -413,25 +405,24 @@ class Config:
 
     @cherrypy.expose
     def testOpenSubtitles(self, opensubtitlesuser, opensubtitlespasswd, dummy):
-        if OpenSubtitlesLogin(opensubtitlesuser,opensubtitlespasswd):
-            OpenSubtitlesLogout()
+        if OS_Login(opensubtitlesuser,opensubtitlespasswd):
+            OS_Logout()
             return "<strong>Success</strong>."
         else:
             return "<strong>Failure</strong>."
-   
+ 
     @cherrypy.expose
     def regTwitter(self, token_key=None, token_secret=None, token_pin=None):
-        import library.oauth2 as oauth
+        import oauth2
         import autosub.notify.twitter as notifytwitter 
         try:
             from urlparse import parse_qsl
         except:
             from cgi import parse_qsl
-        
         if not token_key and not token_secret:
-            consumer = oauth.Consumer(key=notifytwitter.CONSUMER_KEY, secret=notifytwitter.CONSUMER_SECRET)
-            oauth_client = oauth.Client(consumer)
-            response, content = oauth_client.request(notifytwitter.REQUEST_TOKEN_URL, 'GET')
+            consumer = oauth2.Consumer(key=notifytwitter.CONSUMER_KEY, secret=notifytwitter.CONSUMER_SECRET)
+            oauth_client = oauth2.Client(consumer)
+            response, content = oauth2.request(notifytwitter.REQUEST_TOKEN_URL, 'GET')
             if response['status'] != '200':
                 message = "Something went wrong when trying to register Twitter"
                 tmpl = PageTemplate(file="interface/templates/config-settings.tmpl")
@@ -447,17 +438,15 @@ class Config:
                 token_secret = request_token['oauth_token_secret']
                 tmpl.token_key = token_key
                 tmpl.token_secret = token_secret
-                return str(tmpl)
-        
+                return str(tmpl)     
         if token_key and token_secret and token_pin:
             
-            token = oauth.Token(token_key, token_secret)
+            token = oauth2.Token(token_key, token_secret)
             token.set_verifier(token_pin)
-            consumer = oauth.Consumer(key=notifytwitter.CONSUMER_KEY, secret=notifytwitter.CONSUMER_SECRET)
-            oauth_client2 = oauth.Client(consumer, token)
+            consumer = oauth2.Consumer(key=notifytwitter.CONSUMER_KEY, secret=notifytwitter.CONSUMER_SECRET)
+            oauth_client2 = oauth2.Client(consumer, token)
             response, content = oauth_client2.request(notifytwitter.ACCESS_TOKEN_URL, method='POST', body='oauth_verifier=%s' % token_pin)
             access_token = dict(parse_qsl(content))
-
             if response['status'] != '200':
                 message = "Something went wrong when trying to register Twitter"
                 tmpl = PageTemplate(file="interface/templates/config-settings.tmpl")
@@ -468,7 +457,6 @@ class Config:
             else:
                 autosub.TWITTERKEY = access_token['oauth_token']
                 autosub.TWITTERSECRET = access_token['oauth_token_secret']
-                
                 message = "Twitter registration complete.<br> Remember to save your configuration and test Twitter!"
                 tmpl = PageTemplate(file="interface/templates/config-settings.tmpl")
                 tmpl.message = message
@@ -476,7 +464,6 @@ class Config:
                 tmpl.modalheader = "Information"
                 return str(tmpl)
                 
-
 class Home:
     @cherrypy.expose
     def index(self):
@@ -492,20 +479,17 @@ class Home:
         tmpl = PageTemplate(file="interface/templates/home.tmpl")
         if autosub.Helpers.CheckMobileDevice(useragent) and autosub.MOBILEAUTOSUB:
             tmpl = PageTemplate(file="interface/templates/mobile/message.tmpl")
-
         if not hasattr(autosub.CHECKSUB, 'runnow'):
             tmpl.message = "Auto-Sub is already running, no need to rerun"
             tmpl.displaymessage = "Yes"
             tmpl.modalheader = "Information"
             return str(tmpl)
-
         autosub.CHECKSUB.runnow = True
-
         tmpl.message = "Auto-Sub is now checking for subtitles!"
         tmpl.displaymessage = "Yes"
         tmpl.modalheader = "Information"
-
         return str(tmpl)
+
     @cherrypy.expose
     def stopSearch(self):
         message = 'Search will be stopped after the current sub search has ended'
@@ -515,7 +499,6 @@ class Home:
         tmpl.displaymessage = "Yes"
         tmpl.modalheader = "Information"     
         return str(tmpl)
-
 
     @cherrypy.expose
     def checkVersion(self):
@@ -547,14 +530,9 @@ class Home:
     
     @cherrypy.expose
     def shutdown(self):
+        autosub.SEARCHSTOP = True
         tmpl = PageTemplate(file="interface/templates/stopped.tmpl")
-        if not hasattr(autosub.CHECKSUB, 'stop'):
-            tmpl = PageTemplate(file="interface/templates/home.tmpl")
-            tmpl.message = "Auto-Sub is still running CheckSub, you cannot shutdown at the moment.<br>Please wait a few minutes or stop the Search first."
-            tmpl.displaymessage = "Yes"
-            tmpl.modalheader = "Information"
-            return str(tmpl) 
-        threading.Timer(5, autosub.AutoSub.stop).start()
+        threading.Timer(2, autosub.AutoSub.stop).start()
         return str(tmpl)
 
     @cherrypy.expose
@@ -603,14 +581,33 @@ class Log:
     @cherrypy.expose
     def viewLog(self, loglevel = ''):
         tmpl = PageTemplate(file="interface/templates/viewlog.tmpl")
-        if loglevel == '':
-            tmpl.loglevel = 'All'
+        tmpl.loglevel = 'All' if loglevel == '' else loglevel
+        if tmpl.loglevel == 'debug':
+            LevelName = 'DBG'
+        elif tmpl.loglevel == 'info':
+            LevelName = 'INF'
+        elif tmpl.loglevel == 'error':
+            LevelName = 'ERR'
         else:
-            tmpl.loglevel = loglevel
-        result = autosub.Helpers.DisplayLogFile(loglevel)
-        tmpl.logentries = result
-        
-        return str(tmpl)   
+            LevelName = None
+        if isfile(autosub.LOGFILE):
+            try:
+                with codecs.open(autosub.LOGFILE, 'r', autosub.SYSENCODING) as f:
+                    LogLines = f.readlines()
+            except Exception as error:
+                log.error('Could not read the logfile. %s' % error)
+                tmpl.message = error
+                return tmpl
+        FilteredLines = []
+        numLines = 0
+        for line in reversed(LogLines):
+                if not LevelName or line[15:18] == LevelName:
+                    numLines += 1
+                    if numLines >= 1000:
+                        break
+                    FilteredLines.append(line)
+        tmpl.logentries = "".join(FilteredLines)
+        return str(tmpl) 
     
     @cherrypy.expose
     def clearLog(self):

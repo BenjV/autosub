@@ -1,13 +1,7 @@
-# coding: latin-1
-
 # Autosub Config.py
 #
 # The Autosub config Module
 #
-
-# python 2.5 support
-
-from __future__ import with_statement
 
 import os,re
 import logging
@@ -19,15 +13,8 @@ import autosub
 import autosub.version as version
 import autosub.ID_lookup
 
-# Autosub specific modules
 
-# Settings -----------------------------------------------------------------------------------------------------------------------------------------
-# Location of the configuration file:
-# configfile = "config.properties"
-# Set the logger
 log = logging.getLogger('thelogger')
-#/Settings -----------------------------------------------------------------------------------------------------------------------------------------
-
 
 def ReadConfig():
     """
@@ -45,13 +32,6 @@ def ReadConfig():
         #No config found so we create a default config
         Message = WriteConfig()
         return
-
-    # First we check whether the config has been upgraded
-    if autosub.CONFIGVERSION < version.configversion:
-        upgradeConfig(cfg, autosub.CONFIGVERSION, version.configversion)
-    elif autosub.CONFIGVERSION > version.configversion:
-        print "Config: ERROR! Config version higher then this version of AutoSub supports. Update AutoSub!"
-        os._exit(1)
 
     section = 'config'
     if not cfg.has_section(section):  cfg.add_section(section)
@@ -85,8 +65,9 @@ def ReadConfig():
     if cfg.has_option(section, "opensubtitlesuser"):    autosub.OPENSUBTITLESUSER   = cfg.get(section, "opensubtitlesuser")
     if cfg.has_option(section, "opensubtitlespasswd"):  autosub.OPENSUBTITLESPASSWD = cfg.get(section, "opensubtitlespasswd") 
     if cfg.has_option(section, "addic7eduser"):         autosub.ADDIC7EDUSER        = cfg.get(section, "addic7eduser")
-    if cfg.has_option(section, "addic7edpasswd"):       autosub.ADDIC7EDPASSWD      = cfg.get(section, "addic7edpasswd") 
-    if cfg.has_option(section, "logfile"):              autosub.LOGFILE             = cfg.get(section, "logfile")
+    if cfg.has_option(section, "addic7edpasswd"):       autosub.ADDIC7EDPASSWD      = cfg.get(section, "addic7edpasswd")
+    if cfg.has_option(section, "tvdbuser"):             autosub.TVDBUSER            = cfg.get(section, "tvdbuser")
+    if cfg.has_option(section, "tvdbaccountid"):        autosub.TVDBACCOUNTID       = cfg.get(section, "tvdbaccountid")
     if cfg.has_option(section, "subcodec"):             autosub.SUBCODEC            = cfg.get(section, "subcodec")
     if cfg.has_option(section, "skipstringnl"):         autosub.SKIPSTRINGNL        = cfg.get(section, "skipstringnl")
     if cfg.has_option(section, "skipstringen"):         autosub.SKIPSTRINGEN        = cfg.get(section, "skipstringen")
@@ -100,32 +81,15 @@ def ReadConfig():
     # *******************
     section = 'logfile'
     if not cfg.has_section(section): cfg.add_section(section)
-    if cfg.has_option(section, "logfile"): autosub.LOGFILE = cfg.get(section, "logfile")
-    if cfg.has_option(section, "loglevel"):
-        LogLevel = cfg.get(section, "loglevel").upper()
-        if LogLevel == u'ERROR':
-            autosub.LOGLEVEL = logging.ERROR
-        elif LogLevel == u"WARNING":
-            autosub.LOGLEVEL = logging.WARNING
-        elif LogLevel == u"DEBUG":
-            autosub.LOGLEVEL = logging.DEBUG
-        elif LogLevel == u"INFO":
-            autosub.LOGLEVEL = logging.INFO
-        elif LogLevel == u"CRITICAL":
-            autosub.LOGLEVEL = logging.CRITICAL
+    if cfg.has_option(section, "logfile"):              autosub.LOGFILE         = cfg.get(section, "logfile")
+    try:
+        if cfg.has_option(section, "loglevel"):         autosub.LOGLEVEL        = cfg.getint(section, "loglevel")
+        if cfg.has_option(section, "loglevelconsole"):  autosub.LOGLEVELCONSOLE = cfg.getint(section, "loglevelconsole")
+    except:
+        pass
+    if cfg.has_option(section, "logsize"):              autosub.LOGSIZE         = cfg.getint(section, "logsize")
+    if cfg.has_option(section, "lognum"):               autosub.LOGNUM          = cfg.getint(section, "lognum")
 
-    if cfg.has_option(section, "loglevelconsole"):
-        LogLevel = cfg.get(section, "loglevelconsole").upper()
-        if LogLevel == u'ERROR':
-            autosub.LOGLEVELCONSOLE = logging.ERROR
-        elif LogLevel == u"WARNING":
-            autosub.LOGLEVELCONSOLE = logging.WARNING
-        elif LogLevel == u"DEBUG":
-            autosub.LOGLEVELCONSOLE = logging.DEBUG
-        elif LogLevel == u"INFO":
-            autosub.LOGLEVELCONSOLE = logging.INFO
-        elif LogLevel == u"CRITICAL":
-            autosub.LOGLEVELCONSOLE = logging.CRITICAL
 
     if cfg.has_option(section, "logsize"): autosub.LOGSIZE = cfg.getint(section, "logsize")
     if cfg.has_option(section, "lognum"):  autosub.LOGNUM  = cfg.getint(section, "lognum")
@@ -160,7 +124,6 @@ def ReadConfig():
             autosub.SKIPSHOW[show.replace('~',':')] = SkipShows[show]
             autosub.SKIPSHOWUPPER[show.upper().replace('~',':')] = [Item.strip() for Item in SkipShows[show].split(',')]
 
-
     # ********************************
     # * Addic7ed Namemapping Section *
     # ********************************
@@ -175,10 +138,6 @@ def ReadConfig():
         if not (ImdbId.isdigit and autosub.USERADDIC7EDMAPPING[ImdbId].isdigit()):
             del autosub.USERADDIC7EDMAPPING[ImdbId]
             print'ReadConfig: Addic7ed mapping has an unkown format.',ImdbId,' = ', autosub.USERADDIC7EDMAPPING[ImdbId]
-
-    # Settings
-
-    
 
     # ****************************
     # * User Namemapping Section *
@@ -248,6 +207,15 @@ def ReadConfig():
     if cfg.has_option(section, 'kodiserverusername'): autosub.KODISERVERUSERNAME    = cfg.get(section, 'kodiserverusername')
     if cfg.has_option(section, 'kodiserverpassword'): autosub.KODISERVERPASSWORD    = cfg.get(section, 'kodiserverpassword')
     if cfg.has_option(section, 'kodiupdateonce'): autosub.KODIUPDATEONCE            = cfg.getboolean(section, 'kodiupdateonce')
+    autosub.MINMATCHDSP = '{0:04b}'.format(autosub.MINMATCHSCORE).replace('1','X').replace('0','-')
+        # Here we check whether the config has been upgraded
+        # if so we make the changes and write the config back to the config file
+    autosub.CONFIGVERSION = cfg.getint("config", "configversion") if cfg.has_option("config", "configversion") else 0
+    if autosub.CONFIGVERSION < autosub.version.configversion:
+        _upgradeConf(cfg, autosub.CONFIGVERSION, autosub.version.configversion)
+    elif autosub.CONFIGVERSION > autosub.version.configversion:
+        print "Config: ERROR! Config version higher then this version of AutoSub supports. Update AutoSub!"
+        os._exit(1)
 
 def WriteConfig():
     cfg = SafeConfigParser()
@@ -283,6 +251,8 @@ def WriteConfig():
     cfg.set(section, "opensubtitlespasswd", autosub.OPENSUBTITLESPASSWD)
     cfg.set(section, "addic7eduser", autosub.ADDIC7EDUSER)
     cfg.set(section, "addic7edpasswd", autosub.ADDIC7EDPASSWD)
+    cfg.set(section, "tvdbuser", autosub.TVDBUSER)
+    cfg.set(section, "tvdbaccountid", autosub.TVDBACCOUNTID)
     cfg.set(section, "subcodec", autosub.SUBCODEC)
     cfg.set(section, "skipstringnl", autosub.SKIPSTRINGNL)
     cfg.set(section, "skipstringen", autosub.SKIPSTRINGEN)
@@ -300,8 +270,8 @@ def WriteConfig():
     section = 'logfile'
     cfg.add_section(section)
     cfg.set(section, "logfile", autosub.LOGFILE)
-    cfg.set(section, "loglevel", logging.getLevelName(autosub.LOGLEVEL))
-    cfg.set(section, "loglevelconsole", logging.getLevelName(autosub.LOGLEVELCONSOLE))
+    cfg.set(section, "loglevel", str(autosub.LOGLEVEL))
+    cfg.set(section, "loglevelconsole",str(autosub.LOGLEVELCONSOLE))
     cfg.set(section, "logsize", str(autosub.LOGSIZE))
     cfg.set(section, "lognum", str(autosub.LOGNUM))
 
@@ -388,7 +358,7 @@ def WriteConfig():
             cfg.write(cfile)
     except Exception as error:
         return error
-    # here we read the config back because the the UPPERCASE variants of the config (for searching) has to be filled
+        # here we read the config back because the UPPERCASE variants of the config (for searching) has to be filled
     ReadConfig()
     return 'Config has been saved.'
 
@@ -427,7 +397,7 @@ def displayAddic7edmapping():
     return s
 
 
-def upgradeConfig(cfg, from_version, to_version):
+def _upgradeConf(cfg, from_version, to_version):
     print "Config: Upgrading config version from %d to %d" %(from_version, to_version)
     upgrades = to_version - from_version
     if upgrades != 1:
@@ -475,5 +445,36 @@ def upgradeConfig(cfg, from_version, to_version):
                 elif Webdl == "None":
                     autosub.SKIPSTRINGNL = autosub.SKIPSTRINGEN = u"Web-dl"
             autosub.CONFIGVERSION = 4
+        elif from_version == 4 and to_version == 5:
+            section = 'logfile'
+            if cfg.has_option(section, "loglevel"):
+                LogLevel = cfg.get(section, "loglevel").upper()
+                if LogLevel == u'ERROR':
+                    autosub.LOGLEVEL = logging.ERROR
+                elif LogLevel == u"WARNING":
+                    autosub.LOGLEVEL = logging.WARNING
+                elif LogLevel == u"DEBUG":
+                    autosub.LOGLEVEL = logging.DEBUG
+                elif LogLevel == u"INFO":
+                    autosub.LOGLEVEL = logging.INFO
+                elif LogLevel == u"CRITICAL":
+                    autosub.LOGLEVEL = logging.CRITICAL
+                else:
+                    autosub.LOGLEVEL = logging.INFO
+            if cfg.has_option(section, "loglevelconsole"):
+                LogLevel = cfg.get(section, "loglevelconsole").upper()
+                if LogLevel == u'ERROR':
+                    autosub.LOGLEVELCONSOLE = logging.ERROR
+                elif LogLevel == u"WARNING":
+                    autosub.LOGLEVELCONSOLE = logging.WARNING
+                elif LogLevel == u"DEBUG":
+                    autosub.LOGLEVELCONSOLE = logging.DEBUG
+                elif LogLevel == u"INFO":
+                    autosub.LOGLEVELCONSOLE = logging.INFO
+                elif LogLevel == u"CRITICAL":
+                    autosub.LOGLEVELCONSOLE = logging.CRITICAL
+                else:
+                    autosub.LOGLEVELCONSOLE = logging.INFO
+            autosub.CONFIGVERSION = 5
             WriteConfig()
-            print "Config: Config upgraded to version 4"
+            print "Config: Config upgraded to version 5"

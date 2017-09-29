@@ -44,14 +44,14 @@ def _send_notify(message, mailsrv, mailfromaddr, mailtoaddr, mailusername, mailp
             server.login(mailusername, mailpassword)
         server.sendmail(mailfromaddr, mailtoaddr, message)
         server.quit()
-        log.info("Mail: Mail sent")
+        log.info("Mail sent")
         return True
     except:
-        log.error("Mail: Failed to send a mail")
+        log.error("Failed to send a mail")
         return False
 
 def test_notify(mailsrv, mailfromaddr, mailtoaddr, mailusername, mailpassword, mailsubject, mailencryption, mailauth):
-    log.debug("Mail: Trying to send a mail")
+    log.debug("Trying to send a mail")
     message = MIMEText('Testing Mail settings from Auto-Sub.')
     message['From'] = email.utils.formataddr((mailfromaddr, mailfromaddr))
     message['To'] = email.utils.formataddr(('Recipient', mailtoaddr))
@@ -60,7 +60,7 @@ def test_notify(mailsrv, mailfromaddr, mailtoaddr, mailusername, mailpassword, m
     return _send_notify(message, mailsrv, mailfromaddr, mailtoaddr, mailusername, mailpassword, mailsubject, mailencryption, mailauth)
 
 def send_notify(lang, subtitlefile, videofile, website):
-    log.debug("Mail: Trying to send a mail")
+    log.debug("Trying to send a mail")
     message = MIMEText("""Hi,\n 
 AutoSub downloaded the following subtitle\n\n
 Language: %s\n 

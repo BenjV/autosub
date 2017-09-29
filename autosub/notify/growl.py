@@ -26,11 +26,11 @@ def _send_notify(message, growlhost, growlport):
         gntp.parse_gntp(s.recv(1024)) 
         s.close()
         
-        log.info("Growl: notification sent.")
+        log.info("Notification sent.")
         
         return True
     except socket.error:
-        log.error("Growl: notification failed.")
+        log.error("Notification failed.")
         return False
     
 def test_notify(growlhost, growlport, growlpass):

@@ -3,7 +3,7 @@
 # The Autosub Scheduler module
 #
 
-import time
+from time import time,sleep
 import threading
 import os
 import traceback
@@ -19,7 +19,7 @@ class Scheduler:
         if runnow:
             try:
                 self.command.run()
-                self.lastrun = time.time()
+                self.lastrun = time()
                 self.runnow = False
             except:
                 print traceback.format_exc()
@@ -27,11 +27,11 @@ class Scheduler:
             
     def runcommand(self):
         while True:
-            if time.time() - self.lastrun > autosub.SEARCHINTERVAL:
+            if time() - self.lastrun > autosub.SEARCHINTERVAL:
                 try:
                     print 'scheduler run'
                     self.command.run()
-                    self.lastrun = time.time() 
+                    self.lastrun = time() 
                 except:
                     print traceback.format_exc()
                     os._exit(1)
@@ -39,11 +39,11 @@ class Scheduler:
             if self.runnow:
                 try:
                     self.command.run()
-                    self.lastrun = time.time() 
+                    self.lastrun = time() 
                     self.runnow = False
                 except:
                     print traceback.format_exc()
                     os._exit(1)
             if self.stop:
                 break
-            time.sleep(1)
+            sleep(1)

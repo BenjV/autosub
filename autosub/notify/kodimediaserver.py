@@ -30,18 +30,18 @@ def _send_to_kodi_json(host=None, username=None, password=None):
         try:
             fd = urllib2.urlopen(req)
         except Exception as error:
-            log.debug("notifyKodi: %s" %error )
+            log.debug("%s" %error )
             return False
 
         # parse the json result
         try:
             response = json.JSONDecoder().decode(fd)
             fd.close()
-            log.debug("NotifyKodi: Result from Kodi is: %s" % result)
+            log.debug("Result from Kodi is: %s" % result)
         except Exception as error:
-            log.debug("notifyKodi: %s" %error )
+            log.debug("%s" %error )
             return False
-        log.debug("NotifyKodi: Kodi response is: %s" % result)
+        log.debug("Kodi response is: %s" % result)
         try:
             if response[0]['result']:
                 return True
@@ -54,10 +54,10 @@ def _send_to_kodi_json(host=None, username=None, password=None):
 
 def test_update_library(kodiserverhost, kodiserverport, kodiserverusername, kodiserverpassword):
     kodihost = kodiserverhost + ':' + kodiserverport.strip()
-    log.info("Kodi: Trying to update the Kodi library.")
+    log.info("Trying to update the Kodi library.")
     return _send_to_kodi_json(kodihost, kodiserverusername, kodiserverpassword)
 
 def send_update_library():
-    log.info("Kodi Scan: Trying to update the Kodi library.")
+    log.info("Trying to update the Kodi library.")
     kodihost = autosub.KODISERVERHOST +':' + autosub.KODISERVERPORT.strip()
     return _send_to_kodi_json(kodihost, autosub.KODISERVERUSERNAME, autosub.KODISERVERPASSWORD)

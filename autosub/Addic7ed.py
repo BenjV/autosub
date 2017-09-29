@@ -3,22 +3,16 @@
 #
 
 import re
-import library.requests as requests
-import library.requests.packages.chardet as chardet
-import time
-import sys
-import urllib
+import requests
+from time import time,sleep
 import autosub
 import autosub.Helpers
-import autosub.Tvdb
-from autosub.common import source,source_syn,quality,quality_syn,codec,codec_syn,rlsgrps_rest,rlsgrps_HD,rlsgrps_xvid,rlsgrps_webdl
+from common import source,source_syn,quality,quality_syn,codec,codec_syn,rlsgrps_rest,rlsgrps_HD,rlsgrps_xvid,rlsgrps_webdl
 from itertools import product
-
 
 import logging
 
 log = logging.getLogger('thelogger')
-
 
 #Every part of the file_info got a list with regex. The first item in this list should be the standardnaming
 #The second (and following) regex contains nonstandard naming (either typo's or other renaming tools (like sickbeard)) 
@@ -88,7 +82,7 @@ def _getShow(title):
         try:
             m = re.match(reg, title)
         except TypeError:
-            log.error("_getShow: Error while processing: %s %s" %(searchName, suffix))
+            log.error("Error while processing: %s %s" %(searchName, suffix))
             return searchName, suffix
         
         if m:
@@ -178,13 +172,6 @@ def _addInfo(versionDicts,HD):
         quality = versionDict['quality']
         codec = versionDict['codec']
         releasegroup = versionDict['releasegrp']
-    
-        # Based on quality
-        # Removed this one because 1080p is also available in HDTV now a day
-        #if quality == u'1080p':
-        #    if not source:
-        #        versionDicts[index]['source'] = u'web-dl'
-
     
         # Based on source
         if any(source == x for x in (u'web-dl', u'hdtv', u'bluray')):
@@ -336,26 +323,26 @@ class Addic7edAPI():
 
         data = {'username': addic7eduser, 'password': addic7edpasswd, 'Submit': 'Log in'}
         try:
-            r = self.session.post(self.server + '/dologin.php', data, timeout=10, allow_redirects=False)
+            r = self.session.post(self.server + '/dologin.php', data, timeout=20, allow_redirects=False)
         except Exception as error:
-            log.error('Addic7edAPI: %s' % error)
+            log.error('%s' % error)
             return False
         
         if r.status_code == 302:
             autosub.ADDIC7EDLOGGED_IN = True
-            if self.checkCurrentDownloads():
+            if self.getA7Info():
                 if Test:
-                    log.info('Addic7edAPI: Test Logged in as: %s' % addic7eduser)
+                    log.info('Test Logged in as: %s' % addic7eduser)
                     self.logout()
                 else:
-                    log.debug('Addic7edAPI: Logged in as: %s' % addic7eduser)
+                    log.debug('Logged in as: %s' % addic7eduser)
                 return True
             else:
-                log.info('Addic7edAPI: Could not login with username: %s' % addic7eduser)
+                log.info('Could not login with username: %s' % addic7eduser)
                 autosub.ADDIC7EDLOGGED_IN = False
                 return False
         else:
-            log.error('Addic7edAPI: Failed to login')
+            log.error('Failed to login')
             autosub.ADDIC7EDLOGGED_IN = False
             return False
 
@@ -363,14 +350,14 @@ class Addic7edAPI():
         if autosub.ADDIC7EDLOGGED_IN:
             autosub.ADDIC7EDLOGGED_IN = False
             try:
-                r = self.session.get(self.server + '/logout.php', timeout=10)
-                log.debug('Addic7edAPI: Logged out')
+                r = self.session.get(self.server + '/logout.php', timeout=20)
+                log.debug('Logged out')
             except Exception as error:
-                log.error('Addic7edAPI: %s' % error)
+                log.error('%s' % error)
                 return None
             
             if r.status_code != 200:
-                log.error('Addic7edAPI: Request failed with status code %d' % r.status_code)
+                log.error('Request failed with status code %d' % r.status_code)
         self.session.close()
 
     def get(self, url, login=True):
@@ -379,44 +366,46 @@ class Addic7edAPI():
         :param string url: part of the URL to reach with the leading slash
         :rtype: text
         """
-        time.sleep(10)
+        autosub.REFRESH_LOGPAGE = False
+        sleep(20)
+        autosub.REFRESH_LOGPAGE = True
+        log.debug('Url= %s'%url)
         try:
-            r = self.session.get(self.server + url, timeout=15)
+            r = self.session.get(self.server + url, timeout=20)
             r.encoding ='utf-8'
         except Exception as error:
-            log.error('Addic7edAPI: Unexpected error: %s' % error)
+            log.error('Unexpected error: %s' % error)
             return None    
         
         if r.status_code > 399:
-            log.error('Addic7edAPI: Request failed with status code %d' % r.status_code)
+            log.error('Request failed with status code %d' % r.status_code)
             return None
         return r.text
 
     def download(self, downloadlink):
         if not autosub.ADDIC7EDLOGGED_IN:
-            log.error("Addic7edAPI: You are not properly logged in. Check your credentials!")
+            log.error("You are not properly logged in. Check your credentials!")
             return None
-        log.debug("Addic7edAPI: Resting for 10 seconds to prevent a ban")
-        time.sleep(10)
+        log.debug("Resting for 10 seconds to prevent a ban")
+        autosub.REFRESH_LOGPAGE = False
+        sleep(20)
+        autosub.REFRESH_LOGPAGE = True
         try:
-            r = self.session.get(self.server + downloadlink, timeout=10)
+            r = self.session.get(self.server + downloadlink, timeout=20)
         except Exception as error:
-            log.error('Addic7edAPI: %s' % error)
-            return None
-        except:
-            log.error('Addic7edAPI: Unexpected error: %s' % sys.exc_info()[0])
+            log.error('%s' % error)
             return None
 
         if r.status_code > 399:
-            log.error('Addic7edAPI: Request failed with status code %d' % r.status_code)
+            log.error('Request failed with status code %d' % r.status_code)
         else:
             autosub.DOWNLOADS_A7 += 1
-            log.debug('Addic7edAPI: Request successful downloaded a sub with status code %d' % r.status_code)
-            if time.time() > autosub.DOWNLOADS_A7TIME + 43200:
-                self.checkCurrentDownloads()
+            log.debug('Request successful downloaded a sub with status code %d' % r.status_code)
+            if time() > autosub.DOWNLOADS_A7TIME + 43200:
+                self.getA7Info()
         if r.headers['Content-Type'] == 'text/html':
-            log.error('Addic7edAPI: Expected srt file but got HTML; report this!')
-            log.debug("Addic7edAPI: Response content: %s" % r.text)
+            log.error('Expected srt file but got HTML; report this!')
+            log.debug("Response content: %s" % r.text)
             return None
         if 'UTF' in r.apparent_encoding.upper():
             r.encoding = r.apparent_encoding
@@ -424,40 +413,37 @@ class Addic7edAPI():
             r.encoding = u'windows-1252'
         return r.text
     
-    def checkCurrentDownloads(self):
+    def getA7Info(self):
         #if not autosub.ADDIC7EDLOGGED_IN:  
-        #    self.login()
-        
-        time.sleep(10)
+        #    self.login()  
+
         try:
             PageBuffer = self.get('/panel.php')
             if re.findall(autosub.ADDIC7EDUSER.upper(),PageBuffer.upper()):
                 Temp = re.findall(r'<a href=[\'"]mydownloads.php\'>([^<]+)', PageBuffer)[0].split(" ")
                 autosub.DOWNLOADS_A7 = int(Temp[0])
                 autosub.DOWNLOADS_A7MAX = int(Temp[2])
-                autosub.DOWNLOADS_A7TIME = time.time()
-                log.debug('Addic7edAPI: Current download count for today on addic7ed is: %d' % autosub.DOWNLOADS_A7)
+                autosub.DOWNLOADS_A7TIME = time()
+                log.debug('Current download count for today on addic7ed is: %d' % autosub.DOWNLOADS_A7)
             else:
-                log.error("Addic7edAPI: Couldn't retrieve Addic7ed account info for %s. Maybe not logged in." % autosub.ADDIC7EDUSER)
+                log.error("Couldn't retrieve Addic7ed account info for %s. Maybe not logged in." % autosub.ADDIC7EDUSER)
                 return False
         except Exception as error:
-            log.error("Addic7edAPI: Couldn't retrieve Addic7ed account info. Error is: %s" % error.message)
+            log.error("Couldn't retrieve Addic7ed account info. Error is: %s" % error.message)
             return False
         return True    
     
     def geta7ID(self,ShowName, TvdbShowName):
         # lookup official name and try to match with a7 show list
-
-
         try:
             Result = self.session.get(self.server + '/shows.php',timeout=20)
             Result.encoding ='utf-8'
             html = Result.text
         except Exception as error:
-            log.debug('geta7ID: Problem tring to get the addic7ed show page. Message is: %s' % error)
+            log.debug('Problem tring to get the addic7ed show page. Message is: %s' % error)
             return None
         if not html:
-            log.debug('geta7ID: Could not get the show page form the addic7ed website')
+            log.debug('Could not get the show page form the addic7ed website')
             return None
         #Put the showname's and Addic7ed's in a dict with the showname as key.
         show_ids={}
@@ -501,8 +487,8 @@ class Addic7edAPI():
         # Try all the combinations untill we find one
         for Name in SearchList:
             if Name.lower() in show_ids:
-                log.debug("geta7IDApi: Addic7ed ID %s found using filename show name %s" % (show_ids[Name.lower()], ShowName))
+                log.debug("Addic7ed ID %s found using filename show name %s" % (show_ids[Name.lower()], ShowName))
                 return show_ids[Name.lower()]
 
-        log.info('geta7ID: The show %s could not be found on the Addic7ed website. Please make an Addic7ed map!' % ShowName)
+        log.info('The show %s could not be found on the Addic7ed website. Please make an Addic7ed map!' % ShowName)
         return None

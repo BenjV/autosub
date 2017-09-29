@@ -4,26 +4,20 @@
 
 import logging
 import re
-import subprocess
 import json
-import zipfile, StringIO, urllib,filecmp
-
-from string import capwords
+import zipfile, StringIO, filecmp
 import time
-import urllib
 import codecs
 import os,sys,shutil
 from ast import literal_eval
-import library.requests as requests
-from library import version
+import requests
 from autosub.version import autosubversion
 import autosub
 import Tvdb
-from distutils.dir_util import copy_tree
-from distutils.dir_util import remove_tree
+from distutils.dir_util import copy_tree,remove_tree
 from autosub.Db import idCache
 import autosub.ID_lookup
-from autosub.Addic7ed import Addic7edAPI
+import autosub.Addic7ed
 from autosub.Config import ReadConfig
 # Settings
 log = logging.getLogger('thelogger')
@@ -35,7 +29,6 @@ REGEXES = [
         ]
 SOURCE_PARSER = re.compile("(hdtv|tv|dvdrip|dvd|brrip|bdrip|blu[e]*ray|web[. _-]*dl)", re.IGNORECASE)
 QUALITY_PARSER = re.compile("(1080|720|HD|SD)" , re.IGNORECASE)
-LOG_PARSER = re.compile('^((?P<date>\d{4}\-\d{2}\-\d{2})\ (?P<time>\d{2}:\d{2}:\d{2},\d{3}) (?P<loglevel>\w+))', re.IGNORECASE)
 
 _show = [re.compile('(.+)\s+\(?(\d{4})\)?', re.IGNORECASE),
               re.compile('(.+)\s+\(?(us)\)?', re.IGNORECASE),
@@ -48,7 +41,7 @@ def _getShow(title):
         try:
             m = re.match(reg, title)
         except TypeError:
-            log.error("_getShow: Error while processing: %s %s" %(searchName, suffix))
+            log.error("Error while processing: %s %s" %(searchName, suffix))
             return searchName, suffix
         
         if m:
@@ -57,17 +50,6 @@ def _getShow(title):
             break
     return searchName, suffix
 
-
-def RunCmd(cmd):
-    process = subprocess.Popen(cmd,
-                            shell = True,
-                            stdin = subprocess.PIPE,
-                            stdout = subprocess.PIPE,
-                            stderr = subprocess.PIPE)
-    shell = process.stdout.read()
-    shellerr = process.stderr.read()
-    process.wait()
-    return shell, shellerr
 
 def Backup():
     if not autosub.BCKPATH:
@@ -80,15 +62,15 @@ def Backup():
     try:
         shutil.copy(autosub.CONFIGFILE,dest)
     except Exception as error:
-        log.error('Backup: %s, error is: %s' %(autosub.CONFIGFILE,error))
+        log.error('%s, error is: %s' %(autosub.CONFIGFILE,error))
         return error
     try:
         src = os.path.join(autosub.PATH,'database.db')
         shutil.copy(src,os.path.join(autosub.BCKPATH,'database.bck'))
     except Exception as error:
-        log.error('Backup: %s, error is: %s' %(src,error))
+        log.error('%s, error is: %s' %(src,error))
         return error
-    log.info('Backup: Config and Database backuped to %s' % autosub.BCKPATH)
+    log.info('Config and Database backuped to %s' % autosub.BCKPATH)
     return 'Succesfully backuped the config and database files to:<BR> %s' % autosub.BCKPATH
 
 def Restore():
@@ -105,9 +87,9 @@ def Restore():
             shutil.copy(src,dest)
             DatabaseRestored = True
         except Exception as error:
-            log.error('Restore: %s, error is: %s' %(src,error))
+            log.error('%s, error is: %s' %(src,error))
     else:
-        log.info('Restore: No database backup found so keeping the old one')
+        log.info('No database backup found so keeping the old one')
 
     src =  os.path.join(autosub.BCKPATH, os.path.splitext(os.path.split(autosub.CONFIGFILE)[1])[0] + '.bck')
     if os.path.isfile(src):
@@ -115,47 +97,42 @@ def Restore():
             shutil.copy(src,autosub.CONFIGFILE)
             ReadConfig()
         except Exception as error:
-            log.error('Restore: %s, error is: %s' %(src,error))
+            log.error('%s, error is: %s' %(src,error))
             return error
     else:
-        log.info('Restore: No config found so keeping the old one')
+        log.info('No config found so keeping the old one')
         return 'No config backup found, keeping the old one.'
     if DatabaseRestored :
-        log.info('Restore: Config and Database restored from %s' % autosub.BCKPATH)
+        log.info('Config and Database restored from %s' % autosub.BCKPATH)
         return 'Succesfully restored the config and database from:<BR> %s' % autosub.BCKPATH
     else:
-        log.info('Restore: Only Config restored from %s' % autosub.BCKPATH)
+        log.info('Only Config restored from %s' % autosub.BCKPATH)
         return 'Succesfully restored the config but not the database from:<BR> %s' % autosub.BCKPATH
 
 def CheckVersion():
     '''
     CheckVersion
     Return values:
-    Current Release Number
     GitHub Release number
     '''
-
-    GithubVersion = None
     try:
         response = requests.get(autosub.VERSIONURL,verify=autosub.CERTIFICATEPATH)
         Temp = response.text.split("'")
         if 'Alpha' in Temp[1]:
-            GithubVersion = Temp[1].split(' ')[1]
+            autosub.GITHUBVERSION = Temp[1].split(' ')[1]
         else:
-            GithubVersion = Temp[1]
+            autosub.GITHUBVERSION = Temp[1]
     except Exception as error:
-        log.error('CheckVersion: Problem getting the version form github. Error is: %s' % error)
-        GithubVersion ='0.0.0'
-
-    return GithubVersion
+        log.error('Problem getting the version form github. Error is: %s' % error)
+    return autosub.GITHUBVERSION
 
 def RebootAutoSub():
     args =[]
     args = sys.argv[:]
     args.insert(0, sys.executable)
     args.append('-u')
-    log.info('RebootAutoSub: Now restarting autosub...')
-    log.debug('RebootAutoSub: Python exec arguments are %s,  %s' %(sys.executable,args))
+    log.info('Now restarting autosub...')
+    log.debug('Python exec arguments are %s,  %s' %(sys.executable,args))
     os.execv(sys.executable, args)
 
 
@@ -164,18 +141,18 @@ def UpdateAutoSub():
     Update Autosub.
     '''
 
-    log.debug('UpdateAutoSub: Update started')
+    log.debug('Update started')
 
     # Piece of Code to let you test the reboot of autosub after an update, without actually updating anything
     #RestartTest = True
     #if RestartTest:
-    #    log.debug('UpdateAutoSub: Module is in restart Test mode')
+    #    log.debug('Module is in restart Test mode')
     #    args = []
     #    args = sys.argv[:]
     #    args.insert(0, sys.executable)
     #    args.append('-u')
     #    time.sleep(5)
-    #    log.debug('UpdateAutoSub: Python exec arguments are %s' %(args))
+    #    log.debug('Python exec arguments are %s' %(args))
     #    os.execv(sys.executable, args)
     # Get the version number from github
     GithubVersion = CheckVersion()
@@ -189,7 +166,7 @@ def UpdateAutoSub():
 
     if not Update:
         message = 'No update available. Current version: ' + autosub.version.autosubversion + '. GitHub version: ' + GithubVersion
-        log.info('UpdateAutoSub: %s' % message)
+        log.info('%s' % message)
         return message
     else:
         autosub.UPDATED = False
@@ -201,9 +178,9 @@ def UpdateAutoSub():
         Result = Session.get(autosub.ZIPURL,verify=autosub.CERTIFICATEPATH)
         ZipData= Result.content
     except Exception as error:
-        log.error('UpdateAutoSub: Could not get the zipfile from github. Error is %s' % error)
+        log.error('Could not get the zipfile from github. Error is %s' % error)
         return error
-    log.debug('UpdateAutoSub: Zipfile located on Github')
+    log.debug('Zipfile located on Github')
 
     # exstract the zipfile to the autosub root directory
     try:
@@ -215,153 +192,39 @@ def UpdateAutoSub():
                 try:
                     remove_tree(ReleasePath)
                 except Exception as error:
-                    log.debug('UpdateAutoSub: Problem removing old release folder. Error is: %s' %error)
+                    log.debug('Problem removing old release folder. Error is: %s' %error)
                     return error
         else:
             return 'No correct zipfile could be downloaded'
         Result = zf.extractall(autosub.PATH)
-        log.debug('UpdateAutoSub: Zipfile extracted')
+        log.debug('Zipfile extracted')
     except Exception as error:
-        log.error('UpdateAutoSub: Problem extracting zipfile from github. Error is %s' % error)
+        log.error('Problem extracting zipfile from github. Error is %s' % error)
         return
 
     # copy the release 
     try:
     	copy_tree(ReleasePath,autosub.PATH)
     except Exception as error:
-        log.error('UpdateAutoSub: Could not(fully) copy the updated tree. Error is %s' % error)
+        log.error('Could not(fully) copy the updated tree. Error is %s' % error)
         return error
-    log.debug('UpdateAutoSub: updated tree copied.')
+    log.debug('updated tree copied.')
 
     # remove the release folder after the update
     if os.path.isdir(ReleasePath):
         try:
             remove_tree(ReleasePath)
         except Exception as error:
-            log.error('UpdateAutoSub: Problem removing old release folder. Error is: %s' % error)
+            log.error('Problem removing old release folder. Error is: %s' % error)
             return error
     args =[]
     args = sys.argv[:]
     args.insert(0, sys.executable)
     args.append('-u')
-    log.info('UpdateAutoSub: Update to version %s. Now restarting autosub...' % GithubVersion)
-    log.debug('UpdateAutoSub: Python exec arguments are %s,  %s' %(sys.executable,args))
+    log.info('Update to version %s. Now restarting autosub...' % GithubVersion)
+    log.debug('Python exec arguments are %s,  %s' %(sys.executable,args))
     os.execv(sys.executable, args)
 
-def UpdateA7IdMapping():
-# Get the latest id mapping for Addic7ed from github
-    with requests.Session() as GithubSession:
-        try:
-            Result = GithubSession.get(autosub.ADDICMAPURL,verify=autosub.CERTIFICATEPATH)
-            Result.encoding ='utf-8'
-            GithubMapping = {}
-            GithubMapping = json.loads(Result.text)
-            if GithubMapping and autosub.ADDICHIGHID != len(GithubMapping):
-                autosub.ADDICHIGHID = len(GithubMapping)
-                log.info('UpdateNameMapping: Addi7ed namemapping is updated from github.')
-                for NameMap in GithubMapping.iterkeys():
-                    if NameMap.isdigit() and GithubMapping[NameMap].isdigit():
-                        autosub.ADDIC7EDMAPPING[NameMap] = GithubMapping[NameMap]
-                    else:
-                        log.debug('UpdateNameMapping: Addic7ed namemapping from github is coruptted. %s = %s' %(NameMap,GithubMapping[NameMap])) 
-        except Exception as error:
-            log.debug('UpdateA7IdMapping: Problem get AddicIdMapping from github. %s' % error)
-    return
-
-def CleanSerieName(series_name):
-    """Clean up series name by removing any . and _
-    characters, along with any trailing hyphens.
-
-    Is basically equivalent to replacing all _ and . with a
-    space, but handles decimal numbers in string, for example:
-
-    >>> cleanRegexedSeriesName("an.example.1.0.test")
-    'an example 1.0 test'
-    >>> cleanRegexedSeriesName("an_example_1.0_test")
-    'an example 1.0 test'
-
-    Stolen from dbr's tvnamer
-    """
-    try:
-        series_name = re.sub("(\D)\.(?!\s)(\D)", "\\1 \\2", series_name)
-        series_name = re.sub("(\d)\.(\d{4})", "\\1 \\2", series_name)  # if it ends in a year then don't keep the dot
-        series_name = re.sub("(\D)\.(?!\s)", "\\1 ", series_name)
-        series_name = re.sub("\.(?!\s)(\D)", " \\1", series_name)
-        series_name = series_name.replace("_", " ")
-        series_name = re.sub("-$", "", series_name)
-        
-        words = [x.strip() for x in series_name.split()]
-        tempword=[]
-        for word in words:
-            if not word.isupper():
-                word = capwords(word)
-            tempword.append(word)
-        new_series_name = " ".join(tempword)
-
-        return new_series_name.strip()
-    except TypeError:
-        log.debug("CleanSerieName: There is no SerieName to clean")
-
-
-def ReturnUpper(text):
-    """
-    Return the text converted to uppercase.
-    When not possible return nothing.
-    """
-    try:
-        text = text.upper()
-        return text
-    except:
-        pass
-
-def matchQuality(quality, item):
-    if quality == u"SD":
-        if re.search('720', item):
-            log.debug("matchQuality: Quality SD did not match to %s" % item)
-            return None
-        elif re.search('1080', item):
-            log.debug("matchQuality: Quality SD did not match to %s" % item)
-            return None
-        else:
-            log.debug("matchQuality: Quality matched SD to %s" % item)
-            return 1
-    elif quality == u"1080p" and re.search('1080', item):
-        log.debug("matchQuality: Quality is 1080 matched to %s" % item)
-        return 1
-    elif quality == u"720p" and re.search('720', item):
-        log.debug("matchQuality: Quality is 720 matched to %s" % item)
-        return 1
-
-
-def scoreMatch(release, wanted):
-    """
-    Return how high the match is. Currently 15 is the best match
-    This function give the flexibility to change the most important attribute for matching or even give the user the possibility to set his own preference
-    release is the filename as it is in the result from used websites
-    If source is matched, score is increased with 8
-    If quality is matched, score increased with 4
-    If codec is matched, score is increased with 2
-    If releasegroup is matched, score is increased with 1
-    """
-
-    score = int(0)
-    if 'source' in release.keys() and 'source' in wanted.keys():
-        if release['source']  == wanted['source']:
-            score += 8
-    if 'quality' in release.keys() and 'quality' in wanted.keys():
-        if release['quality'] == wanted['quality']: 
-            score += 4
-        elif wanted['quality'] == '720p' and  release['quality'] == '1080p':
-            score += 4
-        elif wanted['quality'] == '1080p'  and release['quality'] == '720p'  :
-            score += 4
-    if 'codec' in release.keys() and 'codec' in wanted.keys():
-        if release['codec']  == wanted['codec']:
-            score += 2
-    if 'releasegrp' in release.keys() and 'releasegrp' in wanted.keys():
-        if release['releasegrp']  == wanted['releasegrp']:
-            score += 1
-    return score
 
 
 def SkipShow(Imdb,showName, season, episode):
@@ -374,17 +237,17 @@ def SkipShow(Imdb,showName, season, episode):
                 # Skip entire TV show
                     for value in SkipList:
                         if value == '-1':
-                            log.debug("SkipShow: variable of %s is set to -1, skipping the complete Serie" % showName)
+                            log.debug("variable of %s is set to -1, skipping the complete Serie" % showName)
                             return True
                         try:
                             toskip = literal_eval(value)
                         except:
-                            log.error("SkipShow: %s is not a valid parameter, check your Skipshow settings" % seasontmp)
+                            log.error("%s is not a valid parameter, check your Skipshow settings" % seasontmp)
                             continue
                         # Skip specific season:
                         if isinstance(toskip, int):
                             if int(season) == toskip:
-                                log.debug("SkipShow: Season %s matches variable of %s, skipping season" % (season, showName))
+                                log.debug("Season %s matches variable of %s, skipping season" % (season, showName))
                                 return True
                         # Skip specific episode
                         elif isinstance(toskip, float):
@@ -392,60 +255,16 @@ def SkipShow(Imdb,showName, season, episode):
                             episodetoskip = int(round((toskip-seasontoskip) * 100))
                             if int(season) == seasontoskip:
                                 if episodetoskip == 0:
-                                    log.debug("SkipShow: Season %s matches variable of %s, skipping season" % (season, showName))
+                                    log.debug("Season %s matches variable of %s, skipping season" % (season, showName))
                                     return True
                                 elif int(episode) == episodetoskip:
                                     format = season + 'x' + episode
-                                    log.debug("SkipShow: Episode %s matches variable of %s, skipping episode" % (format, showName))
+                                    log.debug("Episode %s matches variable of %s, skipping episode" % (format, showName))
                                     return True
         except:
-            log.error('SkipShow: Problem with SkipShow, check the format in the settings.')
+            log.error('Problem with SkipShow, check the format in the settings.')
             return False
-
-
-def checkAPICallsSubSeeker(use=False):
-    """
-    Checks if there are still API calls left
-    Set true if a API call is being made.
-    """
-    currentime = time.time()
-    lastrun = autosub.APICALLSLASTRESET_SUBSEEKER
-    interval = autosub.APICALLSRESETINT_SUBSEEKER
-    
-    if currentime - lastrun > interval:
-        log.info("API SubtitleSeeker: 24h limit, resetting API calls.")
-        autosub.APICALLS_SUBSEEKER = autosub.APICALLSMAX_SUBSEEKER
-        autosub.APICALLSLASTRESET_SUBSEEKER = time.time()
-    
-    if autosub.APICALLS_SUBSEEKER > 0:
-        if use==True:
-            autosub.APICALLS_SUBSEEKER-=1
-        return True
-    else:
-        return False
-        
-def checkAPICallsTvdb(use=False):
-    """
-    Checks if there are still API calls left
-    Set true if a API call can be made.
-    """
-    currentime = time.time()
-    lastrun = autosub.APICALLSLASTRESET_TVDB
-    interval = autosub.APICALLSRESETINT_TVDB
-    
-    if currentime - lastrun > interval:
-        log.info("API TVDB: 24h limit, resetting API calls.")
-        autosub.APICALLS_TVDB = autosub.APICALLSMAX_TVDB
-        autosub.APICALLSLASTRESET_TVDB = time.time()
-    
-    if autosub.APICALLS_TVDB > 0:
-        if use==True:
-            autosub.APICALLS_TVDB-=1
-        return True
-    else:
-        log.debug('checkAPICallsTvdb: Out of API calls for Tvdb')
-        return False
-
+ 
 def getShowid(ShowName):
     ImdbId = AddicId = AddicUserId= TvdbId = ImdbNameMappingId = TvdbShowName = None
     UpdateCache = False
@@ -455,32 +274,33 @@ def getShowid(ShowName):
         SearchList.append(SearchName +  ' (' + Suffix +')' )
         SearchList.append(SearchName +  ' ' + Suffix )
     SearchList.append(SearchName)
-    log.debug('getShowid: Trying to get info for %s' %ShowName)
+    log.debug('Trying to get info for %s' %ShowName)
     for Name in SearchList:
         # First we try the User Namemapping
         if Name.upper() in autosub.NAMEMAPPING.keys():
             ImdbNameMappingId,TvdbShowName = autosub.NAMEMAPPING[Name.upper()]
             if ImdbNameMappingId:
-                # Now look for info in the cache
+                    # Now look for info in the cache
                 AddicId, TvdbId, TvdbCacheName = idCache().getInfo(ImdbNameMappingId)
-                # no Tvdb name, then it is a user mappen and we missing the formal tvdb name
+                    # no Tvdb name, then it is a user mappen and we missing the formal tvdb name
                 if not TvdbShowName:
                     # if name in cache we add to the user mapping
                     if TvdbCacheName:
                         TvdbShowName = TvdbCacheName
-                    elif checkAPICallsTvdb():
-                        # still no tvdb name we fetch it from the tvdb website
-                        TvdbShowName,TvdbId = Tvdb.getShowName(ImdbNameMappingId)
+                    else:
+                            # still no tvdb name we fetch it from the tvdb website
+                        TvdbShowName,TvdbId = Tvdb.GetShowName(ImdbNameMappingId)
                         if TvdbShowName:
                             autosub.NAMEMAPPING[Name.upper()][1] = TvdbShowName
         else:
             # Not found in NameMapping so check the cache
             ImdbId, AddicId, TvdbId, TvdbShowName = idCache().getId(Name.upper())
             # No info in the cache we try Tvdb
-            if not ImdbId and checkAPICallsTvdb():
-                ImdbId, TvdbId, TvdbShowName = Tvdb.getShowidApi(Name)  
+            if not ImdbId:
+                ImdbId, TvdbId, TvdbShowName = Tvdb.GetTvdbId(Name)  
                 if ImdbId:
                     UpdateCache = True
+            # if ImdbId found, try to find the Addic7edId for it
         if (ImdbNameMappingId or ImdbId):
             if not AddicId:
                 Id = ImdbNameMappingId if ImdbNameMappingId else ImdbId
@@ -496,42 +316,15 @@ def getShowid(ShowName):
             break
     if UpdateCache:
         idCache().setId(ShowName.upper(), ImdbId, AddicId, TvdbId, TvdbShowName)
-    if ImdbNameMappingId: ImdbId = ImdbNameMappingId
-    if not TvdbShowName: TvdbShowName = ShowName
-    if AddicUserId: AddicId = AddicUserId
-    log.debug("getShowid: Returned ID's - IMDB: %s, Addic7ed: %s, ShowName: %s" %(ImdbId,AddicId,TvdbShowName))
+    if ImdbNameMappingId: ImdbId       = ImdbNameMappingId
+    if not TvdbShowName:  TvdbShowName = ShowName
+    if AddicUserId:       AddicId      = AddicUserId
+    log.debug("Returned ID's - IMDB: %s, Addic7ed: %s, ShowName: %s" %(ImdbId,AddicId,TvdbShowName))
     return ImdbId, AddicId, TvdbId, TvdbShowName
     # no ImdbId found for this showname
-    log.debug('getShowid: No ImdbId found on Tvdb for %s.' % ShowName)
+    log.debug('No ImdbId found on Tvdb for %s.' % ShowName)
     return None, None, None, ShowName
 
-
-
-def DisplayLogFile(loglevel):
-    maxLines = 500
-    data = []
-    if os.path.isfile(autosub.LOGFILE):
-        f = codecs.open(autosub.LOGFILE, 'r', autosub.SYSENCODING)
-        data = f.readlines()
-        f.close()
-    
-    finalData = []
-    
-    numLines = 0
-    
-    for x in reversed(data):
-        try:
-            matches = LOG_PARSER.search(x)
-            matchdic = matches.groupdict()
-            if (matchdic['loglevel'] == loglevel.upper()) or (loglevel == ''):
-                numLines += 1
-                if numLines >= maxLines:
-                    break
-                finalData.append(x)
-        except:
-            continue
-    result = "".join(finalData)
-    return result
 
 def ClearLogFile():
     if os.path.isfile(autosub.LOGFILE):
@@ -551,12 +344,11 @@ def DisplaySubtitle(subtitlefile):
         except IOError, e:
             if e.errno == 13:
                 result = "Permission Denied: <br>Unable to read subtitle."
-                log.error('DisplaySubtitle: Permission Denied on %s' %subtitlefile)
+                log.error('Permission Denied on %s' %subtitlefile)
             else: 
                 result = "There was a problem with loading the subtitle."
-                log.error('DisplaySubtitle: There was a problem with loading %s' %subtitlefile)
+                log.error('There was a problem with loading %s' %subtitlefile)
             return result
-
     if len(data) < 30:
         result = "This seems to be an invalid subtitle, it has less than 30 lines to preview."
     else:
@@ -575,7 +367,7 @@ def ConvertTimestamp(datestring):
     return message
 
 def ConvertTimestampTable(datestring):
-    #used for the sorted table
+        #used for the sorted table
     date_object = time.strptime(datestring, "%Y-%m-%d %H:%M:%S")
     return "%04i-%02i-%02i" %(date_object[0], date_object[1], date_object[2])
 
@@ -585,7 +377,6 @@ def CheckMobileDevice(req_useragent):
             return True
     return False
 
-# Thanks to: http://stackoverflow.com/questions/1088392/sorting-a-python-list-by-key-while-checking-for-string-or-float
 def getAttr(name):
     def inner_func(o):
         try:

@@ -1,3 +1,3 @@
-autosubversion='1.1.5'
-configversion=4
+autosubversion='1.1.6'
+configversion=5
 dbversion=10

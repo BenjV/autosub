@@ -15,21 +15,21 @@ def _send_notify(message, nmaapi, nmapriority):
     resp = nma_instance.push('Auto-Sub', 'Downloaded a Subtitle', message, priority=nmapriority)
     try:
         if not resp[str(nmaapi)][u'code'] == u'200':
-            log.error("NMA: notification failed.")
+            log.error("Notification failed.")
             return False
         else:
-            log.info("NMA: notification sent")
+            log.info("Notification sent")
             return True
     except:
-        log.error("NMA: Auth failed API-key")
+        log.error("Auth failed API-key")
 
 def test_notify(nmaapi, nmapriority):
-    log.debug("NMA: Trying to send a notification")
+    log.debug("Trying to send a notification")
     message = "Testing Notify My Android settings from Auto-Sub."
     return _send_notify(message, nmaapi, nmapriority)
         
 def send_notify(lang, subtitlefile, videofile, website):
-    log.debug("NMA: Trying to send a notification.")
+    log.debug("Trying to send a notification.")
     message = "%s downloaded from %s" %(subtitlefile, website)
     nmaapi = autosub.NMAAPI
     nmapriority = autosub.NMAPRIORITY

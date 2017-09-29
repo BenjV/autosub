@@ -11,13 +11,13 @@ def test_notify(boxcar2token):
     if not boxcar2token:
         boxcar2token = autosub.BOXCAR2TOKEN
     
-    log.debug("Boxcar2: Trying to send a notification.")
+    log.debug("Trying to send a notification.")
     title = 'Auto-Sub'
     message = 'Testing Boxcar2 settings from Auto-Sub.'
     return _send_notify(message, title, boxcar2token)
 
 def send_notify(lang, subtitlefile, videofile, website):
-    log.debug("Boxcar2: Trying to send a notification.")
+    log.debug("Trying to send a notification.")
     title = 'AutoSub'
     message = "%s downloaded from %s" %(subtitlefile, website)
     boxcar2token = autosub.BOXCAR2TOKEN
@@ -50,23 +50,23 @@ def _send_notify(message, title, boxcar2token):
     except urllib2.URLError, e:
         # FIXME: Python 2.5 hack, it wrongly reports 201 as an error
         if hasattr(e, 'code') and e.code == 201:
-            log.info("Boxcar2: Notification successful.")
+            log.info("Notification successful.")
             return True
         
         # if we get an error back that doesn't have an error code then who knows what's really happening
         if not hasattr(e, 'code'):
-            log.error("Boxcar2: Notification failed." + e)
+            log.error("Notification failed." + e)
         else:
-            log.error("Boxcar2: Notification failed. Error code: " + str(e.code))
+            log.error("Notification failed. Error code: " + str(e.code))
         if e.code == 404:
-            log.error("Boxcar2: Access token is wrong/not associated to a device.")
+            log.error("Access token is wrong/not associated to a device.")
         elif e.code == 401:
-            log.error("Boxcar2: Access token not recognized.")
+            log.error("Access token not recognized.")
         elif e.code == 400:
-            log.error("Boxcar2: Wrong data sent to boxcar.")
+            log.error("Wrong data sent to boxcar.")
         elif e.code == 503:
-            log.warning("Boxcar2: Boxcar server to busy to handle the request at this time.")
+            log.warning("Boxcar server to busy to handle the request at this time.")
         return False
 
-    log.info("Boxcar2: Notification successful.")
+    log.info("Notification successful.")
     return True

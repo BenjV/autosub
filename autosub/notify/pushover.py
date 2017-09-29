@@ -1,5 +1,4 @@
-import urllib,httplib
-import logging,time
+import logging
 import autosub
 import library.requests as requests
 log = logging.getLogger('thelogger')
@@ -11,7 +10,7 @@ def test_notify(pushoverappkey, pushoveruserkey, priority):
     return _send_notify(pushoverappkey, pushoveruserkey,message,priority)
 
 def send_notify(lang, subtitlefile, videofile, website):
-    log.debug("Pushover: Trying to send a notification")
+    log.debug("Trying to send a notification")
     message = "%s downloaded from %s" %(subtitlefile, website)
     return _send_notify(autosub.PUSHOVERAPPKEY,autosub.PUSHOVERUSERKEY ,message,autosub.PUSHOVERPRIORITY)
 
@@ -34,9 +33,9 @@ def _send_notify(appkey,userkey,message,priority):
     try:
         msg = requests.post('https://api.pushover.net/1/messages.json', data=params).json()
     except:
-        log.error('Notify Pushover: Problem sending Pushover message.')
+        log.error('Problem sending Pushover message.')
         return False
     if msg['status'] == 0 :
-        log.error('Notify Pushover: Pushover error is: %s' % msg['errors'][0])
+        log.error('Pushover error is: %s' % msg['errors'][0])
         return False
     return True

@@ -2,15 +2,48 @@
 # The Autosub ProcessFilename module
 #
 
-from autosub.common import seperator, source, source_syn, quality, quality_syn, quality_fileext, codec, codec_syn, codec_fileext, releasegrp, releasegrp_syn, releasegrp_fallback
-from autosub.common import show_regex, episode_regex
-from autosub.Helpers import CleanSerieName
+from common import seperator, source, source_syn, quality, quality_syn, quality_fileext, codec, codec_syn, codec_fileext, releasegrp, releasegrp_syn, releasegrp_fallback
+from common import show_regex, episode_regex
 import re
 import logging
-
+from string import capwords
 log = logging.getLogger('thelogger')
 
 _noextrainfo = 0
+
+def _cleanUpName(series_name):
+    """Clean up series name by removing any . and _
+    characters, along with any trailing hyphens.
+
+    Is basically equivalent to replacing all _ and . with a
+    space, but handles decimal numbers in string, for example:
+
+    >>> cleanRegexedSeriesName("an.example.1.0.test")
+    'an example 1.0 test'
+    >>> cleanRegexedSeriesName("an_example_1.0_test")
+    'an example 1.0 test'
+
+    Stolen from dbr's tvnamer
+    """
+    try:
+        series_name = re.sub("(\D)\.(?!\s)(\D)", "\\1 \\2", series_name)
+        series_name = re.sub("(\d)\.(\d{4})", "\\1 \\2", series_name)  # if it ends in a year then don't keep the dot
+        series_name = re.sub("(\D)\.(?!\s)", "\\1 ", series_name)
+        series_name = re.sub("\.(?!\s)(\D)", " \\1", series_name)
+        series_name = series_name.replace("_", " ")
+        series_name = re.sub("-$", "", series_name)
+        
+        words = [x.strip() for x in series_name.split()]
+        tempword=[]
+        for word in words:
+            if not word.isupper():
+                word = capwords(word)
+            tempword.append(word)
+        new_series_name = " ".join(tempword)
+
+        return new_series_name.strip()
+    except TypeError:
+        log.debug("There is no SerieName to clean")
 
 def _checkTitle(title):
     if not title:
@@ -19,7 +52,7 @@ def _checkTitle(title):
     for reg in episode_regex:
         results = re.findall(reg, title)
         if not results:
-            return CleanSerieName(title)
+            return _cleanUpName(title)
 
 
 def _returnHit(regex, file_info):
@@ -121,7 +154,7 @@ def _returnSceneNumber(number):
         number = str(number)
     return unicode(number)
 
-def ProcessFilename(filename, fileext):
+def ProcessFile(filename, fileext):
     filename = filename.replace(',','.')
     filename = re.sub("[\[].*?[\]]", "", filename)
     show_info = _returnGroup(show_regex, filename)
