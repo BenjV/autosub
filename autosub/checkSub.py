@@ -54,10 +54,10 @@ class checkSub():
         StartTime = time.time()
         autosub.DBCONNECTION = sqlite3.connect(autosub.DBFILE)
         del autosub.WANTEDQUEUE[:]
-
+        autosub.ADDIC7EDAPI = autosub.Addic7ed.Addic7edAPI()
         _updGithub()
         ScanDisk()
-        Info = None
+        Info = ''
         if autosub.ADDIC7ED:
             Info = 'Addic7ed, '
         if autosub.OPENSUBTITLES:
@@ -75,8 +75,7 @@ class checkSub():
             # Initiate a session to OpenSubtitles and log in if OpenSubtitles is choosen
             if autosub.OPENSUBTITLES and autosub.OPENSUBTITLESUSER and autosub.OPENSUBTITLESPASSWD:
                 OS_Login()
-            if autosub.ADDIC7ED and autosub.ADDIC7EDUSER and autosub.ADDIC7EDPASSWD:
-                autosub.ADDIC7EDAPI = autosub.Addic7ed.Addic7edAPI()
+            if autosub.ADDIC7ED and autosub.ADDIC7EDUSER and autosub.ADDIC7EDPASSWD:     
                 autosub.ADDIC7EDAPI.login()
 
             Index = 0

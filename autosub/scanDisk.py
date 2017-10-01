@@ -188,7 +188,7 @@ def _walkDir(path):
                         continue
                     log.info("%s WANTED FOR: %s" % (langs, filename))
                     autosub.WANTEDQUEUE.append(FileDict)
-                    time.sleep(0)
+                    time.sleep(0.01)
             except Exception as error:
                 log.error('Problem scanning file %s. Error is: %s' %(filename, error))
     return

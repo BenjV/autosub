@@ -9,6 +9,7 @@ import logging
 from OpenSubtitles import OS_NoOp
 import requests
 import zipfile
+from unicodedata import normalize
 import re 
 from urlparse import urljoin
 import os, shutil, errno, subprocess
@@ -329,9 +330,10 @@ def DownloadSub(Wanted,SubList):
     Wanted['timestamp'] = SavedVideoTimeStamp
 
         # Send notification if activated
+
     if (autosub.NOTIFYNL and Sub['Lang'] == autosub.DUTCH) or (autosub.NOTIFYEN and Sub['Lang'] == autosub.ENGLISH):
         import autosub.notify as notify
-        notify.notify(Sub['Lang'], normalize('NFD', Sub['releaseName']).encode('ascii', 'ignore'), Sub['website'].split('.')[0])
+        notify.notify(Sub['Lang'], Sub['releaseName'], " ", Sub['website'].split('.')[0])
 
         # spawn the postprocess if present
     if autosub.POSTPROCESSCMD:

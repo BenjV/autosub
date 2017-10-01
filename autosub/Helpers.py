@@ -309,8 +309,8 @@ def getShowid(ShowName):
                         AddicId = autosub.ADDIC7EDMAPPING[Id]
                     elif Id in autosub.USERADDIC7EDMAPPING.keys():
                         AddicUserId = autosub.USERADDIC7EDMAPPING[Id]
-                    elif autosub.ADDIC7EDLOGGED_IN:
-                        AddicId = Addic7edAPI().geta7ID(ShowName, TvdbShowName)
+                    else:
+                        AddicId = autosub.ADDIC7EDAPI.geta7ID(ShowName, TvdbShowName)
                         if AddicId and ImdbId:
                             UpdateCache = True
             break
