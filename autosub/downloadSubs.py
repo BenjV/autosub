@@ -337,16 +337,16 @@ def DownloadSub(Wanted,SubList):
 
         # spawn the postprocess if present
     if autosub.POSTPROCESSCMD:
-        log.debug("Postprocess: running %s" % postprocesscmdconstructed)
-        log.info("Running PostProcess")
         VideoFile = os.path.join(Wanted['folder'] , Wanted['file'] + Wanted['container'])
         Cmd = autosub.POSTPROCESSCMD + ' "' + destsrt + '" "' + VideoFile + '" "' + Sub['Lang'] + '" "' + Wanted["title"] + '" "' + Wanted["season"] + '" "' + Wanted["episode"] + '" '
-        PostProcess = Popen(Cmd, shell = True, stdin = PIPE, stdout = PIPE, stderr = PIPE)
-        PostProcessOutput, PostProcessErr = PostProcess.communicate()
-        log.debug("PostProcess Output:% s" % PostProcessOutput)
+        log.info("Postprocess: %s" % Cmd)
+        try:
+            PostProcess = subprocess.Popen(Cmd.encode(autosub.SYSENCODING), shell = True, stdin = PIPE, stdout = PIPE, stderr = PIPE)
+            PostProcessOutput, PostProcessErr = PostProcess.communicate()
+        except Exception as error:
+            log.error('Problem starting postprocess. Error is: %s' % error)
         if PostProcess.returncode != 0 or PostProcessErr:
             log.error("PostProcess: %s" % PostProcessErr)
-
     if autosub.NODE_ID == 73855751279:
         log.debug('Starting my postprocess')
         MyPostProcess(Wanted,destsrt,Sub['Lang'])
