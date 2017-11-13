@@ -225,9 +225,12 @@ def initDatabase():
         autosub.DBVERSION = getDbVersion()
     else:
         createDatabase()
-    autosub.DBCONNECTION.close()
+        autosub.DBCONNECTION.close()
+        return
     if autosub.DBVERSION < version.dbversion:
         upgradeDb(autosub.DBVERSION, version.dbversion)
+        autosub.DBCONNECTION.close()
     elif autosub.DBVERSION > version.dbversion:
         print "initDatabase: Database version higher than this version of AutoSub supports. Update Autosub or remove database!!!"
         os._exit(1)
+    
