@@ -174,10 +174,10 @@ def _walkDir(path):
                                 Skipped = True
                                 break
                         if Skipped:
-                            log.info("scanDir: %s found in %s so skipped for Dutch subs" % (SkipItem, filename))
+                            log.info("%s found in %s so skipped for Dutch subs" % (SkipItem, filename))
                         elif os.path.exists(os.path.join(dirname, Name + NLext)):
                             Skipped = True
-                            log.debug("scanDir: %s skipped because the Dutch subtitle already exists" % filename) 
+                            log.debug("%s skipped because the Dutch subtitle already exists" % filename) 
                         else:
                             langs.append(autosub.DUTCH)
                         # Do the English subs
@@ -189,10 +189,10 @@ def _walkDir(path):
                                 Skipped = True
                                 break
                         if Skipped:
-                            log.info("scanDir: %s found in %s so skipped for Dutch subs" % (SkipItem, filename))
+                            log.info("%s found in %s so skipped for English subs" % (SkipItem, filename))
                         elif os.path.exists(os.path.join(dirname, Name + ENext)):
                             Skipped = True
-                            log.debug("scanDir: %s skipped because the Dutch subtitle already exists" % filename) 
+                            log.debug("scanDir: %s skipped because the English subtitle already exists" % filename) 
                         else:
                             langs.append(autosub.DUTCH)
                     if not langs:

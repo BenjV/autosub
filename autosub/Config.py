@@ -416,6 +416,8 @@ def displayAddic7edmapping():
 
 
 def _upgradeConf(cfg, from_version, to_version):
+    if from_version == 0:
+        return
     print "Config: Upgrading config version from %d to %d" %(from_version, to_version)
     upgrades = to_version - from_version
     if upgrades != 1:
@@ -426,11 +428,11 @@ def _upgradeConf(cfg, from_version, to_version):
         if from_version == 1 and to_version == 2:
             print "Config: Upgrading minmatchscores"
             print "Config: Old value's Minmatchscore: %d" %(autosub.MINMATCHSCORE)
-            
-            if (autosub.MINMATCHSCORE % 2) == 0:
-                autosub.MINMATCHSCORE = (autosub.MINMATCHSCORE * 2) + 2
-            else:
-                autosub.MINMATCHSCORE = (autosub.MINMATCHSCORE * 2) + 1
+            if autosub.MINMATCHSCORE != 0:
+                if (autosub.MINMATCHSCORE % 2) == 0:
+                    autosub.MINMATCHSCORE = (autosub.MINMATCHSCORE * 2) + 2
+                else:
+                    autosub.MINMATCHSCORE = (autosub.MINMATCHSCORE * 2) + 1
             autosub.CONFIGVERSION = 2
             WriteConfig()
             print "Config: Config upgraded to version 2"
