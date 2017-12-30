@@ -116,11 +116,11 @@ def createDatabase():
         cursor.execute("CREATE TABLE downloaded (id INTEGER PRIMARY KEY,show TEXT, season TEXT, episode TEXT,quality TEXT,distro TEXT,source TEXT,codec TEXT,releasegrp TEXT,website TEXT,language TEXT,timestamp DATETIME,title TEXT, location TEXT)")
         cursor.execute("CREATE TABLE sub_info (id INTEGER PRIMARY KEY, website TEXT,destination TEXT)")
         cursor.execute("PRAGMA user_version = 11")
-        Db.connection.commit()
+        Db.commit()
         autosub.DBVERSION = 11
         print "createDatabase: Succesfully created the sqlite database"
-    except:
-        print "initDatabase: Could not create database, please check if AutoSub has write access to write the following file %s" %autosub.DBFILE
+    except Exception as error:
+        print error.message
         os._exit(1)
     Db.close()
     return True
