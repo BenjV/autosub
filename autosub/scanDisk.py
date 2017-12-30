@@ -83,13 +83,15 @@ def _getShowid(ShowName):
                 AddicId = autosub.ADDIC7EDMAPPING.get(Id)
             break
     if not (AddicId or AddicUserId):
-        AddicId = autosub.ADDIC7EDAPI.geta7ID(ShowName, TvdbShowName)
+        AddicId = int(autosub.ADDIC7EDAPI.geta7ID(ShowName, TvdbShowName))
     if UpdateCache or (AddicId and ImdbId):
         autosub.IDCACHE.setId(ShowName.upper(), ImdbId, AddicId, TvdbId, TvdbShowName)
     if ImdbNameMappingId: ImdbId       = ImdbNameMappingId
     if not TvdbShowName:  TvdbShowName = ShowName
     if AddicUserId:       AddicId      = AddicUserId
-    TempId = str(AddicId) if AddicId else '-'
+    if not AddicId:
+        AddicId = 0
+    TempId = str(AddicId) if AddicId != 0 else '-'
     log.debug("Returned ID's - IMDB: %s, Addic7ed: %s, ShowName: %s" %(ImdbId,TempId,TvdbShowName))
     return ImdbId, AddicId, TvdbId, TvdbShowName
     # no ImdbId found for this showname
@@ -144,12 +146,11 @@ def _walkDir(path):
         dirname = _decode(dirnamebytes)
             # skip all not normal folders
         if not dirname or _ignore.search(dirname) or (autosub.SKIPHIDDENDIRS and os.path.split(dirname)[1].startswith(u'.')):
-            log.debug('Folder: %s skipped!' %dirname)
+            log.debug('Folder: %s skipped!' % dirname)
             continue
           #check if the user asked to skip this folder
         SkipThisFolderNL = True if dirname in SkipFoldersNL else False
         SkipThisFolderEN = True if dirname in SkipFoldersEN else False
-
             # walk through the files in this folder
         for filenamebytes in filenames:
             filename = _decode(filenamebytes)
@@ -161,12 +162,10 @@ def _walkDir(path):
                 Name,ext = os.path.splitext(filename)
                 if ext[1:] in ('avi', 'mkv', 'wmv', 'ts', 'mp4'):
                     if re.search('sample', filename, re.I): continue
-
-                     # What subtitle files should we expect?
-
-                    # Check which languages we want to download based on user settings.
+                        # Check which languages we want to download based on user settings.
                     log.debug('Processing file: %s' % filename)
                     langs = []
+                        # Do the dutch subs
                     if autosub.DOWNLOADDUTCH and not SkipThisFolderNL:
                         Skipped = False
                         for SkipItem in SkipListNL:
@@ -174,12 +173,14 @@ def _walkDir(path):
                                 log.info("%s Dutch sub skipped by skiprules" % filename)
                                 Skipped = True
                                 break
-                        if not Skipped and os.path.exists(os.path.join(dirname, Name + NLext)):
+                        if Skipped:
+                            log.info("scanDir: %s found in %s so skipped for Dutch subs" % (SkipItem, filename))
+                        elif os.path.exists(os.path.join(dirname, Name + NLext)):
                             Skipped = True
-                            log.debug("%s Dutch sub already there." % filename) 
+                            log.debug("scanDir: %s skipped because the Dutch subtitle already exists" % filename) 
                         else:
                             langs.append(autosub.DUTCH)
-
+                        # Do the English subs
                     if (autosub.DOWNLOADENG or (autosub.FALLBACKTOENG and autosub.DOWNLOADDUTCH and not Skipped)) and not SkipThisFolderEN:
                         Skipped = False
                         for SkipItem in SkipListEN:
@@ -187,10 +188,13 @@ def _walkDir(path):
                                 log.info("%s English sub skipped by skiprules" % filename)
                                 Skipped = True
                                 break
-                        if not Skipped and os.path.exists(os.path.join(dirname, Name + ENext)):
-                            log.debug("%s English sub already there." % filename) 
+                        if Skipped:
+                            log.info("scanDir: %s found in %s so skipped for Dutch subs" % (SkipItem, filename))
+                        elif os.path.exists(os.path.join(dirname, Name + ENext)):
+                            Skipped = True
+                            log.debug("scanDir: %s skipped because the Dutch subtitle already exists" % filename) 
                         else:
-                            langs.append(autosub.ENGLISH)
+                            langs.append(autosub.DUTCH)
                     if not langs:
                         continue
                     Wanted = ProcessName(Name,True)
@@ -221,7 +225,7 @@ def _walkDir(path):
                     autosub.WANTEDQUEUE.append(Wanted)
                     time.sleep(0.01)
             except Exception as error:
-                log.error('Problem scanning file %s. Error is: %s' %(filename, error))
+                log.error('Problem scanning file %s. Error is: %s' %(filename, error.message))
     autosub.WANTEDQUEUE.sort(key=lambda k:k['SortTime'],reverse=True )
     return
 

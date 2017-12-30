@@ -41,4 +41,4 @@ u"THE O C" :                                    [u"0362359", u"The O.C"],
 u"UNTOUCHABLES-THE VENTURE BROS":               [u"0417373", u"The Venture Bros."],
 u"THE WITNESS FOR THE PROSECUTION (2016)":      [u"5834256", u"The Witness for the Prosecution"],
 u"SCANDAL" :                                    [u"1837576", u"Scandal (2012)"],
-u"SPARTACUS BLOOD AND SAND" :                   [u"1442449", u"Spartacus"]}
+u"SPARTACUS BLOOD AND SAND" :                   [u"1442449", u"Spartacus"],}

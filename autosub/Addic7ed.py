@@ -98,7 +98,7 @@ class Addic7edAPI():
                 Count += 1
                 continue
             if Result.status_code < 400:
-                Result.encoding = Result.apparent_encoding
+                #Result.encoding = Result.apparent_encoding
                 return Result.text
             else:
                 log.error('A7 request failed with status code %d' % Result.status_code)
@@ -164,20 +164,23 @@ class Addic7edAPI():
             Name, Suffix = CleanName(ShowName)
             if Suffix:
                 SearchList.append(Name + Suffix)
-            SearchList.append(Name)
 
         # If the Tvdb showname is different then we do the same for that name
+        AddItem = False
         if TvdbShowName and TvdbShowName != ShowName:
+            for name in SearchList:
+                if name == TvdbShowName:
+                    AddItem = True
+        if AddItem:
             SearchList.append(TvdbShowName)
             Name, Suffix = CleanName(TvdbShowName)
             if Suffix:
                 SearchList.append(Name + Suffix)
-            SearchList.append(Name)
 
         # Try all the combinations untill we find one
         for Name in SearchList:
             if Name.lower() in show_ids:
-                log.debug("Addic7ed ID %s found using filename show name %d" % (show_ids[Name.lower()], ShowName))
+                log.debug("Addic7ed ID %d found using filename show name %s" % (show_ids[Name.lower()], ShowName))
                 return show_ids[Name.lower()]
         log.info('The show %s could not be found on the Addic7ed website. Please make an Addic7ed map!' % ShowName)
-        return None
+        return 0
