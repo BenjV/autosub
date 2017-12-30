@@ -5,7 +5,7 @@
 
 import os,re
 import logging
-import codecs
+from codecs import open as CodecsOpen
 
 from ConfigParser import SafeConfigParser
 
@@ -26,7 +26,7 @@ def ReadConfig():
     cfg.optionxform = lambda option: option
 
     try:
-        with codecs.open(autosub.CONFIGFILE, 'r', autosub.SYSENCODING) as f:
+        with CodecsOpen(autosub.CONFIGFILE, 'r', autosub.SYSENCODING) as f:
             cfg.readfp(f)
     except:
         #No config found so we create a default config
@@ -34,6 +34,7 @@ def ReadConfig():
         return
 
     section = 'config'
+
     if not cfg.has_section(section):  cfg.add_section(section)
     if cfg.has_option(section, "configversion"):        autosub.CONFIGVERSION       = cfg.getint("config", "configversion") 
     if cfg.has_option(section, "wantedfirst"):          autosub.WANTEDFIRST         = cfg.getboolean(section, "wantedfirst")
@@ -50,6 +51,7 @@ def ReadConfig():
     if cfg.has_option(section, "addic7ed"):             autosub.ADDIC7ED            = cfg.getboolean(section, "addic7ed")
     if cfg.has_option(section, "opensubtitles"):        autosub.OPENSUBTITLES       = cfg.getboolean(section, "opensubtitles")
     if cfg.has_option(section, "hearingimpaired"):      autosub.HI                  = cfg.getboolean(section, "hearingimpaired")
+    if cfg.has_option(section, "equalmatch"):           autosub.EQUALMATCH          = cfg.getboolean(section, "equalmatch")
     if cfg.has_option(section, 'minmatchscore'):        autosub.MINMATCHSCORE       = cfg.getint(section, 'minmatchscore')
     if cfg.has_option(section, 'searchinterval'):       autosub.SEARCHINTERVAL      = cfg.getint(section, 'searchinterval')
     if cfg.has_option(section, "browserrefresh"):       autosub.BROWSERREFRESH      = cfg.getint(section, "browserrefresh")
@@ -69,6 +71,11 @@ def ReadConfig():
     if cfg.has_option(section, "tvdbuser"):             autosub.TVDBUSER            = cfg.get(section, "tvdbuser")
     if cfg.has_option(section, "tvdbaccountid"):        autosub.TVDBACCOUNTID       = cfg.get(section, "tvdbaccountid")
     if cfg.has_option(section, "subcodec"):             autosub.SUBCODEC            = cfg.get(section, "subcodec")
+    if cfg.has_option(section,'subpermissions'):
+        Temp = cfg.get(section,"subpermissions")
+        autosub.SUBRIGHTS['owner'] = int(Temp[1:2])
+        autosub.SUBRIGHTS['group'] = int(Temp[2:3])
+        autosub.SUBRIGHTS['world'] = int(Temp[3:4])
     if cfg.has_option(section, "skipstringnl"):         autosub.SKIPSTRINGNL        = cfg.get(section, "skipstringnl")
     if cfg.has_option(section, "skipstringen"):         autosub.SKIPSTRINGEN        = cfg.get(section, "skipstringen")
     if cfg.has_option(section, "skipfoldersnl"):        autosub.SKIPFOLDERSNL       = cfg.get(section, "skipfoldersnl")
@@ -81,12 +88,10 @@ def ReadConfig():
     # *******************
     section = 'logfile'
     if not cfg.has_section(section): cfg.add_section(section)
+    autosub.LOGFILE = cfg.get(section, "logfile") if cfg.has_option(section, "logfile") else os.path.join(autosub.CONFIGPATH,autosub.LOGNAME)
     if cfg.has_option(section, "logfile"):              autosub.LOGFILE         = cfg.get(section, "logfile")
-    try:
-        if cfg.has_option(section, "loglevel"):         autosub.LOGLEVEL        = cfg.getint(section, "loglevel")
-        if cfg.has_option(section, "loglevelconsole"):  autosub.LOGLEVELCONSOLE = cfg.getint(section, "loglevelconsole")
-    except:
-        pass
+    if cfg.has_option(section, "loglevel"):             autosub.LOGLEVEL        = cfg.getint(section, "loglevel")
+    if cfg.has_option(section, "loglevelconsole"):      autosub.LOGLEVELCONSOLE = cfg.getint(section, "loglevelconsole")
     if cfg.has_option(section, "logsize"):              autosub.LOGSIZE         = cfg.getint(section, "logsize")
     if cfg.has_option(section, "lognum"):               autosub.LOGNUM          = cfg.getint(section, "lognum")
 
@@ -105,6 +110,13 @@ def ReadConfig():
     if cfg.has_option(section, 'webroot'):       autosub.WEBROOT       = str(cfg.get(section, 'webroot'))
     if cfg.has_option(section, 'username'):      autosub.USERNAME      = str(cfg.get(section, 'username'))
     if cfg.has_option(section, 'password'):      autosub.PASSWORD      = str(cfg.get(section, 'password'))
+
+    # ********************
+    # * rlsgrp Section *
+    # ********************
+    section = 'releasegroup'
+    if not cfg.has_section(section): cfg.add_section(section)
+    if cfg.has_option(section, 'mustmatch'):    autosub.MUSTMATCH      = cfg.get(section, 'mustmatch').lower().split(',')
 
     # ********************
     # * SkipShow Section *
@@ -129,15 +141,14 @@ def ReadConfig():
     # ********************************
     section = 'addic7edmapping'
     if not cfg.has_section(section): cfg.add_section(section)
-    autosub.USERADDIC7EDMAPPING={}
+    autosub.USERADDIC7EDMAPPING.clear()
     try:
-        autosub.USERADDIC7EDMAPPING = dict(cfg.items(section))
+        A7Mapping = dict(cfg.items(section))
     except:
         pass
-    for ImdbId in autosub.USERADDIC7EDMAPPING.iterkeys():
-        if not (ImdbId.isdigit and autosub.USERADDIC7EDMAPPING[ImdbId].isdigit()):
-            del autosub.USERADDIC7EDMAPPING[ImdbId]
-            print'ReadConfig: Addic7ed mapping has an unkown format.',ImdbId,' = ', autosub.USERADDIC7EDMAPPING[ImdbId]
+    for ImdbId in A7Mapping.iterkeys():
+        if (ImdbId.isdigit and A7Mapping[ImdbId].isdigit()):
+            autosub.USERADDIC7EDMAPPING[ImdbId] = int(A7Mapping[ImdbId])
 
     # ****************************
     # * User Namemapping Section *
@@ -201,13 +212,13 @@ def ReadConfig():
     if cfg.has_option(section, 'plexserverport'): autosub.PLEXSERVERPORT            = cfg.get(section, 'plexserverport')
     if cfg.has_option(section, 'plexserverusername'): autosub.PLEXSERVERUSERNAME    = cfg.get(section, 'plexserverusername')
     if cfg.has_option(section, 'plexserverpassword'): autosub.PLEXSERVERPASSWORD    = cfg.get(section, 'plexserverpassword')
-    if cfg.has_option(section, 'notifykodi'): autosub.NOTIFYKODI                     = cfg.getboolean(section, 'notifykodi')
+    if cfg.has_option(section, 'notifykodi'): autosub.NOTIFYKODI                    = cfg.getboolean(section, 'notifykodi')
     if cfg.has_option(section, 'kodiserverhost'): autosub.KODISERVERHOST            = cfg.get(section, 'kodiserverhost')
     if cfg.has_option(section, 'kodiserverport'): autosub.KODISERVERPORT            = cfg.get(section, 'kodiserverport')
     if cfg.has_option(section, 'kodiserverusername'): autosub.KODISERVERUSERNAME    = cfg.get(section, 'kodiserverusername')
     if cfg.has_option(section, 'kodiserverpassword'): autosub.KODISERVERPASSWORD    = cfg.get(section, 'kodiserverpassword')
     if cfg.has_option(section, 'kodiupdateonce'): autosub.KODIUPDATEONCE            = cfg.getboolean(section, 'kodiupdateonce')
-    autosub.MINMATCHDSP = '{0:04b}'.format(autosub.MINMATCHSCORE).replace('1','X').replace('0','-')
+    autosub.MINMATCHDSP = '{0:05b}'.format(autosub.MINMATCHSCORE).replace('1','X').replace('0','-')
         # Here we check whether the config has been upgraded
         # if so we make the changes and write the config back to the config file
     autosub.CONFIGVERSION = cfg.getint("config", "configversion") if cfg.has_option("config", "configversion") else 0
@@ -243,6 +254,7 @@ def WriteConfig():
     cfg.set(section, "subscene", str(autosub.SUBSCENE))
     cfg.set(section, "hearingimpaired", str(autosub.HI))
     cfg.set(section, 'minmatchscore', str(autosub.MINMATCHSCORE))
+    cfg.set(section, 'equalmatch', str(autosub.EQUALMATCH))
     cfg.set(section, "configversion", str(autosub.CONFIGVERSION ))  
     cfg.set(section, 'searchinterval', str(autosub.SEARCHINTERVAL))
     cfg.set(section, "browserrefresh", str(autosub.BROWSERREFRESH))
@@ -254,6 +266,7 @@ def WriteConfig():
     cfg.set(section, "tvdbuser", autosub.TVDBUSER)
     cfg.set(section, "tvdbaccountid", autosub.TVDBACCOUNTID)
     cfg.set(section, "subcodec", autosub.SUBCODEC)
+    cfg.set(section, "subpermissions", '0'+ str(autosub.SUBRIGHTS['owner']) + str(autosub.SUBRIGHTS['group']) + str(autosub.SUBRIGHTS['world']))
     cfg.set(section, "skipstringnl", autosub.SKIPSTRINGNL)
     cfg.set(section, "skipstringen", autosub.SKIPSTRINGEN)
     cfg.set(section, "skipfoldersnl", autosub.SKIPFOLDERSNL)
@@ -337,6 +350,10 @@ def WriteConfig():
         cfg.set(section, "kodiserverpassword", autosub.KODISERVERPASSWORD)
         cfg.set(section, "kodiupdateonce", str(autosub.KODIUPDATEONCE))
 
+    section = 'releasegroup'
+    cfg.add_section(section)
+    cfg.set(section,"mustmatch", ",".join(autosub.MUSTMATCH))
+
     section = 'skipshow'
     cfg.add_section(section)
     for Show in autosub.SKIPSHOW:
@@ -350,8 +367,8 @@ def WriteConfig():
 
     section = 'addic7edmapping'
     cfg.add_section(section)
-    for Name in autosub.USERADDIC7EDMAPPING:
-        cfg.set(section, Name, autosub.USERADDIC7EDMAPPING[Name])
+    for ImdbId in autosub.USERADDIC7EDMAPPING:
+        cfg.set(section, ImdbId, str(autosub.USERADDIC7EDMAPPING[ImdbId]))
 
     try:
         with open(autosub.CONFIGFILE, 'wb') as cfile:
@@ -374,6 +391,7 @@ def displaySkipshow():
     return s
 
 
+
 def displayNamemapping():
     """
     Return a string containing all info from user namemapping.
@@ -381,8 +399,8 @@ def displayNamemapping():
     in a textarea.
     """
     s = ""
-    for x in autosub.USERNAMEMAPPING:
-        s += x + " = " + str(autosub.USERNAMEMAPPING[x]) + "\n"
+    for Name in autosub.USERNAMEMAPPING:
+        s += Name + " = " + autosub.USERNAMEMAPPING[Name] + "\n"
     return s
 
 def displayAddic7edmapping():
@@ -392,8 +410,8 @@ def displayAddic7edmapping():
     in a textarea.
     """
     s = ""
-    for x in autosub.USERADDIC7EDMAPPING:
-        s += x + " = " + str(autosub.USERADDIC7EDMAPPING[x]) + "\n"
+    for ImdbId in autosub.USERADDIC7EDMAPPING:
+        s += ImdbId + " = " + str(autosub.USERADDIC7EDMAPPING[ImdbId]) + "\n"
     return s
 
 
@@ -476,5 +494,12 @@ def _upgradeConf(cfg, from_version, to_version):
                 else:
                     autosub.LOGLEVELCONSOLE = logging.INFO
             autosub.CONFIGVERSION = 5
-            WriteConfig()
-            print "Config: Config upgraded to version 5"
+        elif from_version == 5 and to_version == 6:
+            section = 'config'
+            if cfg.has_option(section, "minmatchscore"):
+                autosub.MINMATCHSCORE = int(cfg.get(section, "minmatchscore"))
+                if autosub.MINMATCHSCORE & 8:
+                    autosub.MINMATCHSCORE += 8
+                    WriteConfig()
+            autosub.CONFIGVERSION = 6
+            print "Config: Config upgraded to version 6"

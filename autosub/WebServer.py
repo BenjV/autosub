@@ -2,10 +2,12 @@
 
 import cherrypy
 import logging
-import sys
-import codecs
+import sys, os
+import sqlite3
+from shutil import copy as filecopy
+from codecs import open as CodecsOpen
 from ast import literal_eval
-
+from re import findall
 log = logging.getLogger('thelogger')
 
 try:
@@ -14,13 +16,11 @@ except:
     print "ERROR!!! Cheetah is not installed yet. Download it from: http://pypi.python.org/pypi/Cheetah/2.4.4"
     sys.exit(1)
 import threading
-from os.path import normpath, isfile
 import autosub.Config
-from autosub.Db import lastDown, flushcache
 from autosub.version import autosubversion
+from autosub.Db import initDb
 import autosub.notify as notify
 import autosub.Helpers
-from autosub.Addic7ed import Addic7edAPI
 from autosub.OpenSubtitles import OS_Login,OS_Logout
 from autosub.Tvdb import GetToken
 
@@ -34,7 +34,8 @@ def stringToDict(items=None):
     """
     items = items.split('\r\n')
     returnitems = []
-
+            # Future work
+            # returnitems = {k:str(int(v)).zfill(7) for k,v in (x.split('=') for x in items) }
     for item in items:
         if item:
             showinfo = []
@@ -48,6 +49,12 @@ def stringToDict(items=None):
             returnitems.append(showinfo)
     returnitems = dict(returnitems)
     return returnitems
+
+def CheckMobileDevice(req_useragent):
+    for MUA in autosub.MOBILEUSERAGENTS:
+        if MUA.lower() in req_useragent.lower():
+            return True
+    return False
 
 class PageTemplate (Template):
     #Placeholder for future, this object can be used to add stuff to the template
@@ -71,7 +78,7 @@ class Config:
     @cherrypy.expose
     def notifications(self):
         tmpl = PageTemplate(file="interface/templates/config-notification.tmpl")
-        return str(tmpl)  
+        return str(tmpl)
 
     @cherrypy.expose
     def skipShow(self, title, season=None, episode=None):
@@ -111,7 +118,7 @@ class Config:
             message = autosub.Config.WriteConfig()
 
             #print season, episode
-            Name = 'ImdbId' if title.isnumeric() else 'title'
+            Name = 'ImdbId' if title.isnumeric() else 'show'
 
             if season == -1:
                 tmpl.message = "Serie with %s: <strong>%s</strong> will be skipped.<br> This will happen the next time that Auto-Sub checks for subtitles" % (Name, title.title())
@@ -128,12 +135,13 @@ class Config:
     def saveConfig(self, subeng, skipstringnl, skipstringen, skipfoldersnl,skipfoldersen, subnl, postprocesscmd, 
                    logfile, seriespath, bckpath, subcodec,  username, 
                    password, webroot, skipshow, lognum, loglevelconsole, loglevel, 
-                   webserverip, webserverport, usernamemapping, 
-                   opensubtitlesuser, opensubtitlespasswd,  addic7eduser, addic7edpasswd,useraddic7edmapping, tvdbuser = None,tvdbaccountid = None,
-                   addic7ed=None,opensubtitles=None, podnapisi=None, subscene=None, 
+                   webserverip, webserverport, mustmatch, usernamemapping,
+                   opensubtitlesuser, opensubtitlespasswd,  addic7eduser, addic7edpasswd,useraddic7edmapping,equalmatch=None,
+                   ReadOwner=None, ReadGroup=None, ReadWorld=None, WriteOwner=None, WriteGroup=None, WriteWorld=None,tvdbuser = None,tvdbaccountid = None,
+                   addic7ed=None,opensubtitles=None, podnapisi=None, subscene=None,
                    wantedfirst = None, browserrefresh = None, skiphiddendirs = None,useaddic7ed=None,launchbrowser=None,interval = None, logsize=None,
                    fallbacktoeng = None, downloadeng = None, englishsubdelete = None, notifyen = None, notifynl = None, downloaddutch = None,
-                   mmssource = u'0', mmsquality = u'0', mmscodec = u'0', mmsrelease = u'0',hearingimpaired = None):
+                   mmssource = u'0', mmssdistro = u'0', mmsquality = u'0', mmscodec = u'0', mmsrelease = u'0',hearingimpaired = None):
 
         if autosub.SEARCHBUSY:
             tmpl = PageTemplate(file="interface/templates/config-settings.tmpl")
@@ -143,8 +151,8 @@ class Config:
             return str(tmpl)
                    
         # Set all internal variables
-        autosub.SERIESPATH = normpath(seriespath)
-        autosub.BCKPATH = normpath(bckpath)
+        autosub.SERIESPATH = os.path.normpath(seriespath)
+        autosub.BCKPATH = os.path.normpath(bckpath)
         autosub.LOGFILE = logfile
         autosub.DOWNLOADENG = True if downloadeng else False
         autosub.DOWNLOADDUTCH = True if downloaddutch else False
@@ -156,6 +164,12 @@ class Config:
         autosub.NOTIFYNL = True if notifynl else False
         autosub.POSTPROCESSCMD = postprocesscmd
         autosub.SUBCODEC = subcodec
+        autosub.SUBRIGHTS['owner']  = 4 if ReadOwner else 0
+        if WriteOwner: autosub.SUBRIGHTS['owner'] += 2
+        autosub.SUBRIGHTS['group']  = 4 if ReadGroup else 0
+        if WriteGroup: autosub.SUBRIGHTS['group'] += 2
+        autosub.SUBRIGHTS['world']  = 4 if ReadWorld  == 'True' else 0
+        if WriteWorld: autosub.SUBRIGHTS['world'] += 2 
         autosub.LAUNCHBROWSER = True if launchbrowser else False
         autosub.SKIPHIDDENDIRS = True if skiphiddendirs else False
         autosub.WANTEDFIRST = True if wantedfirst else False
@@ -174,7 +188,8 @@ class Config:
         autosub.SKIPSTRINGEN = skipstringen
         autosub.SKIPFOLDERSNL = skipfoldersnl
         autosub.SKIPFOLDERSEN = skipfoldersen
-        autosub.MINMATCHSCORE = int(mmssource) + int(mmsquality) + int(mmscodec) + int(mmsrelease)
+        autosub.MINMATCHSCORE = int(mmssource) + int(mmssdistro) + int(mmsquality) + int(mmscodec) + int(mmsrelease)
+        autosub.EQUALMATCH = True if equalmatch == 'True' else autosub.EQUALMATCH
         autosub.SEARCHINTERVAL = int(interval)*3600
     # here we change the loglevels if neccessary
         if autosub.LOGLEVEL != int(loglevel):
@@ -198,6 +213,7 @@ class Config:
         autosub.PASSWORD = password.replace("%","%%")
         autosub.WEBROOT = webroot
         autosub.SKIPSHOW = stringToDict(skipshow)
+        autosub.MUSTMATCH = [element.lower() for element in findall(r'\w+',mustmatch)] 
         autosub.USERNAMEMAPPING = stringToDict(usernamemapping)
         autosub.USERADDIC7EDMAPPING = stringToDict(useraddic7edmapping)
         autosub.HI = True if hearingimpaired else False
@@ -398,7 +414,7 @@ class Config:
 
     @cherrypy.expose
     def testAddic7ed(self, addic7eduser, addic7edpasswd, dummy):
-        if autosub.Addic7ed.Addic7edAPI().login(addic7eduser, addic7edpasswd):
+        if autosub.ADDIC7EDAPI.A7_Login(addic7eduser, addic7edpasswd):
             return "<strong>Success</strong>."
         else:
             return "<strong>Failure</strong>."
@@ -439,8 +455,7 @@ class Config:
                 tmpl.token_key = token_key
                 tmpl.token_secret = token_secret
                 return str(tmpl)     
-        if token_key and token_secret and token_pin:
-            
+        if token_key and token_secret and token_pin: 
             token = oauth2.Token(token_key, token_secret)
             token.set_verifier(token_pin)
             consumer = oauth2.Consumer(key=notifytwitter.CONSUMER_KEY, secret=notifytwitter.CONSUMER_SECRET)
@@ -466,19 +481,21 @@ class Config:
                 
 class Home:
     @cherrypy.expose
-    def index(self):
+    def index(self):      
         useragent = cherrypy.request.headers.get("User-Agent", '')
-        tmpl = PageTemplate(file="interface/templates/home.tmpl")
-        if autosub.Helpers.CheckMobileDevice(useragent) and autosub.MOBILEAUTOSUB:
+        if CheckMobileDevice(useragent) and autosub.MOBILEAUTOSUB:
             tmpl = PageTemplate(file="interface/templates/mobile/home.tmpl")
+        else:
+            tmpl = PageTemplate(file="interface/templates/home.tmpl")
         return str(tmpl)
     
     @cherrypy.expose
     def runNow(self):
         useragent = cherrypy.request.headers.get("User-Agent", '')
-        tmpl = PageTemplate(file="interface/templates/home.tmpl")
-        if autosub.Helpers.CheckMobileDevice(useragent) and autosub.MOBILEAUTOSUB:
+        if CheckMobileDevice(useragent) and autosub.MOBILEAUTOSUB:
             tmpl = PageTemplate(file="interface/templates/mobile/message.tmpl")
+        else:
+            tmpl = PageTemplate(file="interface/templates/home.tmpl")
         if not hasattr(autosub.CHECKSUB, 'runnow'):
             tmpl.message = "Auto-Sub is already running, no need to rerun"
             tmpl.displaymessage = "Yes"
@@ -502,7 +519,10 @@ class Home:
 
     @cherrypy.expose
     def checkVersion(self):
-        message = 'Active version &emsp;: ' + autosubversion + '<BR>Github version&emsp;: ' + autosub.Helpers.CheckVersion()
+        if autosub.Helpers.CheckVersion() == 'OK':
+            message = 'Active version &emsp;: ' + autosubversion + '<BR>Github version&emsp;: ' + autosub.GITHUBVERSION
+        else:
+            message = 'Could not get Version Info from Github.'
         tmpl = PageTemplate(file="interface/templates/home.tmpl")
         tmpl.message = message
         tmpl.displaymessage = "Yes"
@@ -537,7 +557,23 @@ class Home:
 
     @cherrypy.expose
     def backup(self):
-        message = autosub.Helpers.Backup()
+        if not autosub.BCKPATH:
+            message= 'No backup/restore folder in config defined.'
+        elif not os.path.exists(autosub.BCKPATH):
+            message = 'Backup/restore folder does not exists.'
+        elif not os.access(autosub.BCKPATH, os.W_OK):
+            message = 'No write acess to backup location.<BR> Make shure the autosub user(or on Synology the group sc-media) has write access!'
+        else:
+            dest = os.path.join(autosub.BCKPATH, os.path.splitext(os.path.split(autosub.CONFIGFILE)[1])[0] + '.bck')
+            try:
+                filecopy(autosub.CONFIGFILE,dest)
+                src = os.path.join(autosub.CONFIGPATH,'database.db')
+                filecopy(src,os.path.join(autosub.BCKPATH,'database.bck'))
+                log.info("Config and Database backuped to %s" % autosub.BCKPATH)
+                message = 'Succesfull backup of the config and database files to:<BR> %s' % autosub.BCKPATH
+            except Exception as error:
+                log.error(error)
+                message = error.message
         tmpl = PageTemplate(file="interface/templates/home.tmpl")
         tmpl.message = message
         tmpl.displaymessage = "Yes"
@@ -546,7 +582,25 @@ class Home:
 
     @cherrypy.expose
     def restore(self):
-        message = autosub.Helpers.Restore()
+        cfg_src = os.path.join(autosub.BCKPATH, os.path.splitext(os.path.split(autosub.CONFIGFILE)[1])[0] + '.bck')
+        bck_src = os.path.join(autosub.BCKPATH,'database.bck')
+        if not autosub.BCKPATH:
+            message= 'No backup/restore folder in config defined.'
+        elif not os.path.exists(autosub.BCKPATH):
+            message = 'Backup/restore folder does not exists.'
+        elif not os.path.isfile(cfg_src):
+            message = '%s not found to restore!' % cfg_src
+        elif not os.path.isfile(bck_src):
+            message = '%s not found to restore!' % src_src
+        else:
+            try:
+                filecopy(cfg_src,autosub.CONFIGFILE)
+                filecopy(bck_src,os.path.join(autosub.CONFIGPATH,'database.db'))
+                initDb()
+                log.info("Config and Database restored from %s" % autosub.BCKPATH)
+                message = 'Succesfully restored the config and database from:<BR> %s' % autosub.BCKPATH
+            except Exception as error:
+                message = error.message
         tmpl = PageTemplate(file="interface/templates/home.tmpl")
         tmpl.message = message
         tmpl.displaymessage = "Yes"
@@ -555,7 +609,11 @@ class Home:
 
     @cherrypy.expose
     def flushCache(self):
-        flushcache()
+        connection=sqlite3.connect(autosub.DBFILE)
+        cursor=connection.cursor()
+        cursor.execute("DELETE FROM show_id_cache")
+        connection.commit()
+        connection.close()        
         message = 'Cache flushed'
         tmpl = PageTemplate(file="interface/templates/home.tmpl")
         tmpl.message = message
@@ -565,7 +623,12 @@ class Home:
     
     @cherrypy.expose
     def flushLastdown(self):
-        lastDown().flushLastdown()
+        connection=sqlite3.connect(autosub.DBFILE)
+        cursor=connection.cursor()
+        cursor.execute("DELETE FROM downloaded")
+        connection.commit()
+        connection.close()
+        del autosub.DOWNLOADED[:]
         message = 'Downloaded subtitles database flushed'
         tmpl = PageTemplate(file="interface/templates/home.tmpl")
         tmpl.message = message
@@ -590,9 +653,9 @@ class Log:
             LevelName = 'ERR'
         else:
             LevelName = None
-        if isfile(autosub.LOGFILE):
+        if os.path.isfile(autosub.LOGFILE):
             try:
-                with codecs.open(autosub.LOGFILE, 'r', autosub.SYSENCODING) as f:
+                with CodecsOpen(autosub.LOGFILE, 'r', autosub.SYSENCODING) as f:
                     LogLines = f.readlines()
             except Exception as error:
                 log.error('Could not read the logfile. %s' % error)
@@ -612,7 +675,11 @@ class Log:
     @cherrypy.expose
     def clearLog(self):
         tmpl = PageTemplate(file="interface/templates/home.tmpl")
-        tmpl.message = autosub.Helpers.ClearLogFile()
+        try:
+            open(autosub.LOGFILE, 'w').close()
+            tmpl.message = "Logfile has been cleared!"
+        except Exception as tmpl.message:
+            pass
         tmpl.displaymessage = "Yes"
         tmpl.modalheader = "Information"
         return str(tmpl)

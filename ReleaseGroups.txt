@@ -647,6 +647,8 @@ cowiso
 cowry
 cp
 cpg
+cpt
+cptcrunchzz
 cptscene
 cpy
 cr
@@ -967,6 +969,7 @@ encrypted
 endor
 ensu
 ent
+enticement
 eots
 ep1c
 ephemerid
@@ -1028,6 +1031,7 @@ f-b
 f0rarchive
 f1
 f1nd
+f1rebladerunner
 f2f
 f2l
 fa
@@ -1599,6 +1603,7 @@ jbs
 jch
 jedi
 jenc
+jester
 jetset
 jfkdvd
 jfkxvid
@@ -2105,6 +2110,7 @@ nohd
 noir
 nonestop
 noobkg
+noobless
 noobsubs
 norars
 nordic.edition
@@ -2178,6 +2184,7 @@ ollandgroup
 oma
 omer
 omerta
+omertahd
 omfug
 omgtv
 omicron
@@ -3078,6 +3085,7 @@ undercover
 underwater
 underwater-mahjong
 undine
+unfired
 unique
 unit
 unitail

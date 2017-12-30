@@ -1,10 +1,5 @@
 #import autosub
 #import time
-#import cgi
-#import urllib
-#import re
-
-#from autosub.Db import lastDown
 #from autosub.version import autosubversion
 
 <!DOCTYPE html>
@@ -17,13 +12,11 @@
 		<link rel="stylesheet" href="$autosub.WEBROOT/mobile/css/jquery.mobile-1.0.min.css">
 		<script type="text/javascript" src="$autosub.WEBROOT/mobile/scripts/jquery-1.6.4.min.js"></script>
 		<script type="text/javascript" src="$autosub.WEBROOT/mobile/scripts/jquery.mobile-1.0.min.js"></script>
-		
 	</head>
 
 	<body>
 		<div data-role="page" data-add-back-btn="false">
-			<div data-role="header" id="header">
-					
+			<div data-role="header" id="header">		
 				<div style="position: absolute; top: 5px; left: 5px;">
 					<a href="$autosub.WEBROOT/home/runNow" data-role="button" data-icon="search" data-theme="b">RunNow</a>
 				</div>
@@ -34,112 +27,101 @@
 			</div>
 			<div data-role="content">
 				<div data-role="collapsible-set" data-theme="b" data-content-theme="b">
-
 					<div data-role="collapsible" data-collapsed="false">
-					<h3>WANTED</h3>
-					<p>
-					
-#if $len($autosub.WANTEDQUEUE) >= 1
-						<table class="table" width="100%">
-							<thead>
-							<tr>
-								<th>SHOW NAME</th>
-								<th>LANG</th>
-							</tr>
-							</thead>
-
-	#set $counter = 0
-	#for $var in $autosub.WANTEDQUEUE
-	#set $counter = $counter + 1
-
-	#set $title_escaped = $cgi.escape($var['title'], True)
-							<tr>
-								<td><b>
-									<div style="position: relative; float: left; width: 60%;">$var['title']</div> <div style="position: relative; float: right;">S$var['season'] E$var['episode']</div>
-								</b></td>
-								<td align="center" width="50px">
-							#if "Dutch" in $var['langs']
-								<img src="$autosub.WEBROOT/images/Dutch.png" alt="nl">
-							#end if
-							#if "English" in $var['langs']
-								<img src="$autosub.WEBROOT/images/English.png" alt="en">
-							#end if
-								</td>
-							</tr>						
-	#end for
-						</table>
-#else:
-	<center>No data available at the moment.</center>
-#end if					
-					</p>
+            <h3>WANTED</h3>
+            <p>
+            #if $autosub.WANTEDQUEUE
+              <table class="table" width="100%">
+                <thead>
+                  <tr>
+                    <th>SHOW NAME</th>
+                    <th>LANG</th>
+                  </tr>
+                </thead>
+                #set $counter = 0
+                #for $item in $autosub.WANTEDQUEUE
+                  #set $counter = $counter + 1
+                  <tr>
+                    <td>
+                      <b>
+                        <div style="position: relative; float: left; width: 60%;">$item['show']</div>
+                        <div style="position: relative; float: right;">S$item['season'] E$item['episode']</div>
+                      </b>
+                    </td>
+                    <td align="center" width="50px">
+                      #if "nl" in $item['langs']
+                        <img src="$autosub.WEBROOT/images/nl.png" alt="nl">
+                      #end if
+                      #if "en" in $item['langs']
+                        <img src="$autosub.WEBROOT/images/en.png" alt="en">
+                      #end if
+                    </td>
+                  </tr>						
+                #end for
+              </table>
+            #else:
+              <center>No data available at the moment.</center>
+            #end if					
+            </p>
 					</div>
-					
 					<div data-role="collapsible">
-					<h3>DOWNLOADED</h3>
-					<p>
-					
-#set $lastdownload = lastDown().getlastDown()
-
-#if $len($lastdownload) >= 1
-    
-						<table class="table">
-							<thead>
-							<tr>
-								<th>SHOW NAME</th>
-								<th>LANG</th>
-							</tr>
-							</thead>
-
-	#set $downloadeditem = 0
-	#for $var in $lastdownload
-		#set $downloadeditem += 1
-			#if $downloadeditem > 10:
-				#break
-			#else:
-							<tr>
-								<td><b>
-									<div style="position: relative; float: left; width: 60%;">$var['show_name']</div> <div style="position: relative; float: right;">S$var['season'] E$var['episode']</div>
-								</b></td>
-	
-								<td align="center" width="50px">
-									#set $imageurl = $autosub.WEBROOT + "/images/" + $var['language'] + ".png"
-									<img src="$imageurl" alt="$var['language']" />
-								</td>
-								</tr>
-			#end if
-	#end for
-							</table>
-#else:
-	<center>No data available at the moment.</center>
-#end if
-					
-					</p>
-					</div>
-
+            <h3>DOWNLOADED</h3>
+            <p>
+            #if $autosub.DOWNLOADED
+              <table class="table">
+                <thead>
+                <tr>
+                  <th>SHOW NAME</th>
+                  <th>LANG</th>
+                </tr>
+                </thead>
+              #set $downloadeditem = 0
+              #for $var in $autosub.DOWNLOADED
+                #set $downloadeditem += 1
+                #if $downloadeditem > 10
+                  #break
+                #else
+                  <tr>
+                    <td>
+                      <b>
+                        <div style="position: relative; float: left; width: 60%;">$var[1]</div>
+                        <div style="position: relative; float: right;">S$var[2] E$var[3]</div>
+                      </b>
+                    </td>
+                    <td align="center" width="50px">
+                      #set $imageurl = $autosub.WEBROOT + "/images/" + $var[11] + ".png"
+                      <img src="$imageurl" alt="$var[11]" />
+                    </td>
+                  </tr>
+                #end if
+              #end for
+              </table>
+            #else
+              <center>No data available at the moment.</center>
+            #end if
+            </p>
+          </div>
 					<div data-role="collapsible" align="center">
-					<h3>INFORMATION</h3>
-					<p>
-						<table border="0px" cellspacing="0px" cellpadding="0px">					
-							<tr>
-								<td>NEXT CHECKSUB</td>
-								<td>
-									#try
-									  &nbsp;@&nbsp;$time.strftime('%H:%M:%S', $time.gmtime(($autosub.CHECKSUB.interval - ($time.time() - $autosub.CHECKSUB.lastrun) ))) <br>
-									#except
-									  &nbsp;@&nbsp;Please wait... <br>
-									#end try
-								</td>
-							</tr>
-						</table>
-					
-					</p>
+            <h3>INFORMATION</h3>
+            <p>
+              <table border="0px" cellspacing="0px" cellpadding="0px">					
+                <tr>
+                  #if $autosub.SEARCHBUSY :
+                    <div class="well well-sm center well-header">Search is busy... </font></div>
+                  #else
+                    <div class="well well-sm center well-header">Time until next run:
+                      $int($time.strftime('%H', $time.gmtime(($autosub.SEARCHINTERVAL - ($time.time() - $autosub.CHECKSUB.lastrun) )))) hours and 
+                      $int($time.strftime('%M', $time.gmtime(($autosub.SEARCHINTERVAL - ($time.time() - $autosub.CHECKSUB.lastrun) )))) minutes
+                    </div>
+                  #end if
+                </tr>
+              </table>
+            </p>
 					</div>
-					
 				</div>
 			</div>
-			
 			<div data-role="footer" data-theme="b">
-				<div class="ui-bar" align="center">AUTO-SUB<br>$autosubversion</div>
+				<div class="ui-bar" align="center">AUTO-SUB $autosubversion</div>
 			</div>
 		</div>
 	</body>

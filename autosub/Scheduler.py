@@ -13,7 +13,6 @@ class Scheduler:
     def __init__(self, command,runnow, name):      
         self.command = command
         self.name = name
-        #self.interval = interval*3600
         self.thread = threading.Thread(None, self.runcommand, self.name)
         self.stop = False
         if runnow:
@@ -27,9 +26,10 @@ class Scheduler:
             
     def runcommand(self):
         while True:
-            if time() - self.lastrun > autosub.SEARCHINTERVAL:
+            ellapsed = time() - self.lastrun
+            if (ellapsed > autosub.SEARCHINTERVAL and ellapsed > 21600):
                 try:
-                    print 'scheduler run'
+                    print 'scheduler run:', time()
                     self.command.run()
                     self.lastrun = time() 
                 except:

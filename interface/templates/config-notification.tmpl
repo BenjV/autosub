@@ -1,5 +1,5 @@
 #import autosub
-
+#import os
 #include $os.path.join($autosub.PATH.encode(), "interface/templates/header.tmpl")
 
     <script type="text/javascript">
@@ -27,56 +27,56 @@
 		
 		<div id="content_notifymail">
 			<div class="form-group">
-				<label for="MailServer" class="col-sm-2 control-label">Server <a data-placement="bottom" data-toggle="tooltip" data-original-title="What mail server would you like to use?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<label for="MailServer" class="col-sm-2 control-label">Server <a data-placement="bottom" data-toggle="tooltip" title="What mail server would you like to use?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
 				<div class="col-sm-10">
 				<input type="text" class="form-control" name="mailsrv" id="mailsrv" value="$autosub.MAILSRV" placeholder="smtp.gmail.com:587">
 				</div>
 			</div>
 			
 			<div class="form-group">
-				<label for="MailFrom" class="col-sm-2 control-label">From <a data-placement="bottom" data-toggle="tooltip" data-original-title="From which address will the notification be sent?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<label for="MailFrom" class="col-sm-2 control-label">From <a data-placement="bottom" data-toggle="tooltip" title="From which address will the notification be sent?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
 				<div class="col-sm-10">
 				<input type="text" class="form-control" name="mailfromaddr" id="mailfromaddr" value="$autosub.MAILFROMADDR" placeholder="example@gmail.com">
 				</div>
 			</div>
 			
 			<div class="form-group">
-				<label for="MailTo" class="col-sm-2 control-label">To <a data-placement="bottom" data-toggle="tooltip" data-original-title="To which address will the notification be sent?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<label for="MailTo" class="col-sm-2 control-label">To <a data-placement="bottom" data-toggle="tooltip" title="To which address will the notification be sent?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
 				<div class="col-sm-10">
 				<input type="text" class="form-control" name="mailtoaddr" id="mailtoaddr" value="$autosub.MAILTOADDR" placeholder="example@gmail.com">
 				</div>
 			</div>
 			
 			<div class="form-group">
-				<label for="MailUsername" class="col-sm-2 control-label">Username <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is your username on this server?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<label for="MailUsername" class="col-sm-2 control-label">Username <a data-placement="bottom" data-toggle="tooltip" title="What is your username on this server?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
 				<div class="col-sm-10">
 				<input type="text" class="form-control" name="mailusername" id="mailusername" value="$autosub.MAILUSERNAME" placeholder="example@gmail.com">
 				</div>
 			</div>
 			
 			<div class="form-group">
-				<label for="MailPassword" class="col-sm-2 control-label">Password <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the password belonging to this username?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<label for="MailPassword" class="col-sm-2 control-label">Password <a data-placement="bottom" data-toggle="tooltip" title="What is the password belonging to this username?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
 				<div class="col-sm-10">
 				<input type="password" class="form-control" name="mailpassword" id="mailpassword" value="$autosub.MAILPASSWORD" placeholder="mysecretpassword">
 				</div>
 			</div>
 			
 			<div class="form-group">
-				<label for="MailSubject" class="col-sm-2 control-label">Subject <a data-placement="bottom" data-toggle="tooltip" data-original-title="What should the subject be? (the download subtitle file will be added at the end of the subject)"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<label for="MailSubject" class="col-sm-2 control-label">Subject <a data-placement="bottom" data-toggle="tooltip" title="What should the subject be? (the download subtitle file will be added at the end of the subject)"><span class="glyphicon glyphicon-info-sign"></span></a></label>
 				<div class="col-sm-10">
 				<input type="text" class="form-control" name="mailsubject" id="mailsubject" value="$autosub.MAILSUBJECT" placeholder="Subject info">
 				</div>
 			</div>
 			
 			<div class="form-group">
-				<label for="MailEncryption" class="col-sm-2 control-label">Encryption <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the encryption method?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<label for="MailEncryption" class="col-sm-2 control-label">Encryption <a data-placement="bottom" data-toggle="tooltip" title="What is the encryption method?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
 				<div class="col-sm-10">
 				<input type="text" class="form-control" name="mailencryption" id="mailencryption" value="$autosub.MAILENCRYPTION" placeholder="TLS">
 				</div>
 			</div>
 			
 			<div class="form-group">
-				<label for="MailAuthentication" class="col-sm-2 control-label">Authentication <a data-placement="bottom" data-toggle="tooltip" data-original-title="What Auth Mechanism should be used? (Don't change this if you don't know what you are doing!)"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<label for="MailAuthentication" class="col-sm-2 control-label">Authentication <a data-placement="bottom" data-toggle="tooltip" title="What Auth Mechanism should be used? (Don't change this if you don't know what you are doing!)"><span class="glyphicon glyphicon-info-sign"></span></a></label>
 				<div class="col-sm-10">
 				<input type="text" class="form-control" name="mailauth" id="mailauth" value="$autosub.MAILAUTH" placeholder="">
 				</div>
@@ -108,14 +108,14 @@
 		
 		<div id="content_notifytwitter">
 			<div class="form-group">
-				<label for="TwitterKey" class="col-sm-2 control-label">Key <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the key for Twitter?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<label for="TwitterKey" class="col-sm-2 control-label">Key <a data-placement="bottom" data-toggle="tooltip" title="What is the key for Twitter?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
 				<div class="col-sm-10">
 				<input type="text" class="form-control" name="twitterkey" id="twitterkey" value="$autosub.TWITTERKEY" placeholder="token key">
 				</div>
 			</div>
 			
 			<div class="form-group">
-				<label for="TwitterSecret" class="col-sm-2 control-label">Secret <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the secret code for Twitter?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<label for="TwitterSecret" class="col-sm-2 control-label">Secret <a data-placement="bottom" data-toggle="tooltip" title="What is the secret code for Twitter?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
 				<div class="col-sm-10">
 				<input type="text" class="form-control" name="twittersecret" id="twittersecret" value="$autosub.TWITTERSECRET" placeholder="token secret">
 				</div>
@@ -149,7 +149,7 @@
 		
 		<div id="content_notifypushalot">
 			<div class="form-group">
-				<label for="PushalotAPI" class="col-sm-2 control-label">API <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the API key for Pushalot?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<label for="PushalotAPI" class="col-sm-2 control-label">API <a data-placement="bottom" data-toggle="tooltip" title="What is the API key for Pushalot?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
 				<div class="col-sm-10">
 				<input type="text" class="form-control" name="pushalotapi" id="pushalotapi" value="$autosub.PUSHALOTAPI" placeholder="Pushalot API key">
 				</div>
@@ -181,7 +181,7 @@
 
 		<div id="content_notifypushbullet">
 			<div class="form-group">
-				<label for="PushbulletAPI" class="col-sm-2 control-label">API <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the API key for Pushbullet?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<label for="PushbulletAPI" class="col-sm-2 control-label">API <a data-placement="bottom" data-toggle="tooltip" title="What is the API key for Pushbullet?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
 				<div class="col-sm-10">
 				<input type="text" class="form-control" name="pushbulletapi" id="pushbulletapi" value="$autosub.PUSHBULLETAPI" placeholder="Pushbullet API key">
 				</div>
@@ -213,14 +213,14 @@
 		
 		<div id="content_notifynma">
 			<div class="form-group">
-				<label for="NotifyMyAndroidAPI" class="col-sm-2 control-label">API <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the API key for NMA?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<label for="NotifyMyAndroidAPI" class="col-sm-2 control-label">API <a data-placement="bottom" data-toggle="tooltip" title="What is the API key for NMA?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
 				<div class="col-sm-10">
 				<input type="text" class="form-control" name="nmaapi" id="nmaapi" value="$autosub.NMAAPI" placeholder="NMA API key">
 				</div>
 			</div>
 			
 			<div class="form-group">
-				<label for="NotifyMyAndroidPriority" class="col-sm-2 control-label">Priority <a data-placement="bottom" data-toggle="tooltip" data-original-title="What priority should be used to send the notification? Default is Normal."><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<label for="NotifyMyAndroidPriority" class="col-sm-2 control-label">Priority <a data-placement="bottom" data-toggle="tooltip" title="What priority should be used to send the notification? Default is Normal."><span class="glyphicon glyphicon-info-sign"></span></a></label>
 				<div class="col-sm-10">
 					#set priormapper = {-2 : 'Very Low', -1 : 'Moderate', 0 : 'Normal', 1 : 'High', 2 : 'Emergency'}
 					<select name="nmapriority" id="nmapriority" class="form-control">
@@ -261,7 +261,7 @@
 		
 		<div id="content_notifyboxcar2">
 			<div class="form-group">
-				<label for="Boxcar2Token" class="col-sm-2 control-label">Access Token <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is your access token for Boxcar2?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<label for="Boxcar2Token" class="col-sm-2 control-label">Access Token <a data-placement="bottom" data-toggle="tooltip" title="What is your access token for Boxcar2?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
 				<div class="col-sm-10">
 					<input type="text" class="form-control" name="boxcar2token" id="boxcar2token" value="$autosub.BOXCAR2TOKEN" placeholder="Boxcar2 access token">
 				</div>
@@ -294,7 +294,7 @@
 		<div id="content_notifypushover">
 			<div class="form-group">
 				<label for="AppAPI" class="col-sm-2 control-label">Application Token 
-					<a data-placement="bottom" data-toggle="tooltip" data-original-title="What is your application's API token for Pushover?"><span class="glyphicon glyphicon-info-sign"></span></a>
+					<a data-placement="bottom" data-toggle="tooltip" title="What is your application's API token for Pushover?"><span class="glyphicon glyphicon-info-sign"></span></a>
 				</label>
 				<div class="col-sm-10">
 					<input type="text" class="form-control" name="pushoverappkey" id="pushoverappkey" value="$autosub.PUSHOVERAPPKEY" placeholder="Pushover Applicatie Key">
@@ -302,14 +302,14 @@
 			</div>
 			<div class="form-group">
 				<label for="UserAPI" class="col-sm-2 control-label">User Key
-					<a data-placement="bottom" data-toggle="tooltip" data-original-title="What is your user key for Pushover?"><span class="glyphicon glyphicon-info-sign"></span></a>
+					<a data-placement="bottom" data-toggle="tooltip" title="What is your user key for Pushover?"><span class="glyphicon glyphicon-info-sign"></span></a>
 				</label>
 				<div class="col-sm-10">
 					<input type="text" class="form-control" name="pushoveruserkey" id="pushoveruserkey" value="$autosub.PUSHOVERUSERKEY" placeholder="Pushover User Key">
 				</div>
 			</div>
 			<div class="form-group">
-				<label for="PushoverPriority" class="col-sm-2 control-label">Priority <a data-placement="bottom" data-toggle="tooltip" data-original-title="What priority should be used to send the notification? Default is Normal."><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<label for="PushoverPriority" class="col-sm-2 control-label">Priority <a data-placement="bottom" data-toggle="tooltip" title="What priority should be used to send the notification? Default is Normal."><span class="glyphicon glyphicon-info-sign"></span></a></label>
 				<div class="col-sm-10">
 					#set priormapper = {-2 : 'Very Low', -1 : 'Low', 0 : 'Normal', 1 : 'High', 2 : 'Emergency'}
 					<select name="pushoverpriority" id="pushoverpriority" class="form-control">
@@ -350,21 +350,21 @@
 		
 		<div id="content_notifygrowl">
 			<div class="form-group">
-				<label for="GrowlHost" class="col-sm-2 control-label">Host <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the address of the Growl server?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<label for="GrowlHost" class="col-sm-2 control-label">Host <a data-placement="bottom" data-toggle="tooltip" title="What is the address of the Growl server?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
 				<div class="col-sm-10">
 				<input type="text" class="form-control" name="growlhost" id="growlhost" value="$autosub.GROWLHOST" placeholder="127.0.0.1">
 				</div>
 			</div>
 			
 			<div class="form-group">
-				<label for="GrowlPort" class="col-sm-2 control-label">Port <a data-placement="bottom" data-toggle="tooltip" data-original-title="What port should we use?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<label for="GrowlPort" class="col-sm-2 control-label">Port <a data-placement="bottom" data-toggle="tooltip" title="What port should we use?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
 				<div class="col-sm-10">
 				<input type="text" class="form-control" name="growlport" id="growlport" value="$autosub.GROWLPORT" placeholder="23053">
 				</div>
 			</div>
 			
 			<div class="form-group">
-				<label for="GrowlPassword" class="col-sm-2 control-label">Password <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the password?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<label for="GrowlPassword" class="col-sm-2 control-label">Password <a data-placement="bottom" data-toggle="tooltip" title="What is the password?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
 				<div class="col-sm-10">
 				<input type="password" class="form-control" name="growlpass" id="growlpass" value="$autosub.GROWLPASS" placeholder="mysecretpassword">
 				</div>
@@ -400,14 +400,14 @@
 		
 		<div id="content_notifyprowl">
 			<div class="form-group">
-				<label for="ProwlAPI" class="col-sm-2 control-label">API <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the API key for Prowl?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<label for="ProwlAPI" class="col-sm-2 control-label">API <a data-placement="bottom" data-toggle="tooltip" title="What is the API key for Prowl?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
 				<div class="col-sm-10">
 				<input type="text" class="form-control" name="prowlapi" id="prowlapi" value="$autosub.PROWLAPI" placeholder="API key">
 				</div>
 			</div>
 			
 			<div class="form-group">
-				<label for="ProwlPriority" class="col-sm-2 control-label">Priority <a data-placement="bottom" data-toggle="tooltip" data-original-title="What priority should be used to send the notification? Default is Normal"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<label for="ProwlPriority" class="col-sm-2 control-label">Priority <a data-placement="bottom" data-toggle="tooltip" title="What priority should be used to send the notification? Default is Normal"><span class="glyphicon glyphicon-info-sign"></span></a></label>
 				<div class="col-sm-10">
 				#set priormapper = {-2 : 'Very Low', -1 : 'Moderate', 0 : 'Normal', 1 : 'High', 2 : 'Emergency'}
 				<select name="prowlpriority" id="prowlpriority" class="form-control">
@@ -448,14 +448,14 @@
 		
 		<div id="content_notifytelegram">
 			<div class="form-group">
-				<label for="TelegramAPI" class="col-sm-2 control-label">API <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is your Telegram bot API token?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<label for="TelegramAPI" class="col-sm-2 control-label">API <a data-placement="bottom" data-toggle="tooltip" title="What is your Telegram bot API token?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
 				<div class="col-sm-10">
 				<input type="text" class="form-control" name="telegramapi" id="telegramapi" value="$autosub.TELEGRAMAPI" placeholder="your Telegram bot API token">
 				</div>
 			</div>
 			
 			<div class="form-group">
-				<label for="TelegramId" class="col-sm-2 control-label">Id <a data-placement="bottom" data-toggle="tooltip" data-original-title="The Telegram user/group id to send the message to"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<label for="TelegramId" class="col-sm-2 control-label">Id <a data-placement="bottom" data-toggle="tooltip" title="The Telegram user/group id to send the message to"><span class="glyphicon glyphicon-info-sign"></span></a></label>
 				<div class="col-sm-10">
 				<input type="text" class="form-control" name="telegramid" id="telegramid" value="$autosub.TELEGRAMID" placeholder="The Telegram user/group id">
 				</div>
@@ -487,28 +487,28 @@
 		
 		<div id="content_notifyplex">
 			<div class="form-group">
-				<label for="plexserverhost" class="col-sm-2 control-label">Host <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the IP address of your Plex server?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<label for="plexserverhost" class="col-sm-2 control-label">Host <a data-placement="bottom" data-toggle="tooltip" title="What is the IP address of your Plex server?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
 				<div class="col-sm-10">
 				<input type="text" class="form-control" name="plexserverhost" id="plexserverhost" value="$autosub.PLEXSERVERHOST" placeholder="127.0.0.1">
 				</div>
 			</div>
 			
 			<div class="form-group">
-				<label for="plexserverport" class="col-sm-2 control-label">Port <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the port of your Plex server? Default is 32400."><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<label for="plexserverport" class="col-sm-2 control-label">Port <a data-placement="bottom" data-toggle="tooltip" title="What is the port of your Plex server? Default is 32400."><span class="glyphicon glyphicon-info-sign"></span></a></label>
 				<div class="col-sm-10">
 				<input type="text" class="form-control" name="plexserverport" id="plexserverport" value="$autosub.PLEXSERVERPORT" placeholder="32400">
 				</div>
 			</div>
 
 			<div class="form-group">
-				<label for="plexserverusername" class="col-sm-2 control-label">Username <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the username of your Plex server?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<label for="plexserverusername" class="col-sm-2 control-label">Username <a data-placement="bottom" data-toggle="tooltip" title="What is the username of your Plex server?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
 				<div class="col-sm-10">
 				<input type="text" class="form-control" name="plexserverusername" id="plexserverusername" value="$autosub.PLEXSERVERUSERNAME">
 				</div>
 			</div>
 
 			<div class="form-group">
-				<label for="plexserverpassword" class="col-sm-2 control-label">Password <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the password of your Plex server?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<label for="plexserverpassword" class="col-sm-2 control-label">Password <a data-placement="bottom" data-toggle="tooltip" title="What is the password of your Plex server?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
 				<div class="col-sm-10">
 				<input type="password" class="form-control" name="plexserverpassword" id="plexserverpassword" value="$autosub.PLEXSERVERPASSWORD">
 				</div>
@@ -540,28 +540,28 @@
 		
 		<div id="content_notifykodi">
 			<div class="form-group">
-				<label for="kodiserverhost" class="col-sm-2 control-label">Host <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the IP address of your Kodi server?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<label for="kodiserverhost" class="col-sm-2 control-label">Host <a data-placement="bottom" data-toggle="tooltip" title="What is the IP address of your Kodi server?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
 				<div class="col-sm-10">
 				<input type="text" class="form-control" name="kodiserverhost" id="kodiserverhost" value="$autosub.KODISERVERHOST" placeholder="127.0.0.1">
 				</div>
 			</div>
 			
 			<div class="form-group">
-				<label for="kodiserverport" class="col-sm-2 control-label">Port <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the port of your Kodi server? Default is 9090."><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<label for="kodiserverport" class="col-sm-2 control-label">Port <a data-placement="bottom" data-toggle="tooltip" title="What is the port of your Kodi server? Default is 9090."><span class="glyphicon glyphicon-info-sign"></span></a></label>
 				<div class="col-sm-10">
 				<input type="text" class="form-control" name="kodiserverport" id="kodiserverport" value="$autosub.KODISERVERPORT" placeholder="9090">
 				</div>
 			</div>
 
 			<div class="form-group">
-				<label for="kodiserverusername" class="col-sm-2 control-label">Username <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the username of your Kodi server?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<label for="kodiserverusername" class="col-sm-2 control-label">Username <a data-placement="bottom" data-toggle="tooltip" title="What is the username of your Kodi server?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
 				<div class="col-sm-10">
 				<input type="text" class="form-control" name="kodiserverusername" id="kodiserverusername" value="$autosub.KODISERVERUSERNAME">
 				</div>
 			</div>
 
 			<div class="form-group">
-				<label for="kodiserverpassword" class="col-sm-2 control-label">Password <a data-placement="bottom" data-toggle="tooltip" data-original-title="What is the password of your Kodi server?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
+				<label for="kodiserverpassword" class="col-sm-2 control-label">Password <a data-placement="bottom" data-toggle="tooltip" title="What is the password of your Kodi server?"><span class="glyphicon glyphicon-info-sign"></span></a></label>
 				<div class="col-sm-10">
 				<input type="password" class="form-control" name="kodiserverpassword" id="kodiserverpassword" value="$autosub.KODISERVERPASSWORD">
 				</div>

@@ -37,9 +37,9 @@ def test_notify(twitterkey, twittersecret):
     message = 'Testing Twitter settings from Auto-Sub.'
     return _send_notify(message, twitterkey, twittersecret)
 
-def send_notify(lang, subtitlefile, videofile, website):
+def send_notify(lang, releasename, website):
     log.debug("Trying to send a notification.")
-    message = '"' + subtitlefile.replace('.srt','"').replace('.',' ') + ' downloaded from ' + website
+    message = '"' + lang +': ' + releasename.replace('.',' ') + ' downloaded from ' + website
     twitterkey = autosub.TWITTERKEY
     twittersecret = autosub.TWITTERSECRET
     return _send_notify(message, twitterkey, twittersecret)

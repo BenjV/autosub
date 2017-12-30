@@ -1,7 +1,8 @@
 #import autosub
-#import autosub.Helpers
+#from autosub.WebServer import CheckMobileDevice
 #from autosub.version import autosubversion
-#import cherrypy
+#import cherrypy 
+
 #set useragent = cherrypy.request.headers.get("User-Agent", '')
 <!DOCTYPE html>
 <html lang="en">
@@ -9,19 +10,17 @@
     <meta charset="utf-8">
     <title>Auto-Sub</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta name="robots" content="noindex, nofollow">
-	<link href="$autosub.WEBROOT/css/jquery.dataTables.css" rel="stylesheet">
+    <meta name="robots" content="noindex, nofollow">
+    <link href="$autosub.WEBROOT/css/jquery.dataTables.css" rel="stylesheet">
     <link href="$autosub.WEBROOT/css/bootstrap.css" rel="stylesheet">
-	<link href="$autosub.WEBROOT/css/autosub-custom.css" rel="stylesheet">
+    <link href="$autosub.WEBROOT/css/autosub-custom.css" rel="stylesheet">
     <link href="$autosub.WEBROOT/images/favicon.ico" rel="shortcut icon" >
   </head>
 
   <body>
 	<a id="top"></a>
 	<div id="wrap">
-
     <div class="container">
-
       <!-- Static navbar -->
       <div class="navbar navbar-default" role="navigation">
         <div class="navbar-header">
@@ -31,50 +30,49 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-		 
         </div>
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-			<a class="navbar-brand"> <h4><span class="label label-default">Version: $autosubversion ($autosub.GITHUBVERSION)</span></h4></a>
-			<a class="navbar-brand" href="$autosub.WEBROOT/home"><h4>Home</h4></a>
+            <a class="navbar-brand"> <h4><span class="label label-default">Version: $autosubversion ($autosub.GITHUBVERSION)</span></h4></a>
+            <a class="navbar-brand" href="$autosub.WEBROOT/home"><h4>Home</h4></a>
             <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><h4>Commands <b class="caret"></b></h4></a>
-                <ul class="dropdown-menu">
-                  <li><a href="$autosub.WEBROOT/home"><span class="glyphicon glyphicon-home"></span> Home</a></li>
-                  <li><a href="$autosub.WEBROOT/home/runNow"><span class="glyphicon glyphicon-search"></span> Search Now</a></li>
-                  <li><a href="$autosub.WEBROOT/home/stopSearch"><span class="glyphicon glyphicon-stop"></span> Stop Search</a></li>
-                  <li class="divider"></li>
-                  <li><a href="$autosub.WEBROOT/home/checkVersion"><span class="glyphicon glyphicon-download"></span> Check Version</a></li>
-                  <li><a href="$autosub.WEBROOT/home/UpdateAutoSub"><span class="glyphicon glyphicon-retweet"></span> Update</a></li>
-                  <li><a href="$autosub.WEBROOT/home/RebootAutoSub"><span class="glyphicon glyphicon-refresh"></span> Reboot</a></li>
-                  <li><a href="$autosub.WEBROOT/home/shutdown"><span class="glyphicon glyphicon-off"></span> Shutdown</a></li>
-                  <li class="divider"></li>
-                  <li><a href="$autosub.WEBROOT/home/backup"><span class="glyphicon glyphicon-export"></span> Backup</a></li>
-                  <li><a href="$autosub.WEBROOT/home/restore"><span class="glyphicon glyphicon-import"></span> Restore</a></li>
-                  <li class="divider"></li>
-                  <li class="dropdown-header">Flush</li>
-                  <li><a href="$autosub.WEBROOT/home/flushCache">- Cache</a></li>
-                  <li><a href="$autosub.WEBROOT/home/flushLastdown">- Downloaded</a></li>
-				  <li><a href="$autosub.WEBROOT/log/clearLog">- Logfile</a></li>
-                  <li class="divider"></li>
-                  <li><a href="https://github.com/BenjV/autosub/issues" target="_blank"><span class="glyphicon glyphicon-list"></span> Report Issue</a></li>
-                </ul>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><h4>Commands <b class="caret"></b></h4></a>
+              <ul class="dropdown-menu">
+                <li><a href="$autosub.WEBROOT/home"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+                <li><a href="$autosub.WEBROOT/home/runNow"><span class="glyphicon glyphicon-search"></span> Search Now</a></li>
+                <li><a href="$autosub.WEBROOT/home/stopSearch"><span class="glyphicon glyphicon-stop"></span> Stop Search</a></li>
+                <li class="divider"></li>
+                <li><a href="$autosub.WEBROOT/home/checkVersion"><span class="glyphicon glyphicon-download"></span> Check Version</a></li>
+                <li><a href="$autosub.WEBROOT/home/UpdateAutoSub"><span class="glyphicon glyphicon-retweet"></span> Update</a></li>
+                <li><a href="$autosub.WEBROOT/home/RebootAutoSub"><span class="glyphicon glyphicon-refresh"></span> Reboot</a></li>
+                <li><a href="$autosub.WEBROOT/home/shutdown"><span class="glyphicon glyphicon-off"></span> Shutdown</a></li>
+                <li class="divider"></li>
+                <li><a href="$autosub.WEBROOT/home/backup"><span class="glyphicon glyphicon-export"></span> Backup</a></li>
+                <li><a href="$autosub.WEBROOT/home/restore"><span class="glyphicon glyphicon-import"></span> Restore</a></li>
+                <li class="divider"></li>
+                <li class="dropdown-header">Flush</li>
+                <li><a href="$autosub.WEBROOT/home/flushCache">- Cache</a></li>
+                <li><a href="$autosub.WEBROOT/home/flushLastdown">- Downloaded</a></li>
+                <li><a href="$autosub.WEBROOT/log/clearLog">- Logfile</a></li>
+                <li class="divider"></li>
+                <li><a href="https://github.com/BenjV/autosub/issues" target="_blank"><span class="glyphicon glyphicon-list"></span> Report Issue</a></li>
+              </ul>
             </li>
-			<li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><h4>Configuration <b class="caret"></b></h4></a>
-                <ul class="dropdown-menu">
-				    <li><a href="$autosub.WEBROOT/config/info"><span class="glyphicon glyphicon-info-sign"></span> Info & Help</a></li>
-					<li class="divider"></li>
-					<li><a href="$autosub.WEBROOT/config/settings"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
-					<li><a href="$autosub.WEBROOT/config/notifications"><span class="glyphicon glyphicon-bell"></span> Notifications</a></li>
-				</ul>
+			      <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><h4>Configuration <b class="caret"></b></h4></a>
+              <ul class="dropdown-menu">
+                <li><a href="$autosub.WEBROOT/config/info"><span class="glyphicon glyphicon-info-sign"></span> Info & Help</a></li>
+                <li class="divider"></li>
+                <li><a href="$autosub.WEBROOT/config/settings"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
+                <li><a href="$autosub.WEBROOT/config/notifications"><span class="glyphicon glyphicon-bell"></span> Notifications</a></li>
+              </ul>
             </li>
-			<li><a href="$autosub.WEBROOT/log"><h4>Log</h4></a></li>
-			#if $autosub.Helpers.CheckMobileDevice($useragent) == True
-				<li><a href="$autosub.WEBROOT/home/exitMini">Mobile Interface</a></li>
-			#end if
+            <li><a href="$autosub.WEBROOT/log"><h4>Log</h4></a></li>
+            #if $autosub.WebServer.CheckMobileDevice($useragent) == True
+              <li><a href="$autosub.WEBROOT/home/exitMini"><h4>Mobile Interface</h4></a></li>
+            #end if
             #if not $autosub.TVDBACCOUNTID
-              <li><br>&nbsp;&nbsp;<mark> Please create a Tvdb account. Mandatory as of 15-10-2017 </mark></li>
+              <li><br>&nbsp;&nbsp;<mark> Create a Tvdb account!!!!</mark></li>
             #end if
           </ul>
         </div><!--/.nav-collapse -->

@@ -1,348 +1,236 @@
 #import autosub
 #import time
-#import cgi
-#import urllib
-#import re
-#from types import *
-#from autosub.Db import lastDown
-#from autosub.Helpers import ConvertTimestamp
-#from autosub.Helpers import DisplaySubtitle
-
+#import os
 #include $os.path.join($autosub.PATH.encode(), "interface/templates/header.tmpl")
 
 #if $autosub.BROWSERREFRESH != 0:
-	#set $RefreshCmd= str(autosub.BROWSERREFRESH*60) + ";URL=" + $autosub.WEBROOT + "/home"
-	<head>
-		<meta http-equiv="refresh" content=$RefreshCmd>
-	</head>
+  #set $RefreshCmd = str(autosub.BROWSERREFRESH*60) + ";URL=" + $autosub.WEBROOT + "/home"
+  <head>
+    <meta http-equiv="refresh" content=$RefreshCmd>
+  </head>
 #end if
+
 
 <div class="overview">
-#if $autosub.WANTEDFIRST:
-	<div id="Display2">
-#else
-	<div id="Display1">
-#end if
-		<div class="well well-sm center well-header"><font size="3"><b>Wanted</b></font></div>
-#if not $autosub.DOWNLOADDUTCH and not $autosub.DOWNLOADENG:
-		<div class="alert alert-danger center"><span class="glyphicon glyphicon-info-sign"></span> <strong>Oh snap!</strong> You currently have Dutch and English disabled, you don't want to use me anymore? :( <span class="glyphicon glyphicon-info-sign"></span></div>
-#else		
-		<div class="well well-sm center">
-#if $len($autosub.WANTEDQUEUE) == 0
-		No data available at the moment.
-#end if		
-#if $len($autosub.WANTEDQUEUE) >= 1
-<div class="table-responsive">
-		<table id="wanted" class="table table-condensed table-hover table-striped">
-			<thead>
-				<tr>
-					<th class="center">Show name</th>
-					<th class="center">Se</th>
-					<th class="center">Ep</th>
-					#if $autosub.MINMATCHSCORE & 8
-						<th class="center text-danger">Src</th>
-					#else
-						<th class="center">Src</th>
-					#end if
-					#if $autosub.MINMATCHSCORE & 4
-						<th class="center text-danger">Quality</th>
-					#else
-						<th class="center">Quality</th>
-					#end if
-					#if $autosub.MINMATCHSCORE & 2
-						<th class="center text-danger">Codec</th>
-					#else
-						<th class="center">Codec</th>
-					#end if
-					#if $autosub.MINMATCHSCORE & 1
-						<th class="center text-danger">Group</th>
-					#else
-						<th class="center">Group</th>
-					#end if
-					<th class="center">&emsp;Lang</th>
-					<th class="center">Imdb : A7 Id's</th>
-					<th class="center">File Date</th>
-					<th class="center">&nbsp;</th>
-				</tr>
-			</thead>
-		<tbody>
-#for $var in $autosub.WANTEDQUEUE
-
-#set $title_escaped = $cgi.escape($var['title'], True)
-		<tr>
-			<td align="left"><a data-placement="right" data-toggle="tooltip" data-original-title="$var['file']">$var['title']</a></td>
-			<td>$var['season']</td>
-			<td>$var['episode']</td>
-
-
-#if $autosub.MINMATCHSCORE & 8
-	<td class="text-danger">
-#else
-	<td>
-#end if
-#if $type($var['source']) == UnicodeType
-	$var['source']
-#else
-	Unknown
-#end if
-</td>
-
-#if $autosub.MINMATCHSCORE & 4: 
-	<td class="text-danger">
-#else
-	<td>
-#end if
-#if $type($var['quality']) == UnicodeType
-	$var['quality']
-#else
-	Unknown
-#end if
-
-
-#if $autosub.MINMATCHSCORE & 2
-	<td class="text-danger">
-#else
-	<td>
-#end if
-#if $type($var['codec']) == UnicodeType
-	$var['codec']
-#else
-	Unknown
-#end if
-#if $autosub.MINMATCHSCORE & 1
-	<td class="text-danger">
-#else
-	<td>
-#end if
-#if $type($var['releasegrp']) == UnicodeType
-	$var['releasegrp']
-#else
-	Unknown
-#end if
-
-<td>
-#if "Dutch" in $var['langs']
-			<img src="$autosub.WEBROOT/images/Dutch.png" alt="Dutch" title="Dutch">
-#end if
-#if "English" in $var['langs']
-			<img src="$autosub.WEBROOT/images/English.png" alt="English" title="English">
-#end if
-			</td>
-#if $var['ImdbId']:
-	#set $ImdbLink = "http://www.imdb.com/title/tt" + $var['ImdbId']
-	#set $ImdbId = $var['ImdbId']
-#else
-	#set $ImdbLink ='http://www.imdb.com/'
-	#set $ImdbId = '---'
-#end if
-#if $var['A7Id']:
-	#set $A7Link   = "http://www.addic7ed.com/show/" + $var['A7Id']
-	#set $A7Id = $var['A7Id']
-#else
-	#set $A7Link   = "http://www.addic7ed.com/"
-	#set $A7Id = '---'
-#end if
-            <td><a href=$ImdbLink target="_blank">$ImdbId</a> : <a href=$A7Link target="_blank">$A7Id</a></td>
-
-#if $type($var['timestamp']) == UnicodeType:
-			<td>$ConvertTimestamp($var['timestamp'])</td>
-#else
-			<td>Unknown</td>
-#end if	
-		<td>
-#set $SE = "S" + $var['season'] + "E" + $var['episode']		
-		<div class="navbar-collapse skipshow">
-			<ul class="nav navbar-right">
-			    <li class="dropdown">
-				<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-wrench"></span></a>
-				    <ul class="dropdown-menu">
-					#if not $var['ImdbId']
-						<li><a href="$autosub.WEBROOT/config/skipShow/$var['title'].replace(' ', '%20')/-1">Skip $var['title']</a></li>
-						<li><a href="$autosub.WEBROOT/config/skipShow/$var['title'].replace(' ', '%20')/$var['season']">Skip $var['title'] S$var['season']</a></li>
-						<li><a href="$autosub.WEBROOT/config/skipShow/$var['title'].replace(' ', '%20')/$var['season']/$var['episode']">Skip $var['title'] $SE</a></li>
-					#else
-						<li><a href="$autosub.WEBROOT/config/skipShow/$var['ImdbId']/-1">Skip $var['title']</a></li>
-						<li><a href="$autosub.WEBROOT/config/skipShow/$var['ImdbId']/$var['season']">Skip $var['title'] S$var['season']</a></li>
-						<li><a href="$autosub.WEBROOT/config/skipShow/$var['ImdbId']/$var['season']/$var['episode']">Skip $var['title'] $SE</a></li>
-					#end if
-				    </ul>
-				</li>
-			</ul>
-            </div>
-			
-		</td>
-		</tr>
-#end for
-
-		</tbody>
-			<tfoot>
-				<tr>
-					<th class="center">show name</th>
-					<th class="center">Se</th>
-					<th class="center">Ep</th>
-					#if $autosub.MINMATCHSCORE & 8
-						<th class="center text-danger">Src</th>
-					#else
-						<th class="center">Src</th>
-					#end if
-					#if $autosub.MINMATCHSCORE & 4
-						<th class="center text-danger">Quality</th>
-					#else
-						<th class="center">Quality</th>
-					#end if
-					#if $autosub.MINMATCHSCORE & 2
-						<th class="center text-danger">Codec</th>
-					#else
-						<th class="center">Codec</th>
-					#end if
-					#if $autosub.MINMATCHSCORE & 1
-						<th class="center text-danger">Group</th>
-					#else
-						<th class="center">Group</th>
-					#end if
-					<th class="center">Lang</th>
-					<th class="center">Imdb : A7 Id's</th>
-					<th class="center">File Date</th>
-					<th class="center">&nbsp;</th>
-				</tr>
-			</tfoot>
-		</table>
-</div>
-#end if
-		<br>
-		</div>
-#end if
-
-	</div>
-		
-#set $lastdownload = lastDown().getlastDown()
-
-#if not $autosub.WANTEDFIRST:
-	<div id="Display1">
-#else
-	<div id="Display2">
-#end if	
-		<div class="well well-sm center well-header"><font size="3"><b>Downloaded</b></font></div>
-		<div class="well well-sm center">
-#if $len($lastdownload) == 0
-		No data available at the moment.
-#end if		
-#if $len($lastdownload) >= 1
-
-<div class="table-responsive">
-		<table id="downloaded" class="table table-condensed table-hover table-striped">
-			<thead>
-				<tr>
-					<th class="center">Show name</th>
-					<th class="center">Season</th>
-					<th class="center">Episode</th>
-					<th class="center">Source</th>
-					<th class="center">Quality</th>
-					<th class="center">Codec</th>
-					<th class="center">Group</th>
-					<th class="center">Lang</th>
-					<th class="center">File Date</th>
-					<th class="center">&nbsp;</th>
-				</tr>
-			</thead>
-			<tbody>
-#for $var in $lastdownload
-			<tr>
-				<td align="left"><a data-placement="right" data-toggle="tooltip" data-original-title="$var['subtitle'].upper()">$var['show_name']</a></td>
-				<td>$var['season']</td>
-				<td>$var['episode']</td>
-#if $type($var['source']) == UnicodeType:
-				<td>$var['source']</td>
-#else
-				<td>Unknown</td>
-#end if
-#if $type($var['quality']) == UnicodeType:
-				<td>$var['quality']</td>
-#else
-				<td>Unknown</td>
-#end if
-#if $type($var['codec']) == UnicodeType:
-				<td>$var['codec']</td>
-#else
-				<td>Unknown</td>
-#end if
-#if $type($var['releasegrp']) == UnicodeType:
-				<td>$var['releasegrp']</td>
-#else
-				<td>Unknown</td>
-#end if
-				<td>
-
-					#set $imageurl = $autosub.WEBROOT + "/images/" + $var['language'] + ".png"
-					<img src="$imageurl" alt="$var['language']" title="$var['language']">
-				</td>
-#if $type($var['timestamp']) == UnicodeType:
-			<td>$ConvertTimestamp($var['timestamp'])</td>
-#else
-			<td>Unknown</td>
-#end if	
-
-
-#if $var['destination']:
-#if $os.path.isfile($var['destination']):
-				<td>
-					<a style="cursor: pointer;"><span id="popover" data-toggle="popover" data-trigger="click" data-html="true" data-placement="left" title="<strong>Subtitle Preview</strong><br>$var['show_name']" data-content="$DisplaySubtitle($var['destination'])"><span class="glyphicon glyphicon-eye-open"></span></span></a>
-				</td>
-#else:
-				<td>
-					<a style="cursor: pointer;"><span id="popover" data-toggle="popover" data-trigger="click" data-html="true" data-placement="left" title="<strong>Subtitle Preview</strong><br>$var['show_name']" data-content="Preview is not available.<br>You probably moved the file."><span class="glyphicon glyphicon-eye-close"></span></span></a>
-				</td>
-#end if
-#else:
-				<td>
-					<a style="cursor: pointer;"><span id="popover" data-toggle="popover" data-trigger="click" data-html="true" data-placement="left" title="<strong>Subtitle Preview</strong><br>$var['show_name']" data-content="Preview is not available.<br>You probably moved the file."><span class="glyphicon glyphicon-eye-close"></span></span></a>
-				</td>
-#end if
-		</tr>	
-#end for
-			</tbody>
-			<tfoot>
-				<tr>
-					<th class="center">Show name</th>
-					<th class="center">Season</th>
-					<th class="center">Episode</th>
-					<th class="center">Source</th>
-					<th class="center">Quality</th>
-					<th class="center">Codec</th>
-					<th class="center">Group</th>
-					<th class="center">Lang</th>
-					<th class="center">File Date</th>
-					<th class="center">&nbsp;</th>
-				</tr>
-			</tfoot>
-		</table>
-</div>
-#end if
-		<br>
-		</div>
-	</div>
-</div>
-</div>
-#try:
-    #if $autosub.SEARCHBUSY :
-		<div class="well well-sm center well-header"><font size="3"><b>Search is busy...
-    #else:
-			#try
-				#if not $autosub.CHECKSUB.runnow:
-					<div class="well well-sm center well-header"><font size="3"><b>Time until next run:
-					$int($time.strftime('%H', $time.gmtime(($autosub.SEARCHINTERVAL - ($time.time() - $autosub.CHECKSUB.lastrun) )))) hours and 
-					$int($time.strftime('%M', $time.gmtime(($autosub.SEARCHINTERVAL - ($time.time() - $autosub.CHECKSUB.lastrun) )))) minutes
-					</b></font>
-				#end if
-			#except
-			     <div class="well well-sm center well-header"><font size="3"><b>Autosub is initializing</b></font>
-			#end try
+  #if $autosub.WANTEDFIRST:
+    <div id="Display2">
+  #else
+    <div id="Display1">
+  #end if
+    #if not $autosub.DOWNLOADDUTCH and not $autosub.DOWNLOADENG:
+      <div class="alert alert-danger center">
+        <span class="glyphicon glyphicon-info-sign"></span>
+        <strong> Oh snap!</strong> You currently have Dutch and English disabled, you don't want to use me anymore? :( 
+        <span class="glyphicon glyphicon-info-sign"></span>
+      </div>
+    #else  
+      <div class="well well-sm center well-header"><font size="4"><b>Wanted</b></font>
+        #if not $autosub.WANTEDQUEUE
+          <br>No sub wanted at the moment.
+        #else  
+          <div class="table-responsive">
+            <table id="wanted" class="table table-condensed table-hover table-striped">
+              <thead>
+                <tr>
+                  <th class="center">Show name</th>
+                  <th class="center">Se&nbsp; </th>
+                  <th class="center">Ep&nbsp; </th>
+                  <th class="center">File Date</th>
+				          <th align="center">&nbsp;&nbsp;
+                    <a data-placement="right" data-toggle="tooltip" title="For this shows a sub will be searched for!"class="center">
+                      <span class="glyphicon glyphicon-search"></span>
+                    </a>
+                  </th>
+                  <th align="center">&nbsp;&nbsp;
+                    <a data-placement="right" data-toggle="tooltip" title="Select to skip show from Search.(They will not appear in this list anymore)" class="center">
+                      <span class="glyphicon glyphicon-wrench"></span>
+                    </a>
+                  </th>
+                  #if $autosub.MINMATCHSCORE & 16
+                    <th class="center text-danger">Src</th>
+                  #else
+                    <th class="center">Src</th>
+                  #end if
+                  #if $autosub.MINMATCHSCORE & 8 
+                    <th class="center text-danger">Distr</th>
+                  #else
+                    <th class="center">Distr</th>
+                  #end if
+                  #if $autosub.MINMATCHSCORE & 4
+                    <th class="center text-danger">Group</th>
+                  #else
+                    <th class="center">Group</th>
+                  #end if
+                  #if $autosub.MINMATCHSCORE & 2
+                    <th class="center text-danger">Quality</th>
+                  #else
+                    <th class="center">Quality</th>
+                  #end if
+                  #if $autosub.MINMATCHSCORE & 1
+                    <th class="center text-danger">Codec</th>
+                  #else
+                    <th class="center">Codec</th>
+                  #end if
+                  <th class="center">Lang</th>
+                  <th class="center">&nbsp;&nbsp;Imdb Id&nbsp;&nbsp;: A7 Id</th>
+                </tr>
+              </thead>
+              <tbody>
+                #for $var in $autosub.WANTEDQUEUE
+                  #if not $var['Search']
+                    <tr class="text-muted">
+                  #else
+                    <tr class="text-primary">
+                  #end if
+                      <td align="left"><data-placement="right" data-toggle="tooltip" title="$var['file']">$var['show']</td>
+                      <td>$var['season'] </td>
+                      <td>$var['episode']</td>
+                      <td>$var['timestamp']</td>
+                      #if $var['Search']
+                        <td><span class="glyphicon glyphicon-ok"></span>
+                      #else
+                        <td><span class="glyphicon glyphicon-minus"></span>
+                      #end if
+                        </td>
+                      <td>
+                        #set $SE = "S" + $var['season'] + "E" + $var['episode']
+                        <div class="dropup">
+                          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-wrench"></span></a>
+                          <ul class="dropdown-menu"><h5>
+                            <li><a href="$autosub.WEBROOT/config/skipShow/$var['ImdbId']/-1">Skip Show</a></li>
+                            <li><a href="$autosub.WEBROOT/config/skipShow/$var['ImdbId']/$var['season']">Skip Season S$var['season']</a></li>
+                            <li><a href="$autosub.WEBROOT/config/skipShow/$var['ImdbId']/$var['season']/$var['episode']">Skip Episode $SE</a></li>
+                            </h5>
+                          </ul>
+                        </div>
+                      </td>
+                      #if $autosub.MINMATCHSCORE & 16
+                        <td class="text-danger">
+                      #else
+                        <td>
+                      #end if
+                        $var['source']
+                        </td>
+                      #if $autosub.MINMATCHSCORE & 8
+                        <td class="text-danger">
+                      #else
+                        <td>
+                      #end if
+                        $var['distro']
+                        </td>
+                      #if $autosub.MINMATCHSCORE & 4
+                        <td class="text-danger">
+                      #else
+                        <td>
+                      #end if
+                        $var['releasegrp']
+                        </td>
+                      #if $autosub.MINMATCHSCORE & 2
+                        <td class="text-danger">
+                      #else
+                        <td>
+                      #end if
+                        $var['quality']
+                        </td>
+                      #if $autosub.MINMATCHSCORE & 1
+                        <td class="text-danger">
+                      #else
+                        <td>
+                      #end if
+                        $var['codec']
+                        </td>
+                      <td>
+                        #if "nl" in $var['langs']
+                          <img src="$autosub.WEBROOT/images/nl.png" alt="nl" title="Dutch">
+                        #end if
+                        #if "en" in $var['langs']
+                          <img src="$autosub.WEBROOT/images/en.png" alt="en" title="English">
+                        #end if
+                      </td>
+                      #if $var['ImdbId']:
+                        #set $ImdbLink = "http://www.imdb.com/title/tt" + $var['ImdbId']
+                        #set $ImdbId = $var['ImdbId']
+                      #else
+                        #set $ImdbLink ='http://www.imdb.com/'
+                        #set $ImdbId = '-&nbsp;-&nbsp;-&nbsp;-&nbsp;-&nbsp;-&nbsp;-'
+                      #end if
+                      #if $var['A7Id']
+                        #set $A7Link   = "http://www.addic7ed.com/show/" + $str(var['A7Id'])
+                        #set $A7Id = $str(var['A7Id'])
+                      #else
+                        #set $A7Link   = "http://www.addic7ed.com/"
+                        #set $A7Id = "-&nbsp;-&nbsp;-&nbsp;-"
+                      #end if
+                      <td><a href=$ImdbLink target="_blank">$ImdbId :</a> <a href=$A7Link target="_blank">$A7Id</a></td>
+                    </tr>
+                #end for
+              </tbody>
+            </table>
+          </div>
+        #end if
+      </div>
+      #end if
+    </div>
+    #if not $autosub.WANTEDFIRST:
+     <div id="Display1">
+    #else
+     <div id="Display2">
     #end if
-#except:
-     <div class="well well-sm center well-header"><font size="3"><b>Autosub is initializing...</b></font>
-#end try
-
+      <div class="well well-sm center well-header"><font size="3"><b>Downloaded</b></font>
+        #if not $autosub.DOWNLOADED
+          <br>No data available at the moment.
+        #else
+        <div class="table-responsive">
+          <table id="downloaded" class="table table-condensed table-hover table-striped">
+            <thead>
+              <tr>
+                <th class="center">Show name</th>
+                <th class="center">Se&nbsp;&nbsp;</th>
+                <th class="center">Ep&nbsp;&nbsp;</th>
+                <th class="center">Sub File Date</th>
+                <th class="center">Src</th>
+                <th class="center">Distr</th>
+                <th class="center">Group</th>
+                <th class="center">Quality&nbsp;</th>
+                <th class="center">Codec&nbsp;</th>
+                <th class="center">From</th>
+                <th class="center">Lang</th>
+              </tr>
+            </thead>
+            <tbody>
+              #for $var in $autosub.DOWNLOADED
+                <tr>
+                  <td align="left">$var[1]</td>
+                  <td>$var[2]</td>
+                  <td>$var[3]</td>
+                  <td>$var[4]</td>
+                  <td>$var[5]</td>
+                  <td>$var[6]</td>
+                  <td>$var[7]</td>
+                  <td>$var[8]</td>
+                  <td>$var[9]</td>
+                  <td>$var[10]</td>
+                  <td>
+                    #set $imageurl = $autosub.WEBROOT + "/images/" + $var[11] + ".png"
+                    <img src="$imageurl" alt="$var[11]" title="language">
+                  </td>
+                </tr> 
+              #end for
+            </tbody>
+          </table>
         </div>
+        #end if
+      </div>
+    </div>
+    #if $autosub.SEARCHBUSY :
+      <div class="well well-sm center well-header"><font size="3"><b>Search is busy... </font></b></div>
+    #else
+      <div class="well well-sm center well-header"><font size="3"><b>Time until next run:
+        $int($time.strftime('%H', $time.gmtime(($autosub.SEARCHINTERVAL - ($time.time() - $autosub.CHECKSUB.lastrun) )))) hours and 
+        $int($time.strftime('%M', $time.gmtime(($autosub.SEARCHINTERVAL - ($time.time() - $autosub.CHECKSUB.lastrun) )))) minutes
+        </b></font>
+      </div>
+    #end if
 </div>
 
 #include $os.path.join($autosub.PATH.encode(), "interface/templates/footer.tmpl")

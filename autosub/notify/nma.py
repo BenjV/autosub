@@ -28,9 +28,9 @@ def test_notify(nmaapi, nmapriority):
     message = "Testing Notify My Android settings from Auto-Sub."
     return _send_notify(message, nmaapi, nmapriority)
         
-def send_notify(lang, subtitlefile, videofile, website):
+def send_notify(lang, releasename, website):
     log.debug("Trying to send a notification.")
-    message = "%s downloaded from %s" %(subtitlefile, website)
+    message = "%s: %s downloaded from %s" %(lang, releasename, website)
     nmaapi = autosub.NMAAPI
     nmapriority = autosub.NMAPRIORITY
     return _send_notify(message, nmaapi, nmapriority)

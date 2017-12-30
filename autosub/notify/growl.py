@@ -61,11 +61,11 @@ def test_notify(growlhost, growlport, growlpass):
         notice.set_password(password)
     return _send_notify(notice.encode(), growlhost, growlport)
     
-def send_notify(lang, subtitlefile, videofile, website):
+def send_notify(lang, releasename, website):
     growlhost = autosub.GROWLHOST
     growlport = autosub.GROWLPORT
     password = autosub.GROWLPASS 
-    message = "%s downloaded from %s" %(subtitlefile, website)
+    message = "%s: %s downloaded from %s" %(lang, releasename, website)
     
     notice = gntp.GNTPNotice()
     notice.add_header('Application-Name', "Auto-Sub")

@@ -36,8 +36,8 @@ def test_notify(prowlapi, prowlpriority):
             'priority': prowlpriority}
     return _send_notify(data)
     
-def send_notify(lang, subtitlefile, videofile, website):
-    message = "%s downloaded from %s" %(subtitlefile, website)
+def send_notify(lang, releasename, website):
+    message = "%s: %s downloaded from %s" %(lang, releasename, website)
     
     data = {'apikey': autosub.PROWLAPI,
             'application': 'Auto-Sub',

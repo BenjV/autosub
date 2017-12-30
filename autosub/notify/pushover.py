@@ -9,9 +9,9 @@ def test_notify(pushoverappkey, pushoveruserkey, priority):
     message = "Testing Pushover settings from AutoSub"
     return _send_notify(pushoverappkey, pushoveruserkey,message,priority)
 
-def send_notify(lang, subtitlefile, videofile, website):
+def send_notify(lang, releasename, website):
     log.debug("Trying to send a notification")
-    message = "%s downloaded from %s" %(subtitlefile, website)
+    message = "%s: %s downloaded from %s" %(lang, releasename, website)
     return _send_notify(autosub.PUSHOVERAPPKEY,autosub.PUSHOVERUSERKEY ,message,autosub.PUSHOVERPRIORITY)
 
 def _send_notify(appkey,userkey,message,priority):
@@ -31,7 +31,7 @@ def _send_notify(appkey,userkey,message,priority):
                 'priority': priority,
             }
     try:
-        msg = requests.post('https://api.pushover.net/1/messages.json', data=params).json()
+        msg = requests.post('https://api.pushover.net/1/messages.json', data=params,timeout=10).json()
     except:
         log.error('Problem sending Pushover message.')
         return False

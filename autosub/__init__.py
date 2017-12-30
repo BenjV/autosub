@@ -1,14 +1,17 @@
 
 # Version information
-BOOTSTRAPVERSION='3.3.6'
-JQUERYVERSION = '1.9.1'
-JQUERYDATATABLES = '1.10.12'
+BOOTSTRAPVERSION=u'3.3.7'
+JQUERYVERSION = u'3.2.1'
+JQUERYDATATABLES = u'1.10.16'
 
 # Config information
 PATH = None
 SERIESPATH = u''
 CONFIGFILE = None
-LOGFILE = u"AutoSubService.log"
+CONFIGNAME = u'config.properties'
+CONFIGPATH = None
+LOGFILE = None
+LOGNAME = u"AutoSubService.log"
 BCKPATH=u''
 BROWSERREFRESH = int(1)
 FALLBACKTOENG = False
@@ -16,16 +19,18 @@ DOWNLOADENG = False
 DOWNLOADDUTCH = True
 SUBENG = u"en"
 SUBNL = u""
-SUBCODEC = u'windows-1252'
+SUBCODEC = u'cp1252'
 SKIPHIDDENDIRS = True
 NOTIFYNL = False
 NOTIFYEN = False
 SKIPSHOW = {}
 SKIPSHOWUPPER = {}
+MUSTMATCH = []
 USERNAMEMAPPING = {}
 USERADDIC7EDMAPPING = {}
 POSTPROCESSCMD = u''
 MINMATCHSCORE = int(0)
+EQUALMATCH = True
 CONFIGVERSION = int(4)
 WANTEDFIRST = True
 ENGLISHSUBDELETE = False
@@ -37,9 +42,8 @@ ADDIC7ED = False
 ADDIC7EDUSER = u''
 ADDIC7EDPASSWD = u''
 ADDIC7EDLOGGED_IN = False
-ADDICHIGHID = '0'
 ADDIC7EDAPI = None
-
+ADDIC7EDMAPPING = {}
 OPENSUBTITLESUSERAGENT = u'PYAutosub V'
 OPENSUBTITLESUSER = u''
 OPENSUBTITLESPASSWD = u''
@@ -54,36 +58,27 @@ LOGHANDLER = None
 LOGLEVELCONSOLE = int(40)
 LOGSIZE = int(1048576)
 LOGNUM = int(3)
-REFRESH_LOGPAGE = False
 
 TVDBUSER = u''
 TVDBACCOUNTID = u''
 TVDBTIME = float(0)
 TVDBAPIKEY = "EF9C532B73E84022"
-TVDBSERVER = "http://thetvdb.com/api/"
 TVDBSESSION = None
-TVDBAPI = 'https://api.thetvdb.com/'
-IMDBAPI = None
+TVDBAPI = u'https://api.thetvdb.com'
 
-ADDICMAPURL = u'https://raw.githubusercontent.com/BenjV/autosub/master/AddicMapping.txt'
+ADDICMAPURL = u'https://raw.githubusercontent.com/BenjV/autosub/master/AddicMapping.json'
 VERSIONURL = u'https://raw.githubusercontent.com/BenjV/autosub/master/autosub/version.py'
 ZIPURL = u'https://github.com/BenjV/autosub/archive/master.zip'
-SUBSEEKERAPI = "http://api.subtitleseeker.com/get/title_subtitles/?api_key=24430affe80bea1edf0e8413c3abf372a64afff2"
+SUBSEEKERAPI = u"http://api.subtitleseeker.com/get/title_subtitles/?api_key=24430affe80bea1edf0e8413c3abf372a64afff2"
+RLSGRPURL = u'https://raw.githubusercontent.com/BenjV/autosub/master/ReleaseGroups.txt'
+RLSGRPS = []
 
-APICALLSLASTRESET_TVDB = None
-APICALLSLASTRESET_SUBSEEKER = None
-APICALLSRESETINT_TVDB = 86400
-APICALLSRESETINT_SUBSEEKER = 86400
-APICALLSMAX_TVDB = 2500
-APICALLSMAX_SUBSEEKER = 2500
-APICALLS_TVDB = 2500
-APICALLS_SUBSEEKER = 2500
 
 TIMEOUT = 300
 DOWNLOADS_A7 = int(0)
 DOWNLOADS_A7MAX = int(40)
 DOWNLOADS_A7TIME = float(0)
-DOWNLOADED = False
+DOWNLOADED = []
 
 SEARCHINTERVAL = int(21600)
 SEARCHTIME= float(0)
@@ -104,10 +99,11 @@ PASSWORD = u''
 WEBROOT = u''
 
 DAEMON = None
-
+INIT = True
 DBFILE = 'database.db'
 DBVERSION = None
-DBCONNECTION = None
+IDCACHE = None
+DOWNLOADS = None
 
 MOBILEUSERAGENTS = None
 MOBILEAUTOSUB = True
@@ -120,11 +116,13 @@ SKIPFOLDERSEN = u''
 CERTIFICATEPATH=u''
 VERSION = int(0)
 GITHUBVERSION ="?.?.?"
+A7MAPDATE = None
+RLSGRPDATE = None
 HI = False
 OPENSUBTITLESSERVER = None
 OPENSUBTITLESTOKEN  = None
-ENGLISH = 'English'
-DUTCH = 'Dutch'
+ENGLISH = u'en'
+DUTCH = u'nl'
 SYSENCODING = None
 NODE_ID = None
 PID = None
@@ -177,7 +175,7 @@ KODIUPDATEONCE = False
 NOTIFYTELEGRAM = False
 TELEGRAMAPI = u""
 TELEGRAMID = u""
-
+SUBRIGHTS = {'owner':6,'group':6,'world':4}
 
 MOBILEUSERAGENTS = ["midp", "240x320", "blackberry", "netfront", "nokia", "panasonic", 
                     "portalmmm", "sharp", "sie-", "sonyericsson", "symbian", "windows ce", 

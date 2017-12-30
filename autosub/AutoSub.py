@@ -25,7 +25,6 @@ def daemon():
     except OSError:
         sys.exit(1)
 
-
     os.chdir("/")
     os.setsid()
     os.umask(0)
@@ -44,23 +43,18 @@ def daemon():
     sys.stderr.flush()
 
 
-def launchBrowser():
-    host = autosub.WEBSERVERIP
-    port = autosub.WEBSERVERPORT
-    wr = autosub.WEBROOT
-    if host == '0.0.0.0':
-        host = 'localhost'
+def Browser():
 
-    url = 'http://%s:%d' % (host, int(port))
-    url = url + wr
+    host = 'localhost' if autosub.WEBSERVERIP == '0.0.0.0' else autosub.WEBSERVERIP
+    url = 'http://%s:%s%s' % (host, autosub.WEBSERVERPORT,autosub.WEBROOT)
     print 'Launch browser', url 
     try:
-        webbrowser.open(url, new=1, autoraise=True )
+        webbrowser.open(url, new=0, autoraise=True )
     except:
-        log.error('Failed')
+        log.error('Failed to start webbrowser')
         try:
             print 'retry launch browser'
-            webbrowser.open(url, 1, 1)
+            webbrowser.open(url, new=1, autoraise=True)
         except:
             log.error('Failed')
 
@@ -111,6 +105,12 @@ def start():
             'tools.expires.on': True,
             'tools.expires.secs': 3600 * 24 * 7
             },
+            '/fonts':{
+            'tools.staticdir.on': True,
+            'tools.staticdir.dir': "fonts",
+            'tools.expires.on': True,
+            'tools.expires.secs': 3600 * 24 * 7
+            },
             '/scripts':{
             'tools.staticdir.on': True,
             'tools.staticdir.dir': "scripts",
@@ -131,9 +131,6 @@ def start():
     
     cherrypy.tree.mount(autosub.WebServer.WebServerInit(),autosub.WEBROOT, config = conf)
     log.info("Starting CherryPy webserver")
-
-    # TODO: Let CherryPy log to another log file and not to screen
-    # TODO: CherryPy settings, etc...satop()
     try:
         cherrypy.server.start()
     except Exception as error:
@@ -145,8 +142,8 @@ def start():
     cherrypy.server.wait()
 
     if autosub.LAUNCHBROWSER and not autosub.UPDATED:
-        launchBrowser()
-    sleep(1)
+        Browser()
+    sleep(0.1)
     log.info("Starting the Search thread thread")
     autosub.CHECKSUB = autosub.Scheduler.Scheduler(autosub.checkSub.checkSub(), True, "CHECKSUB")
     autosub.CHECKSUB.thread.start()
@@ -157,8 +154,6 @@ def stop():
     autosub.SEARCHSTOP = True
     log.info("Got shutdown command. Gracefully Shutting down")
     cherrypy.engine.exit()
-    while autosub.SEARCHBUSY:
-        sleep(1)
     autosub.CHECKSUB.thread.join(2)
     try:
         os.remove(os.path.join(autosub.PATH,'autosub.pid'))

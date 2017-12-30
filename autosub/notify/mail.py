@@ -59,7 +59,7 @@ def test_notify(mailsrv, mailfromaddr, mailtoaddr, mailusername, mailpassword, m
     message = message.as_string()
     return _send_notify(message, mailsrv, mailfromaddr, mailtoaddr, mailusername, mailpassword, mailsubject, mailencryption, mailauth)
 
-def send_notify(lang, subtitlefile, videofile, website):
+def send_notify(lang, releasename, website):
     log.debug("Trying to send a mail")
     message = MIMEText("""Hi,\n 
 AutoSub downloaded the following subtitle\n\n
@@ -67,10 +67,10 @@ Language: %s\n
 File: %s\n
 Videofile: %s\n
 Website: %s\n
-    """ %(lang, subtitlefile, videofile, website))
+    """ %(lang, releasename, website))
     message['From'] = email.utils.formataddr((autosub.MAILFROMADDR, autosub.MAILFROMADDR))
     message['To'] = email.utils.formataddr(('Recipient', autosub.MAILTOADDR))
-    message['Subject'] = '%s %s' %(autosub.MAILSUBJECT, subtitlefile) 
+    message['Subject'] = '%s: %s %s' %(lang, autosub.MAILSUBJECT, releasename) 
     message = message.as_string()
     mailsrv = autosub.MAILSRV
     mailfromaddr = autosub.MAILFROMADDR

@@ -17,54 +17,108 @@ sys.path.insert(0, os.path.join(base_path, 'library'))
 
 from getopt import getopt
 from time import sleep
-import locale
+import locale,json
+from codecs import open as CodecsOpen
 import platform
 from uuid import getnode
 import requests
+from requests.packages import chardet
 from xmlrpclib import Server as xmlRpcServer 
 import autosub
 import autosub.version as Versions
 from autosub.Config import ReadConfig
-from autosub.Db import initDatabase
+from autosub.Db import initDb as InitDatabase
 from autosub.AutoSub import start
 import logging.handlers
 from autosub.Helpers import CheckVersion
+from sys import version_info
+
 
 def _Initialize():
-
-    print "AutoSub: Initializing variables and loading config"
+    if version_info[0] != 2 or version_info[1] < 7:
+        print 'Unsupported python version (should be 2.7.xx)'
+        sys.exit(1)
     try:
         locale.setlocale(locale.LC_ALL, "")
         autosub.SYSENCODING = locale.getpreferredencoding()
     except:
         pass
         # for OSes that are poorly configured, like slackware
-    if not autosub.SYSENCODING or autosub.SYSENCODING in ('ANSI_X3.4-1968', 'US-ASCII', 'ASCII'):
+    if not autosub.SYSENCODING:
         autosub.SYSENCODING = 'UTF-8'
     autosub.PATH = unicode(os.getcwd(), autosub.SYSENCODING)
+    autosub.PID = str(os.getpid())
+    try:
+        with open(os.path.join(autosub.PATH,'autosub.pid') , "w", 0) as pidfile:
+            pidfile.write(autosub.PID + '\n')
+    except Exception as error:
+        print error
+        sys.exit(1)
+
+        # if config folder not set by commandline make it the default location
+    if not autosub.CONFIGPATH:
+        autosub.CONFIGPATH = autosub.PATH
+    if not os.path.exists(autosub.CONFIGPATH):
+        try:
+            os.makedirs(autosub.CONFIGPATH)
+        except OSError as exception:
+            if exception.errno != errno.EEXIST:
+                print 'Cannot create configfolder.' + exception.message
+                sys.exit(1)
+    autosub.CONFIGFILE = os.path.join(autosub.CONFIGPATH, autosub.CONFIGNAME)
+    if not os.path.isfile(autosub.CONFIGFILE):
+        try:
+            open(autosub.CONFIGFILE,'w').close()
+        except Exception as error:
+            print error
+            sys.exit(1)
+
+
+    if not autosub.CONFIGPATH:
+        autosub.CONFIGPATH = autosub.PATH
+        autosub.CONFIGFILE = os.path.join(autosub.CONFIGPATH, autosub.CONFIGNAME)
+    else:
+        if not os.path.exists(autosub.CONFIGPATH):
+            print "Config path does not exist so creating it"
+            try: 
+                os.makedirs(autosub.CONFIGPATH)
+            except Exception as error:
+                print error
+                print 'Using default location for config files'
+                autosub.CONFIGPATH = autosub.PATH
+            ConfigFile = os.path.join(autosub.CONFIGPATH,autosub.CONFIGNAME)
+            if not os.path.isfile(ConfigFile):
+                try:
+                    open(ConfigFile,'w').close()
+                except Exception as error:
+                    print error
+                    sys.exit(1)
+    #if not os.access(autosub.CONFIGPATH, os.W_OK):
+
+    print "AutoSub: Initializing variables and loading config"
+    autosub.Config.ReadConfig()
     if 'Alpha' in Versions.autosubversion:
         release = Versions.autosubversion.split(' ')[0]
         versionnumber = Versions.autosubversion.split(' ')[1]
     else:
         versionnumber = autosub.version.autosubversion
-    autosub.CERTIFICATEPATH = os.path.normpath(autosub.PATH +'/library/requests/cacert.pem')
     autosub.VERSION = int(versionnumber.split('.')[0]) * 1000 + int(versionnumber.split('.')[1]) * 100 + int(versionnumber.split('.')[2]) * 1
     autosub.OPENSUBTITLESUSERAGENT += versionnumber
+    autosub.CERTIFICATEPATH = os.path.normpath(autosub.PATH +'/library/requests/cacert.pem')
     autosub.OPENSUBTITLESSERVER = xmlRpcServer(autosub.OPENSUBTITLESURL)
     autosub.TVDBSESSION = requests.Session()
     autosub.TVDBSESSION.headers.update({'Accept': 'application/json','Content-Type': 'application/json'})
-    autosub.DBFILE = os.path.join(autosub.PATH, autosub.DBFILE)
-    if not autosub.CONFIGFILE:
-        autosub.CONFIGFILE = os.path.join(autosub.PATH,'config.properties')
+    autosub.DBFILE = os.path.join(autosub.CONFIGPATH, autosub.DBFILE)
+    autosub.A7MAPFILE = os.path.join(autosub.CONFIGPATH,'AddicMapping.json')
+    autosub.RLSGRPFILE = os.path.join(autosub.CONFIGPATH,'ReleaseGroups.txt')
     autosub.NODE_ID = getnode()
-    autosub.Config.ReadConfig()
     # check the logfile location and make it the default if neccessary
-    LogPath,LogFile = os.path.split(autosub.LOGFILE)
-    if not LogFile:
-        LogFile = u"AutoSubService.log"
-    if not LogPath:
-        LogPath = autosub.PATH
 
+    if not autosub.LOGFILE:
+        LogFile = u"AutoSubService.log"
+        LogPath = autosub.CONFIGPATH
+    else:
+        LogPath,LogFile = os.path.split(autosub.LOGFILE)
     if not os.path.exists(LogPath):
         try:
             os.makedirs(LogPath)
@@ -75,7 +129,9 @@ def _Initialize():
         print "No write access to: ", LogPath
         sys.exit()
     autosub.LOGFILE = os.path.join(LogPath,LogFile)
+
     return
+
 
 def _initLogging():  
     # initialize logging
@@ -113,13 +169,26 @@ def _initLogging():
         autosub.CONSOLE.setLevel(autosub.LOGLEVELCONSOLE)
     return log
 
-
-
+def _ReadFiles():
+        # Read the A7 mapping file
+    log = logging.getLogger('thelogger')
+    try:
+        with open(autosub.A7MAPFILE) as fp:
+            autosub.ADDIC7EDMAPPING = json.load(fp)
+    except Exception as error:
+        log.error('A7 mapping file. %s' %error)
+        # Read the releasegroups from the file
+    try:
+        with CodecsOpen(autosub.RLSGRPFILE, 'r', 'utf-8') as fp:
+            autosub.RLSGRPS = fp.read().splitlines()
+    except Exception as error:
+        log.error('Releasegroups file. %s' % error)
+    return
 
 help_message = '''
 Usage:
     -h (--help)     Prints this message
-    -c (--config=)  Forces AutoSub.py to use a configfile other than ./config.properties
+    -c (--config=)  Forces AutoSub.py to use a configfile other than ./config.properties, the database will be put in the same folder
     -d (--daemon)   Run AutoSub in the background
     -l (--nolaunch) Stop AutoSub from launching a webbrowser
     
@@ -128,6 +197,7 @@ Example:
     python AutoSub.py -d
     python AutoSub.py -d -l
     python AutoSub.py -c/home/user/config.properties
+    python AutoSub.py -c/home/user
     python AutoSub.py --config=/home/user/config.properties
     python AutoSub.py --config=/home/user/config.properties --daemon
     
@@ -147,11 +217,7 @@ def main(argv=None):
         if option in ("-h", "--help"):
             raise Usage(help_message)
         if option in ("-c", "--config"):
-            if os.path.exists(value):
-                autosub.CONFIGFILE = value
-            else:
-                print "ERROR: Configfile does not exists."
-                os._exit(0)
+            autosub.CONFIGPATH,autosub.CONFIGFILE = os.path.split(value)
         if option in ("-l", "--nolaunch"):
             autosub.LAUNCHBROWSER = False
         if option in ("-d", "--daemon"):
@@ -165,24 +231,15 @@ def main(argv=None):
     
         #load configuration and the default settings.
     _Initialize()
-
     log = _initLogging()    
     CheckVersion()
+    _ReadFiles()
     if autosub.DAEMON:
         autosub.AutoSub.daemon()
         os.chdir(autosub.PATH)
         autosub.LOGLEVELCONSOLE = 50
-
-    autosub.PID = str(os.getpid())
-    try:
-        with open('autosub.pid' , "w", 0) as pidfile:
-            pidfile.write(autosub.PID + '\n')
-    except Exception as error:
-        log.error('AutoSub: Could not create the PID file. Error is:', error)
-        sys.exit(1)
-
         #make sure that sqlite database is loaded after you deamonise 
-    autosub.Db.initDatabase()
+    InitDatabase()
 
     log.info("PID is: %s" %autosub.PID)
     log.debug("Systemencoding is: %s" %autosub.SYSENCODING)

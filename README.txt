@@ -1,18 +1,50 @@
 README
+Releasenotes voor autosub version 1.2.0
+
+Uitbreidingen:
+- Als er op de commandline de optie -c wordt gebruikt om een andere path\config.properties te gebruiken wordt dat path ook al locatie gebruikt om de database en logfile neer te zetten
+- Uitbreiding van de minmatch score met disto (e.g. amazon, netflix, hbo enz.)
+- Mogelijkheid om de lees/schrijf rechten van de gedownloadde sub te setten (werkt niet onder Windows)
+- Mogelijkheid om een "must match" tabel van releasgroepen op te nemen.
+  Als autosub zo'n releasegroep tegenkomt moet zowel de sub als de video de desbetreffende releasegroep bevatten anders is er geen match.
+- web, webrip en web-dl zijn nu aparte source qualifiers, dus web is niet meer gelijk aan web-dl
+- Lijst met meer dan 3200 releasegroepen toegevoegd die automatisch wordt geupdate vanaf github.
+  Dus als er een nieuwe releasegroep opduikt of als ik er een gemist heb hoor ik het graag dan voeg ik hem toe.
+- Lijst met Addic Id's wordt ook automatisch vanaf github bijgewerkt dus hier hoor ik ook graag als er een gemist wordt.
+- Voor oude video's wordt minder vaak naar subs gezocht, dat zie je doordat ze "greyed out"(plus een streepje in plaats van een vinkje) in de wanted lijst staan.
+- Subs waar niet voldoende informatie voor aanwezig is om aan de minmatch score te voldoen staan vanaf nu "greyed out" in de wanted lijst.
+- De layout van de home pagina is aangepast om efficienter met de ruimte om te gaan.
+- De afkomst van de sub is aan de "Downloaded" lijst als kolom toegevoegd waardoor de hover functie komt te vervallen.
+- Het zoeken van subs op Addic7ed is uitgebreid met een retry.
+  Als je naar een oude sub zoekt blijkt addic7ed de eerste keer vaak geen resultaten te geven, maar na een retry wel.
+- De analyse-functie van de video bestandsnamen is geheel herschreven mede door toevoeging van de distro functionaliteit van de minmatch score.
+- Als er een disto (bijvoorbeeld AMZ) in de sub voorkomt zal hij matchen met alle video files waar het woord web in voorkomt als source.
+ 
+Zoek schema voor oude video's is nu:
+Tussen 0 en 4 weken wordt altijd gezocht naar de sub.
+Tussen 4 en 16 weken wordt er een keer per week gezocht op een dag gezocht
+Ouder dan 16 weken wordt er een keer per 4 weken gezocht op een dag gezocht.
+
+Vervallen:
+- De preview van de sub is vervallen.
+  De manier waarop dat geimplementeerd was had tot gevolg dat alle subs die gedownload waren in memory gelezen werden.
+  Dat maakte de zaak erg traag als je veel subs hebt gedownload.
+- De hover functie van de "Downloaded" lijst is vervallen omdat alle informatie nu in de kolommen staat.
+
+Autosub info:
 
 Past developers:
-     zyronix (script for website Bierdopje)
-	 Donny (added bootstrap User interface)
+   zyronix (script for website Bierdopje)
 	 collincab (Changed from Bierdopje to SubtitleSeeker and Addic7ed)
+   Donny (added bootstrap User interface)
 
 Current developer:
-     Benj (added Opensubtitle support)
+     Benj (added Opensubtitle API en TVDB API 2.0 support)
 
 
 +--- AutoSub
      |
      +--- Uses SubtitleSeeker API, supporting the following website:
-	 |    +--- Limited API calls(= search request) per 24 hours. (2500)
      |    +--- Podnapisi
      |    +--- Subscene
      |

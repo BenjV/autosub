@@ -1,6 +1,5 @@
 import autosub
 import logging
-
 import library.requests as requests
 import base64
 
@@ -52,7 +51,7 @@ def _update_library(plexserverhost, plexserverport, plexserverusername, plexserv
         url = "http://%s:%s/library/sections" % (plexserverhost, plexserverport)
 
         try:
-            response = requests.get(url)
+            response = requests.get(url,timeout=10)
         except:
             log.error("Error while trying to contact plexmedia server")
             return False
@@ -70,7 +69,7 @@ def _update_library(plexserverhost, plexserverport, plexserverusername, plexserv
                 "X-Plex-Version": "1.0"
             }
             try:
-                response = requests.post("https://plex.tv/users/sign_in.xml", headers=headers,verify=autosub.CERTIFICATEPATH);
+                response = requests.post("https://plex.tv/users/sign_in.xml", headers=headers,verify=autosub.CERTIFICATEPATH,timeout=10);
             except:
                 log.error("Error while trying to contact plexmediaserver")
                 return False
@@ -86,7 +85,7 @@ def _update_library(plexserverhost, plexserverport, plexserverusername, plexserv
                     "%s:%s" % (plexserverhost, plexserverport),
                     'library/sections',
                     plexservertoken
-                ))
+                ),timeout=10)
             except Exception as error:
                 log.error("Error from get header. Error is: %s" % error)
                 return False
@@ -100,14 +99,14 @@ def _update_library(plexserverhost, plexserverport, plexserverusername, plexserv
         return False
 
     for s in sections:
-        if s.get('type') == "show":
+        if s.get('type') == "title":
             if plexservertoken:
                 try:
                     requests.get('%s/%s?X-Plex-Token=%s' % (
                         "%s:%s" % (plexserverhost, plexserverport),
                         "library/sections/%s/refresh" % (s.get('key')),
                         plexservertoken
-                    ))
+                    ),timeout=10)
                     log.info("TV Shows library (%s) is currently updating." % s.get('title'))
                     return True
                 except Exception, e:
@@ -116,7 +115,7 @@ def _update_library(plexserverhost, plexserverport, plexserverusername, plexserv
             else:
                 url = "http://%s:%s/library/sections/%s/refresh" % (plexserverhost, plexserverport, s.getAttribute('key'))
                 try:
-                    requests.get(url)
+                    requests.get(url,timeout=10)
                     log.info("TV Shows library is currently updating.")
                     return True
                 except Exception, e:

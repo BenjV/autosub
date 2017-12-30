@@ -1,5 +1,4 @@
 import autosub
-from xmlrpclib import Server as xmlRpcServer 
 import logging
 from time import time
 
@@ -7,7 +6,6 @@ log = logging.getLogger('thelogger')
 
 
 def OS_Login(opensubtitlesusername=None,opensubtitlespasswd=None):
-    autosub.OPENSUBTITLESSERVER = xmlRpcServer(autosub.OPENSUBTITLESURL)
         # Expose to test login
         # When fields are empty it will check the config file
     if opensubtitlesusername and opensubtitlespasswd:
@@ -19,7 +17,7 @@ def OS_Login(opensubtitlesusername=None,opensubtitlespasswd=None):
         if opensubtitlesusername or opensubtitlespasswd:
             log.info('Test Login with User %s. Result is: %s' %  (opensubtitlesusername,Result['status']))
         else:
-            log.debug('Login with User %s. Result is: %s' %  (opensubtitlesusername,Result['status']))
+            log.debug('OS Login with User %s. Result is: %s' %  (opensubtitlesusername,Result['status']))
         if Result['status'] == '200 OK':
             autosub.OPENSUBTITLESTIME = time()
             autosub.OPENSUBTITLESTOKEN = Result['token']
@@ -55,15 +53,15 @@ def OS_Logout():
             Result = autosub.OPENSUBTITLESSERVER.LogOut(autosub.OPENSUBTITLESTOKEN)
         except:
             autosub.OPENSUBTITLESTOKEN = None
-            log.error('Logout with User %s failed. Probably a lost connection' % autosub.OPENSUBTITLESUSER)
+            log.error('OS logout with User %s failed. Probably a lost connection' % autosub.OPENSUBTITLESUSER)
             return False
         if Result['status'] == '200 OK':
             autosub.OPENSUBTITLESTOKEN = None
-            log.debug('Logged out.')
+            log.debug('OpenSubtitles logged out.')
             return True
         else:
             autosub.OPENSUBTITLESTOKEN = None
-            log.debug('Logout with User %s failed. Message is: %s' %  (autosub.OPENSUBTITLESUSER, Result['status']))
+            log.debug('Os logout with User %s failed. Message is: %s' %  (autosub.OPENSUBTITLESUSER, Result['status']))
             return False
     else:
         return True

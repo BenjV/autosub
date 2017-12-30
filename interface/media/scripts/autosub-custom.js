@@ -1,97 +1,31 @@
-// Javascript for test buttons used from Sickbeard source, Thanks. Project can be found here: https://github.com/midgetspy/Sick-Beard
-
-jQuery.fn.dataTableExt.oSort['euro-date-pre'] = function (a, b) {
-    var x = 0;
-    if ($.trim(a) !== '') {
-        var frDatea = $.trim(a).split(' ');
-        var frTimea = frDatea[1].split(':');
-        var frDatea2 = frDatea[0].split('-');
-        x = (frDatea2[2] + frDatea2[1] + frDatea2[0] + frTimea[0] + frTimea[1]) * 1;
-    } else {
-        x = 10000000000000; // = l'an 1000 ...
-    }
-    return x;
-};
-
-jQuery.fn.dataTableExt.oSort['euro-date-asc'] = function (a, b) {
-    return a - b;
-};
-
-jQuery.fn.dataTableExt.oSort['euro-date-desc'] = function (a, b) {
-    return b - a;
-};
 
 $(document).ready(function () {
-
     $('#wanted').dataTable({
         "deferRender": true,
-        "bStateSave": true,
-        "fnStateSave": function (oSettings, oData) {
-            localStorage.setItem('AutoSub-Wanted', JSON.stringify(oData));
-        },
-        "fnStateLoad": function (oSettings) {
-            return JSON.parse(localStorage.getItem('AutoSub-Wanted'));
-        },
+        "orderClasses": true,
+        "stateSave": true,
         "iCookieDuration": 60 * 60 * 24 * 365,
-        "bLengthChange": true,
-        "bDeferRender": true,
-        "aLengthMenu": [
-            [10, 25, 50, 100, -1],
-            [10, 25, 50, 100, "All"]
+        "stateDuration": -1,
+        "lengthMenu": [ [5, 10, 25, 50, 100, -1],[5, 10, 25, 50, 100, "All"] ],
+        "order": [[3, "desc"]],
+        "columnDefs": [
+            {"orderData": [0, 1, 2], "targets": [0] },
+            {"orderable": false, "targets": [4, 5, 11, 12]}
         ],
-        "aaSorting": [
-            [9, "desc"]
-        ],
-        "aoColumnDefs": [{
-            "aDataSort": [0, 1, 2],
-            "aTargets": [0]
-        }, {
-            "sType": "euro-date",
-            "aTargets": [9]
-        }, {
-            "bSortable": false,
-            "aTargets": [4, 5, 7, 8, 10]
-        }],
-        "fnDrawCallback": function (oSettings) {
-            $("a").tooltip();
-        }
     });
 
     $('#downloaded').dataTable({
         "deferRender": true,
-        "bStateSave": true,
-        "fnDrawCallback": function (oSettings) {
-            $("a").tooltip();
-        },
-        "fnStateSave": function (oSettings, oData) {
-            localStorage.setItem('AutoSub-Downloaded', JSON.stringify(oData));
-        },
-        "fnStateLoad": function (oSettings) {
-            return JSON.parse(localStorage.getItem('AutoSub-Downloaded'));
-        },
+        "orderClasses": true,
+        "stateSave": true,
         "iCookieDuration": 60 * 60 * 24 * 365,
-        "bLengthChange": true,
-        "bDeferRender": true,
-        "aLengthMenu": [
-            [5, 10, 25, 50, 100, -1],
-            [5, 10, 25, 50, 100, "All"]
-        ],
-        "aaSorting": [
-            [8, "desc"]
-        ],
-        "aoColumnDefs": [{
-            "aDataSort": [0, 1, 2],
-            "aTargets": [0]
-        }, {
-            "sType": "euro-date",
-            "aTargets": [8]
-        }, {
-            "bSortable": false,
-            "aTargets": [7, 9]
-        }],
-        "fnDrawCallback": function (oSettings) {
-            $("a").tooltip();
-        }
+        "stateDuration": -1,
+        "lengthMenu": [ [5, 10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"] ],
+        "order": [[3, "desc"]],
+        "columnDefs": [
+            { "orderData": [0, 1, 2], "targets": [0] },
+            { "orderable": false, "targets": 10 }
+        ]
     });
 
     $('#testMail').click(function () {
@@ -353,42 +287,7 @@ $(document).ready(function () {
                 $('#content_' + dropdown.attr("id")).hide();
             }
         });
-    });
-
-    $(".enableraddic7ed option:selected").each(function () {
-        if ($(this).val() == "None") {
-            $('#content_' + $(this).parent().attr("id")).hide();
-        }
-    });
-
-    $(".enableraddic7ed").change(function () {
-        var dropdown = $(this);
-        $(this).children("option:selected").each(function () {
-            if ($(this).val() == "None") {
-                $('#content_' + dropdown.attr("id")).hide();
-            } else {
-                $('#content_' + dropdown.attr("id")).show();
-            }
-        });
-    });
-
-    $(".enablerOpenSubtitles option:selected").each(function () {
-        if ($(this).val() == "None") {
-            $('#content_' + $(this).parent().attr("id")).hide();
-        }
-    });
-
-    $(".enablerOpenSubtitles").change(function () {
-        var dropdown = $(this);
-        $(this).children("option:selected").each(function () {
-            if ($(this).val() == "None") {
-                $('#content_' + dropdown.attr("id")).hide();
-            } else {
-                $('#content_' + dropdown.attr("id")).show();
-            }
-        });
-    });
-
+    });  
 });
 
 

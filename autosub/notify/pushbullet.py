@@ -12,9 +12,9 @@ def test_notify(pushbulletapi):
     message = "Testing Pushbullet settings from Auto-Sub."
     return _send_notify(pushbulletapi, message)
 
-def send_notify(lang, subtitlefile, videofile, website):
+def send_notify(lang, releasename, website):
     log.debug("Trying to send a notification.")
-    message = "%s downloaded from %s" %(subtitlefile, website)
+    message = "%s: %s downloaded from %s" %(lang, releasename, website)
     pushbulletapi = autosub.PUSHBULLETAPI
     return _send_notify(pushbulletapi, message)
 

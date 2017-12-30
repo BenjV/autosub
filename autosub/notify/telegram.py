@@ -24,9 +24,9 @@ def test_notify( api_key=None,id=None):
     """
     return _send_notify('This is a test notification from Autosub', api_key,id)
 
-def send_notify(lang, subtitlefile, videofile, website):
+def send_notify(lang, releasename, website):
     log.debug("Trying to send a notification")
-    message = "%s downloaded from %s" %(subtitlefile, website)
+    message = "%s: %s downloaded from %s" %(lang, releasename, website)
     return _send_notify(message)
 
 

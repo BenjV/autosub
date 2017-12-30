@@ -5,7 +5,6 @@
 # every module should return True if success, and False when failed
 
 import logging
-import os
 import autosub
 
 from autosub.notify import twitter
@@ -23,57 +22,55 @@ from autosub.notify import telegram
 
 log = logging.getLogger('thelogger')  
 
-def notify(lang, subtitlefile, videofile, website):
-    log.debug("Trying to send notification. Language: %s Srt: %s Video: %s Website: %s" %(lang, subtitlefile, videofile, website))
-    #Lets strip video file and subtitle file of its path!
-    subtitlefile = os.path.basename(subtitlefile)
-    videofile = os.path.basename(videofile)
+#def notify(lang, releasename, website):
+#    log.debug("Trying to send notification. Language: %s Video: %s Website: %s" %(lang, releasename, website))
+#    #Lets strip video file and subtitle file of its path!
     
-    if lang == autosub.ENGLISH and autosub.NOTIFYEN:
-        notifySend(lang, subtitlefile, videofile, website)
-    if lang == autosub.DUTCH and autosub.NOTIFYNL:
-        notifySend(lang, subtitlefile, videofile, website)
+#    if lang == autosub.ENGLISH and autosub.NOTIFYEN:
+#        notifySend(lang, subtitlefile, videofile, website)
+#    if lang == autosub.DUTCH and autosub.NOTIFYNL:
+#        notifySend(lang, subtitlefile, videofile, website)
 
-def notifySend(lang, subtitlefile, videofile, website):
+def notify(lang, releasename, website):
     if autosub.NOTIFYTWITTER:
         log.debug("Twitter is enabled")
-        twitter.send_notify(lang, subtitlefile, videofile, website)
+        twitter.send_notify(lang, releasename, website)
     
     if autosub.NOTIFYMAIL:
         log.debug("Mail is enabled")
-        mail.send_notify(lang, subtitlefile, videofile, website)
+        mail.send_notify(lang, releasename, website)
     
     if autosub.NOTIFYNMA:
         log.debug("Notify My Android is enabled")
-        nma.send_notify(lang, subtitlefile, videofile, website)
+        nma.send_notify(lang, releasename, website)
     
     if autosub.NOTIFYGROWL:
         log.debug("Growl is enabled")
-        growl.send_notify(lang, subtitlefile, videofile, website)
+        growl.send_notify(lang, releasename, website)
 
     if autosub.NOTIFYPROWL:
         log.debug("Prowl is enabled")
-        prowl.send_notify(lang, subtitlefile, videofile, website)
+        prowl.send_notify(lang, releasename, website)
 
     if autosub.NOTIFYTELEGRAM:
         log.debug("Telegram is enabled")
-        telegram.send_notify(lang, subtitlefile, videofile, website)    
+        telegram.send_notify(lang, releasename, website)    
 
     if autosub.NOTIFYPUSHALOT:
         log.debug("Pushalot is enabled")
-        pushalot.send_notify(lang, subtitlefile, videofile, website)
+        pushalot.send_notify(lang, releasename, website)
 
     if autosub.NOTIFYPUSHBULLET:
         log.debug("Pushbullet is enabled")
-        pushbullet.send_notify(lang, subtitlefile, videofile, website)
+        pushbullet.send_notify(lang, releasename, website)
     
     if autosub.NOTIFYPUSHOVER:
         log.debug("Pushover is enabled")
-        pushover.send_notify(lang, subtitlefile, videofile, website)
+        pushover.send_notify(lang, releasename, website)
     
     if autosub.NOTIFYBOXCAR2:
         log.debug("Boxcar2 is enabled")
-        boxcar2.send_notify(lang, subtitlefile, videofile, website)
+        boxcar2.send_notify(lang, releasename, website)
     
     if autosub.NOTIFYPLEX:
         log.debug("Plex Media Server is enabled")

@@ -34,6 +34,84 @@ body {
 	padding-right: 20px;
 	}
 }
+.page-header {
+  padding-bottom: 2px;
+  margin: 20px 0 20px;
+  border-bottom: 1px solid #eeeeee;
+}
+.nav > li > a:focus {
+  text-decoration: none;
+  background-color: transparent;
+}
+
+.navbar-collapse {
+  max-height: 340px;
+  padding-right: 15px;
+  padding-left: 15px;
+  overflow-x: visible;
+  border-top: 1px solid transparent;
+  background-color: #5b96d1;
+  background: rgb(120,177,237); /* Old browsers */
+  background: -moz-linear-gradient(top,  rgba(120,177,237,1) 0%, rgba(65,123,181,1) 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(120,177,237,1)), color-stop(100%,rgba(65,123,181,1))); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top,  rgba(120,177,237,1) 0%,rgba(65,123,181,1) 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top,  rgba(120,177,237,1) 0%,rgba(65,123,181,1) 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top,  rgba(120,177,237,1) 0%,rgba(65,123,181,1) 100%); /* IE10+ */
+  background: linear-gradient(top,  rgba(120,177,237,1) 0%,rgba(65,123,181,1) 100%); /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#78b1ed', endColorstr='#417bb5',GradientType=0 ); /* IE6-9 */
+  background-repeat: repeat-x;
+  border-color: #252525;
+  
+  -webkit-overflow-scrolling: touch;
+}
+.navbar-default .navbar-brand {
+  color: #FFFFFF;
+}
+.navbar-default .navbar-text {
+  color: #FFFFFF;
+}
+.navbar-default .navbar-nav > li > a {
+  color: #FFFFFF;
+}
+.navbar-default .navbar-nav > .open > a:focus {
+  color: #555555;
+  background-color: transparent;
+}
+
+@media (max-width: 767px) {
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a {
+    color: #FFFFFF;
+	background-color: transparent;
+  }
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover,
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
+    color: #333333;
+    background-color: transparent;
+  }
+  .navbar-default .navbar-nav .open .dropdown-menu > .active > a,
+  .navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover,
+  .navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
+    color: #555555;
+    background-color: transparent;
+  }
+  .navbar-default .navbar-nav .open .dropdown-menu > .disabled > a,
+  .navbar-default .navbar-nav .open .dropdown-menu > .disabled > a:hover,
+  .navbar-default .navbar-nav .open .dropdown-menu > .disabled > a:focus {
+    color: #cccccc;
+    background-color: transparent;
+  }
+}
+.tooltip-inner
+{
+  max-width: 600px;
+  min-width: 150px;
+  padding: 5px 5px 5px 5px;
+  color: #ffffff;
+  text-align: left;
+  text-decoration: none;
+  background-color: #000000;
+  border-radius: 4px;
+}
 
 @media (min-width: 980px) {
 #wrap > .container {
@@ -48,104 +126,25 @@ code {
 	font-size: 80%;
 }
 
-/* Wanted & Downloaded tables */
-
-/*
-.table {
-	clear: both;
-	width: 100%;
-	margin: 0 auto;
-	text-decoration: none;
-	padding: 0;
-	border-spacing: 0;
-}
-
-.table thead {
-	border-top: 1px solid #fff;
-	border-bottom: 1px solid #bcbcbc;
-}
-
-.table thead th:first-child {
-	border-left: none;
-	text-align: left;
-}
-
-.table thead th:last-child {
-	border-right: none;
-}
-
-.table thead th {
-	vertical-align: middle;
-	text-align: center;
-	padding: 8px 5px;
-	border-left: 1px solid #fff;
-	border-right: 1px solid #c3c3c3;
-	cursor: pointer;
-}
-
-.table thead th .language {
-	vertical-align: middle;
-	padding: 8px 5px;
-	border-left: 1px solid #fff;
-	border-right: 1px solid #c3c3c3;
-	cursor: pointer;
-}
-
-.table tbody th, .table tbody td, .table tfoot th, .table tfoot td {
-	vertical-align: top;
-	padding: 7px;
-	border-left: 1px dotted #bebebe;
-		text-decoration: none;
-}
-
-.table tbody td:first-child {
-	background: #f8f8f8;
-	text-decoration: none;
-	text-align: left;
-	width: 250px;
-}
-
-.table tbody td {
-	background: #f8f8f8;
-	text-decoration: none;
-	text-align: center;
-	width: 75px;
-}
-
-.table tbody td:last-child {
-	width: 150px;
-}
-
-.table tbody th:first-child, .table tbody .th:first-child, .table tbody td:first-child, .table tfoot th:first-child, .table tfoot td:first-child {
-	border-left: none;
-	text-align: left;
-}
-
-.table tbody tr.even td, .table tbody tr:nth-child(2n) td {
-	background: #f0f0f0;
-}
-
-.table tbody tr:hover th, .table tbody tr:hover .th, .table tbody tr:hover td {
-	background: #e8eaef;
-}
-*/
 
 /* Wanted & Downloaded custom dropdown height */
 
 .navbar-collapse.skipshow {
 	margin-bottom: 15px;
-	margin-right: 10px;
+	margin-right: 15px;
 	padding: 0px 0px;
 	height: 0px;
 	overflow: visible;
 	background: transparent;
 }
-.navbar-collapse.skipshow .nav > li > a {
+
+  .navbar-collapse.skipshow .nav > li > a
+  {
     position: relative;
     display: block;
     padding: 0px 0px;
-	background: transparent;
-}
+    background: transparent;
+  }
 
 /* General center */
 
@@ -158,7 +157,7 @@ code {
 /* Change font for the well headers. */
 
 .well-header {
-	font-size: 16px;
+	font-size: 14px;
 }
 
 /* Next Run table */
