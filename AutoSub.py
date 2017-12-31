@@ -44,7 +44,8 @@ def _Initialize():
     except:
         pass
         # for OSes that are poorly configured, like slackware
-    if not autosub.SYSENCODING:
+    # for OSes that are poorly configured, like synology & slackware
+    if not autosub.SYSENCODING or autosub.SYSENCODING in ('ANSI_X3.4-1968', 'US-ASCII', 'ASCII'):
         autosub.SYSENCODING = 'UTF-8'
     autosub.PATH = unicode(os.getcwd(), autosub.SYSENCODING)
     autosub.PID = str(os.getpid())
