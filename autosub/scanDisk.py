@@ -14,7 +14,7 @@ from collections import deque
 import autosub
 from autosub.Helpers import SkipShow, CleanName
 from Tvdb import GetShowName,GetTvdbId
-from autosub.ProcessFilename import ProcessName
+from ProcessFilename import ProcessName
 # Settings
 log = logging.getLogger('thelogger')
 
@@ -202,7 +202,7 @@ def _walkDir(path):
                             Skipped = True
                             log.debug("scanDir: %s skipped because the English subtitle already exists" % filename) 
                         else:
-                            langs.append(autosub.DUTCH)
+                            langs.append(autosub.ENGLISH)
                     if not langs:
                         continue
                     Wanted = ProcessName(Name,True)
