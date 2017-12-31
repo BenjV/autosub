@@ -1,3 +1,5 @@
-autosubversion='1.1.5'
-configversion=4
-dbversion=10
+autosubversion='1.2.5'
+configversion=6
+dbversion=11
+rlsgrpdate='31-12-2017'
+A7mapdate='31-12-2017'
