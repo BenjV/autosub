@@ -153,7 +153,7 @@ class Config:
         # Set all internal variablesp
         autosub.SERIESPATH = os.path.normpath(seriespath)
         autosub.BCKPATH = os.path.normpath(bckpath)
-        autosub.LOGFILE = logfile
+        autosub.LOGFILE = logfile if logfile else autosub.LOGFILE
         autosub.DOWNLOADENG = True if downloadeng else False
         autosub.DOWNLOADDUTCH = True if downloaddutch else False
         autosub.FALLBACKTOENG = True if fallbacktoeng else False
