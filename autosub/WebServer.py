@@ -159,7 +159,7 @@ class Config:
         autosub.FALLBACKTOENG = True if fallbacktoeng else False
         autosub.ENGLISHSUBDELETE = True if englishsubdelete else False
         autosub.SUBNL = subnl if subnl and autosub.DOWNLOADDUTCH else ''
-        autosub.SUBENG = suben if (autosub.DOWNLOADENG or autosub.FALLBACKTOENG) and suben else ''
+        autosub.SUBENG = subeng if (autosub.DOWNLOADENG or autosub.FALLBACKTOENG) and subeng else ''
         if (autosub.DOWNLOADENG or autosub.FALLBACKTOENG) and autosub.DOWNLOADDUTCH and autosub.SUBNL == autosub.SUBENG:
             autosub.SUBENG = 'en'
             if autosub.SUBENG == autosub.SUBNL:
