@@ -6,13 +6,10 @@
 import os,re
 import logging
 from codecs import open as CodecsOpen
-
 from ConfigParser import SafeConfigParser
-
 import autosub
 import autosub.version as version
 import autosub.ID_lookup
-
 
 log = logging.getLogger('thelogger')
 
@@ -24,18 +21,23 @@ def ReadConfig():
     # Read config file
     cfg = SafeConfigParser()
     cfg.optionxform = lambda option: option
-
     try:
         with CodecsOpen(autosub.CONFIGFILE, 'r', autosub.SYSENCODING) as f:
             cfg.readfp(f)
-    except:
-        #No config found so we create a default config
-        Message = WriteConfig()
-        return
+    except Exception as error:
+        if error.errno == 2:
+            print "No config found so a default config.properties is created."
+            Message = WriteConfig()
+            return
+        else:
+            print error.message
+            sys.exit(1)
 
     section = 'config'
-
-    if not cfg.has_section(section):  cfg.add_section(section)
+    if not cfg.has_section(section):
+        print "No config found so a default config.properties is created."
+        Message = WriteConfig()
+        return
     if cfg.has_option(section, "configversion"):        autosub.CONFIGVERSION       = cfg.getint("config", "configversion") 
     if cfg.has_option(section, "wantedfirst"):          autosub.WANTEDFIRST         = cfg.getboolean(section, "wantedfirst")
     if cfg.has_option(section, 'downloaddutch'):        autosub.DOWNLOADDUTCH       = cfg.getboolean(section, 'downloaddutch')
@@ -106,7 +108,7 @@ def ReadConfig():
     if not cfg.has_section(section): cfg.add_section(section)
 
     if cfg.has_option(section, 'webserverip'):   autosub.WEBSERVERIP   = str(cfg.get(section, 'webserverip'))
-    if cfg.has_option(section, 'webserverport'): autosub.WEBSERVERPORT = int(cfg.get(section, 'webserverport'))
+    if cfg.has_option(section, 'webserverport'): autosub.WEBSERVERPORT = str(cfg.get(section, 'webserverport'))
     if cfg.has_option(section, 'webroot'):       autosub.WEBROOT       = str(cfg.get(section, 'webroot'))
     if cfg.has_option(section, 'username'):      autosub.USERNAME      = str(cfg.get(section, 'username'))
     if cfg.has_option(section, 'password'):      autosub.PASSWORD      = str(cfg.get(section, 'password'))
@@ -274,15 +276,15 @@ def WriteConfig():
 
     section = 'webserver'
     cfg.add_section(section)
-    cfg.set(section, "webserverip", str(autosub.WEBSERVERIP))
-    cfg.set(section, 'webserverport', str(autosub.WEBSERVERPORT))
+    cfg.set(section, "webserverip", autosub.WEBSERVERIP)
+    cfg.set(section, 'webserverport', autosub.WEBSERVERPORT)
     cfg.set(section, "username", autosub.USERNAME)
     cfg.set(section, "password", autosub.PASSWORD)
     cfg.set(section, "webroot", autosub.WEBROOT)
 
     section = 'logfile'
     cfg.add_section(section)
-    cfg.set(section, "logfile", autosub.LOGFILE)
+    cfg.set(section, "logfile", str(autosub.LOGFILE))
     cfg.set(section, "loglevel", str(autosub.LOGLEVEL))
     cfg.set(section, "loglevelconsole",str(autosub.LOGLEVELCONSOLE))
     cfg.set(section, "logsize", str(autosub.LOGSIZE))

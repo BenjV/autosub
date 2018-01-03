@@ -45,16 +45,17 @@ class idCache():
         self.cursor         = DbConnect.cursor()
 
     def getId(self, ShowName):
+        Name = ShowName.upper()
         try:
-            Result = self.cursor.execute(self.query_getId, [ShowName]).fetchone()
+            Result = self.cursor.execute(self.query_getId, [Name]).fetchone()
             if Result:
                 AddicId = int(Result[1]) if Result[1] else None
                 return Result[0],AddicId,Result[2], Result[3]
             else:
-                return None, None, None, None
+                return None, None, None, ShowName
         except Exception as error:
             log.error(error.message)
-            return None, None, None, None
+            return None, None, None, ShowName
 
     def getInfo(self, ImdbId):
         try:
@@ -68,13 +69,14 @@ class idCache():
             log.error(error.message)
             return None, None, None
 
-    def setId(self, ShowName, ImdbId, AddicId, TvdbId, TvdbName):
+    def setId(self, ShowName, ImdbId, AddicId, TvdbId):
+        Name = ShowName.upper()
         try:
-            Result = self.cursor.execute(self.query_checkId,[ShowName]).fetchone()
+            Result = self.cursor.execute(self.query_checkId,[Name]).fetchone()
             if Result:
-                self.cursor.execute(self.query_updateId,[ImdbId, AddicId, TvdbId, TvdbName, ShowName])
+                self.cursor.execute(self.query_updateId,[ImdbId, AddicId, TvdbId, ShowName, Name])
             else:
-                self.cursor.execute(self.query_setId,[ShowName, ImdbId, AddicId, TvdbId, TvdbName])
+                self.cursor.execute(self.query_setId,[Name, ImdbId, AddicId, TvdbId, ShowName])
             self.connection.commit()
         except Exception as error:
             log.error(error.message)

@@ -44,7 +44,6 @@ def daemon():
 
 
 def Browser():
-
     host = 'localhost' if autosub.WEBSERVERIP == '0.0.0.0' else autosub.WEBSERVERIP
     url = 'http://%s:%s%s' % (host, autosub.WEBSERVERPORT,autosub.WEBROOT)
     print 'Launch browser', url 
@@ -55,8 +54,8 @@ def Browser():
         try:
             print 'retry launch browser'
             webbrowser.open(url, new=1, autoraise=True)
-        except:
-            log.error('Failed')
+        except Exception as error:
+            log.error(error.message)
 
 def SigHandler(signum, frame):
     autosub.SEARCHSTOP = True
@@ -64,7 +63,7 @@ def SigHandler(signum, frame):
     try:
         os.remove(os.path.join(autosub.PATH,'autosub.pid'))
     except Exception as error:
-        log.error('Could not remove the PID file. Error is: %s' % error)
+        log.error('Could not remove the PID file. Error is: %s' % error.message)
     log.info("Got signal. Gracefully Shutting down")
     os._exit(0)
 
@@ -77,21 +76,21 @@ def start():
     if autosub.USERNAME and autosub.PASSWORD:
         users = {autosub.USERNAME: autosub.PASSWORD}
         cherrypy.config.update({'server.socket_host': autosub.WEBSERVERIP,
-                            'server.socket_port': autosub.WEBSERVERPORT,
+                            'server.socket_port': int(autosub.WEBSERVERPORT),
                             'tools.digest_auth.on': True,
                             'tools.digest_auth.realm': 'AutoSub website',
                             'tools.digest_auth.users': users
                            })
     else:
         cherrypy.config.update({'server.socket_host': autosub.WEBSERVERIP,
-                            'server.socket_port': autosub.WEBSERVERPORT
+                            'server.socket_port': int(autosub.WEBSERVERPORT)
                            })
     
     conf = {
             '/': {
             'tools.encode.encoding': 'utf-8',
             'tools.decode.encoding': 'utf-8',
-            'tools.staticdir.root': os.path.join(autosub.PATH, 'interface/media/'),
+            'tools.staticdir.root': str(os.path.join(autosub.PATH, 'interface/media/')),
             },
             '/css':{
             'tools.staticdir.on': True,
@@ -125,7 +124,7 @@ def start():
             },
             '/favicon.ico':{
             'tools.staticfile.on' : True,
-            'tools.staticfile.filename' : os.path.join(autosub.PATH, 'interface/media/images/lynx.ico')
+            'tools.staticfile.filename' : str(os.path.join(autosub.PATH, 'interface/media/images/lynx.ico'))
             }    
         }
     

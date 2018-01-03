@@ -71,7 +71,7 @@ class checkSub():
     def run(self):
          # setup some objects
         autosub.SEARCHBUSY  = True
-        if not autosub.ADDIC7EDAPI: autosub.ADDIC7EDAPI = Addic7edAPI()
+        autosub.ADDIC7EDAPI = Addic7edAPI()
         DbConnect = sqlite3.connect(autosub.DBFILE)
         autosub.DOWNLOADS = downloads(DbConnect)
         autosub.IDCACHE   = idCache(DbConnect)
@@ -144,10 +144,10 @@ class checkSub():
                         Downloaded = DownloadSub(Wanted,SubsEN)
                         if Downloaded:
                             Wanted['langs'].remove(autosub.ENGLISH)
-                            sleep(0)
+                            sleep(0.1)
                     if len(Wanted['langs']) == 0:
                         del autosub.WANTEDQUEUE[Index]
-                        sleep(0)
+                        sleep(0.1)
                         End -= 1
                     else:
                         Index += 1
@@ -155,6 +155,7 @@ class checkSub():
             log.info("Nothing to search for." ) 
         if autosub.ADDIC7EDLOGGED_IN:
             autosub.ADDIC7EDAPI.A7_Logout()
+        del autosub.ADDIC7EDAPI
         if autosub.OPENSUBTITLESTOKEN:
             OS_Logout()                         
         log.info("Finished round of subs Search. Go to sleep until the next round.")

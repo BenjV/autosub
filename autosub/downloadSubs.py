@@ -173,7 +173,7 @@ def WriteSubFile(SubData, SubFileOnDisk):
             log.debug('File is not a valid subtitle format. skipping it.')
     return False  
 
-def MyPostProcess(Wanted,SubSpecs,Language):
+def MyPostProcess(Wanted,SubSpecs,Sub):
     VideoSpecs = os.path.join(Wanted['folder'],Wanted ['file']+ Wanted['container'])
     SerieName  = Wanted['show'][:-1] if  Wanted['show'].endswith('.') else Wanted['show']
     SerieName  = re.sub(r'[\0/:*?"<>|\\]', r'',SerieName)
@@ -182,7 +182,7 @@ def MyPostProcess(Wanted,SubSpecs,Language):
 
     log.debug('Starting Postprocess')
     SeasonDir     = 'Season ' + Wanted['season']
-    EpisodeName = Wanted.get['EpisodeTitle']
+    EpisodeName = Sub.get('title')
     if not EpisodeName:
         EpisodeName = FindEpTitle(Wanted['TvdbId'],Wanted['season'], Wanted['episode'])
         try:
@@ -322,6 +322,6 @@ def DownloadSub(Wanted,SubList):
             log.debug('Postprocess succesfully finished!')
     if autosub.NODE_ID == 73855751279:
         log.debug('Starting my postprocess')
-        MyPostProcess(Wanted,destsrt,Sub['language'])
+        MyPostProcess(Wanted,destsrt,Sub)
     log.debug('Finished for %s' % Wanted["file"])
     return Downloaded

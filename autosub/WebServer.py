@@ -150,7 +150,7 @@ class Config:
             tmpl.modalheader = "Information"
             return str(tmpl)
                    
-        # Set all internal variables
+        # Set all internal variablesp
         autosub.SERIESPATH = os.path.normpath(seriespath)
         autosub.BCKPATH = os.path.normpath(bckpath)
         autosub.LOGFILE = logfile
@@ -158,8 +158,12 @@ class Config:
         autosub.DOWNLOADDUTCH = True if downloaddutch else False
         autosub.FALLBACKTOENG = True if fallbacktoeng else False
         autosub.ENGLISHSUBDELETE = True if englishsubdelete else False
-        autosub.SUBENG = subeng
-        autosub.SUBNL = subnl
+        autosub.SUBNL = subnl if subnl and autosub.DOWNLOADDUTCH else ''
+        autosub.SUBENG = suben if (autosub.DOWNLOADENG or autosub.FALLBACKTOENG) and suben else ''
+        if (autosub.DOWNLOADENG or autosub.FALLBACKTOENG) and autosub.DOWNLOADDUTCH and autosub.SUBNL == autosub.SUBENG:
+            autosub.SUBENG = 'en'
+            if autosub.SUBENG == autosub.SUBNL:
+                autosub.SUBNL = 'nl'
         autosub.NOTIFYEN = True if notifyen else False 
         autosub.NOTIFYNL = True if notifynl else False
         autosub.POSTPROCESSCMD = postprocesscmd
@@ -208,7 +212,7 @@ class Config:
             if autosub.LOGLEVELCONSOLE != int(loglevelconsole):
                 autosub.LOGLEVELCONSOLE =int(loglevelconsole)
         autosub.WEBSERVERIP = webserverip
-        autosub.WEBSERVERPORT = int(webserverport)
+        autosub.WEBSERVERPORT = webserverport
         autosub.USERNAME = username
         autosub.PASSWORD = password.replace("%","%%")
         autosub.WEBROOT = webroot
@@ -218,7 +222,7 @@ class Config:
         autosub.USERADDIC7EDMAPPING = stringToDict(useraddic7edmapping)
         autosub.HI = True if hearingimpaired else False
         Reboot = False
-        if autosub.WEBSERVERIP != webserverip or autosub.WEBSERVERPORT != int(webserverport) or autosub.USERNAME != username or autosub.PASSWORD != password or autosub.WEBROOT != webroot:
+        if autosub.WEBSERVERIP != webserverip or int(autosub.WEBSERVERPORT) != int(webserverport) or autosub.USERNAME != username or autosub.PASSWORD != password or autosub.WEBROOT != webroot:
             Reboot = True
         # Now save to the configfile
         message = autosub.Config.WriteConfig()
@@ -572,10 +576,10 @@ class Home:
                 log.info("Config and Database backuped to %s" % autosub.BCKPATH)
                 message = 'Succesfull backup of the config and database files to:<BR> %s' % autosub.BCKPATH
             except Exception as error:
-                log.error(error)
+                log.error(error.message)
                 message = error.message
         tmpl = PageTemplate(file="interface/templates/home.tmpl")
-        tmpl.message = message
+        tmpl.message = message.encode('ascii', 'ignore')
         tmpl.displaymessage = "Yes"
         tmpl.modalheader = "Information"     
         return str(tmpl)
@@ -602,7 +606,7 @@ class Home:
             except Exception as error:
                 message = error.message
         tmpl = PageTemplate(file="interface/templates/home.tmpl")
-        tmpl.message = message
+        tmpl.message = message.encode('ascii', 'ignore')
         tmpl.displaymessage = "Yes"
         tmpl.modalheader = "Information"     
         return str(tmpl)
@@ -658,9 +662,9 @@ class Log:
                 with CodecsOpen(autosub.LOGFILE, 'r', autosub.SYSENCODING) as f:
                     LogLines = f.readlines()
             except Exception as error:
-                log.error('Could not read the logfile. %s' % error)
-                tmpl.message = error
-                return tmpl
+                log.error('Could not read the logfile. %s' % error.message)
+                tmpl.message = error.message
+                return str(tmpl)
         FilteredLines = []
         numLines = 0
         for line in reversed(LogLines):

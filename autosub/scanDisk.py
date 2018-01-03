@@ -46,57 +46,39 @@ def _decode(Name):
 def _getShowid(ShowName):
     ImdbId = AddicId = AddicUserId= TvdbId = ImdbNameMappingId = TvdbShowName = None
     UpdateCache = False
-    SearchName, Suffix = CleanName(ShowName)
-    SearchList =[]
-    if Suffix:
-        SearchList.append(SearchName + Suffix)
-    SearchList.append(SearchName)
+    PartName, Suffix = CleanName(ShowName)
+    TvdbShowName = PartName + Suffix.upper() if Suffix else ShowName
+    UpdateCache = False
     log.debug('Trying to get info for %s' %ShowName)
-    for Name in SearchList:
-            # First we try the User Namemapping
-        if Name.upper() in autosub.NAMEMAPPING.keys():
-            ImdbNameMappingId,TvdbShowName = autosub.NAMEMAPPING[Name.upper()]
-            if ImdbNameMappingId:
-                    # Now look for info in the cache
-                AddicId, TvdbId, TvdbShowName = autosub.IDCACHE.getInfo(ImdbNameMappingId)
-                    # no Tvdb name, then it is a user mappening and we missing the formal tvdb name
-                if not TvdbShowName:
-                    # if name in cache we add to the user mapping
-                    if not TvdbShowName:
-                            # still no tvdb name we fetch it from the tvdb website
-                        TvdbShowName,TvdbId = GetShowName(ImdbNameMappingId)
-                        if TvdbShowName:
-                            autosub.NAMEMAPPING[Name.upper()][1] = TvdbShowName
-        else:
-                # Not found in NameMapping so check the cache
-            ImdbId, AddicId, TvdbId, TvdbShowName = autosub.IDCACHE.getId(Name.upper())
-            if not ImdbId:
-                    # No info in the cache we try Tvdb
-                ImdbId, TvdbId, TvdbShowName = GetTvdbId(Name)  
-                if ImdbId:
-                    UpdateCache = True
-            # if ImdbId found, try to find the Addic7edId for it
-        if (ImdbNameMappingId or ImdbId):
-            Id = ImdbNameMappingId if ImdbNameMappingId else ImdbId
-            AddicUserId = autosub.USERADDIC7EDMAPPING.get(Id)
-            if not (AddicId or AddicUserId):
-                AddicId = autosub.ADDIC7EDMAPPING.get(Id)
-            break
-    if not (AddicId or AddicUserId):
-        AddicId = int(autosub.ADDIC7EDAPI.geta7ID(ShowName, TvdbShowName))
-    if UpdateCache or (AddicId and ImdbId):
-        autosub.IDCACHE.setId(ShowName.upper(), ImdbId, AddicId, TvdbId, TvdbShowName)
-    if ImdbNameMappingId: ImdbId       = ImdbNameMappingId
-    if not TvdbShowName:  TvdbShowName = ShowName
-    if AddicUserId:       AddicId      = AddicUserId
-    if not AddicId:
-        AddicId = 0
-    TempId = str(AddicId) if AddicId != 0 else '-'
-    log.debug("Returned ID's - IMDB: %s, Addic7ed: %s, ShowName: %s" %(ImdbId,TempId,TvdbShowName))
+                # First see if the ShowName is in the mappings
+    Name = u''
+    if ShowName.upper() in autosub.NAMEMAPPING:
+        ImdbNameMappingId, Name = autosub.NAMEMAPPING[ShowName.upper()]
+    elif TvdbShowName.upper() in autosub.NAMEMAPPING:
+        ImdbNameMappingId, Name = autosub.NAMEMAPPING[TvdbShowName.upper()]
+    if Name: TvdbShowName = Name
+    if not ImdbNameMappingId:
+            # Not in the mappings then look in the cache
+        ImdbId, AddicId, TvdbId, TvdbShowName = autosub.IDCACHE.getId(TvdbShowName)
+        if not ImdbId:
+                # Still not found ask the Tvdb website but use the correct suffix if aplicable
+            ImdbId, TvdbId, TvdbShowName = GetTvdbId(TvdbShowName)
+            UpdateCache = True
+        # If an Id found try to find the addicId in mappings or on the addic7d website
+    if (ImdbNameMappingId or ImdbId) and not AddicId:
+        Id = ImdbId if ImdbId else ImdbNameMappingId
+        AddicId = autosub.USERADDIC7EDMAPPING.get(Id)
+        if not AddicId:
+            AddicId = autosub.ADDIC7EDMAPPING.get(Id)
+        if not AddicId:
+            AddicId = autosub.ADDIC7EDAPI.geta7ID(TvdbShowName)
+    if UpdateCache:
+        autosub.IDCACHE.setId(TvdbShowName, ImdbId, AddicId, TvdbId)
+    if ImdbNameMappingId: ImdbId = ImdbNameMappingId
+    if not AddicId: AddicId = 0
+    log.debug("Id's are: IMDB: %s, Addic7ed: %d, ShowName: %s, TvdbName: %s" %(ImdbId,AddicId,ShowName,TvdbShowName))
     return ImdbId, AddicId, TvdbId, TvdbShowName
-    # no ImdbId found for this showname
-    log.debug('No ImdbId found on Tvdb for %s.' % ShowName)
-    return None, None, None, ShowName
+
 
 def _checkdate(FileTime):
         # check how old the video is and apply old video rules
@@ -177,6 +159,7 @@ def _walkDir(path):
                     if autosub.DOWNLOADDUTCH and not SkipThisFolderNL:
                         Skipped = False
                         for SkipItem in SkipListNL:
+                            if not SkipItem: continue 
                             if re.search(SkipItem, filename,re.I|re.U):
                                 log.info("%s Dutch sub skipped by skiprules" % filename)
                                 Skipped = True
@@ -192,6 +175,7 @@ def _walkDir(path):
                     if (autosub.DOWNLOADENG or (autosub.FALLBACKTOENG and autosub.DOWNLOADDUTCH and not Skipped)) and not SkipThisFolderEN:
                         Skipped = False
                         for SkipItem in SkipListEN:
+                            if not SkipItem: continue 
                             if re.search(SkipItem, filename, re.I|re.U):
                                 log.info("%s English sub skipped by skiprules" % filename)
                                 Skipped = True

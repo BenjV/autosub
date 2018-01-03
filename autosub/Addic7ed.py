@@ -16,6 +16,7 @@ class Addic7edAPI():
         self.lasttime = time()
         self.server = 'http://www.addic7ed.com'
         self.session.headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko', 'Referer' : self.server}
+        self.show_ids = {}
 
     def A7_Login(self, addic7eduser=None, addic7edpasswd=None):
         try:
@@ -43,6 +44,7 @@ class Addic7edAPI():
             return False        
         if Result.status_code < 400:
             autosub.ADDIC7EDLOGGED_IN = True
+            self.geta7ID()
             if self.getA7Info():
                 if Test:
                     log.info('Test Logged in as: %s on Addic7ed' % addic7eduser)
@@ -73,7 +75,7 @@ class Addic7edAPI():
         autosub.ADDIC7EDAPI = None
         autosub.ADDIC7EDLOGGED_IN = False
 
-    def getpage(self, Page):
+    def getpage(self, Page, Delay=True):
         """
         Make a GET request on `url`
         :param string url: part of the URL to reach with the leading slash
@@ -82,9 +84,8 @@ class Addic7edAPI():
         SearchUrl = self.server + Page
             # For old series Addic7ed needs a second try to get the right page.
         Diff = time() - self.lasttime
-        if Diff < 10:
+        if Diff < 10 and Delay:
             sleep(10 - Diff)
-            self.lasttime = time()
         Count = 1
         while Count < 3:
             if Count == 1:
@@ -93,6 +94,7 @@ class Addic7edAPI():
                 log.debug('Retry! Url= %s'% SearchUrl)
             try:
                 Result = self.session.get(SearchUrl,timeout=31)
+                self.lasttime = time()
             except Exception as error:
                 log.error('%s' % error)
                 Count += 1
@@ -139,48 +141,24 @@ class Addic7edAPI():
             return False
         return True    
     
-    def geta7ID(self, ShowName, TvdbShowName):
-        # lookup official name and try to match with a7 show list
-        # Put the showname's and Addic7ed's in a dict with the showname as key.
-        Result = self.getpage('/shows.php')
-        if not Result:
-            return None
-        show_ids={}
-        AddicName = u''
-        for url in re.findall(r'<a href=[\'"]/show/?([^<]+)', Result, re.I|re.U):
-            AddicId = url.split("\">")[0]
-            if AddicId.isdigit():
-                try:
-                    AddicName = url.split("\">")[1].replace('&amp;','&').lower()
-                    show_ids[AddicName] = int(AddicId)
-                except:
-                    pass
-
-        # here we make a list of possible combinations of names and suffixes
-        SearchList = []
-        #First the file Show name from the parameterlist 
-        if ShowName:
-            # If there is a suffix add the correct combinations of name and suffix
-            Name, Suffix = CleanName(ShowName)
-            if Suffix:
-                SearchList.append(Name + Suffix)
-
-        # If the Tvdb showname is different then we do the same for that name
-        AddItem = False
-        if TvdbShowName and TvdbShowName != ShowName:
-            for name in SearchList:
-                if name == TvdbShowName:
-                    AddItem = True
-        if AddItem:
-            SearchList.append(TvdbShowName)
-            Name, Suffix = CleanName(TvdbShowName)
-            if Suffix:
-                SearchList.append(Name + Suffix)
-
-        # Try all the combinations untill we find one
-        for Name in SearchList:
-            if Name.lower() in show_ids:
-                log.debug("Addic7ed ID %d found using filename show name %s" % (show_ids[Name.lower()], ShowName))
-                return show_ids[Name.lower()]
-        log.info('The show %s could not be found on the Addic7ed website. Please make an Addic7ed map!' % ShowName)
-        return 0
+    def geta7ID(self, ShowName=None):
+ 
+        # Read the Addic7ed show pages and put the showname's and Addic7ed's in a dict
+        if not self.show_ids : 
+            Delay = True if ShowName else False
+            Result = self.getpage('/shows.php', Delay)
+            if not Result:
+                return None
+            AddicName = u''
+            for url in re.findall(r'<a href=[\'"]/show/?([^<]+)', Result, re.I|re.U):
+                AddicId = url.split("\">")[0]
+                if AddicId.isdigit():
+                    try:
+                        AddicName = url.split("\">")[1].replace('&amp;','&').upper()
+                        self.show_ids[AddicName] = int(AddicId)
+                    except:
+                        pass
+        if ShowName: 
+            return self.show_ids.get(ShowName.upper(),0)
+        else:
+            return 0

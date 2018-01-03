@@ -15,6 +15,7 @@ base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(base_path, 'library'))
 
 
+
 from getopt import getopt
 from time import sleep
 import locale,json
@@ -53,7 +54,7 @@ def _Initialize():
         with open(os.path.join(autosub.PATH,'autosub.pid') , "w", 0) as pidfile:
             pidfile.write(autosub.PID + '\n')
     except Exception as error:
-        print error
+        print error.message
         sys.exit(1)
 
         # if config folder not set by commandline make it the default location
@@ -67,13 +68,6 @@ def _Initialize():
                 print 'Cannot create configfolder.' + exception.message
                 sys.exit(1)
     autosub.CONFIGFILE = os.path.join(autosub.CONFIGPATH, autosub.CONFIGNAME)
-    if not os.path.isfile(autosub.CONFIGFILE):
-        try:
-            open(autosub.CONFIGFILE,'w').close()
-        except Exception as error:
-            print error
-            sys.exit(1)
-
 
     if not autosub.CONFIGPATH:
         autosub.CONFIGPATH = autosub.PATH
@@ -94,8 +88,7 @@ def _Initialize():
                 except Exception as error:
                     print error
                     sys.exit(1)
-    #if not os.access(autosub.CONFIGPATH, os.W_OK):
-
+    autosub.LOGFILE = os.path.join(autosub.CONFIGPATH, autosub.LOGNAME)
     print "AutoSub: Initializing variables and loading config"
     autosub.Config.ReadConfig()
     if 'Alpha' in Versions.autosubversion:
@@ -203,6 +196,9 @@ Example:
     python AutoSub.py --config=/home/user/config.properties --daemon
     
 '''
+class Usage(Exception):
+    def __init__(self, msg):
+        self.msg = msg
 
 def main(argv=None):
     Update = False
