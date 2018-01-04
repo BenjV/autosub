@@ -38,23 +38,23 @@
 		#else
 			<input type="checkbox" name="mmssdistro" value=8>
 		#end if
-		&emsp;Quality
+		&emsp;ReleaseGroup
 		#if $autosub.MINMATCHSCORE & 4
-			<input type="checkbox" name="mmsquality" checked value=4>
+			<input type="checkbox" name="mmsrelease" checked value=4>
 		#else
-			<input type="checkbox" name="mmsquality" value=4>
+			<input type="checkbox" name="mmsrelease" value=4>
+		#end if
+		&emsp;Quality
+		#if $autosub.MINMATCHSCORE & 2
+			<input type="checkbox" name="mmsquality" checked value=2>
+		#else
+			<input type="checkbox" name="mmsquality" value=2>
 		#end if
 		&emsp;Codec
-		#if $autosub.MINMATCHSCORE & 2
-			<input type="checkbox" name="mmscodec" checked value=2>
-		#else
-			<input type="checkbox" name="mmscodec" value=2>
-		#end if
-		&emsp;ReleaseGroup
 		#if $autosub.MINMATCHSCORE & 1
-			<input type="checkbox" name="mmsrelease" checked value=1>
+			<input type="checkbox" name="mmscodec" checked value=1>
 		#else
-			<input type="checkbox" name="mmsrelease" value=1>
+			<input type="checkbox" name="mmscodec" value=1>
 		#end if
 	</div>
 </div>
