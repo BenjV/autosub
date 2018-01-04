@@ -65,7 +65,6 @@ def send_notify(lang, releasename, website):
 AutoSub downloaded the following subtitle\n\n
 Language: %s\n 
 File: %s\n
-Videofile: %s\n
 Website: %s\n
     """ %(lang, releasename, website))
     message['From'] = email.utils.formataddr((autosub.MAILFROMADDR, autosub.MAILFROMADDR))
