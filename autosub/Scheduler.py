@@ -10,11 +10,12 @@ import traceback
 import autosub
 
 class Scheduler:
-    def __init__(self, command,runnow, name):      
+    def __init__(self, command, runnow, name):
         self.command = command
         self.name = name
         self.thread = threading.Thread(None, self.runcommand, self.name)
         self.stop = False
+            # setup de signal handler for Terminal en Keyboard interupt. 
         if runnow:
             try:
                 self.command.run()
@@ -23,7 +24,7 @@ class Scheduler:
             except:
                 print traceback.format_exc()
                 os._exit(1)
-            
+
     def runcommand(self):
         while True:
             ellapsed = time() - self.lastrun
@@ -46,4 +47,4 @@ class Scheduler:
                     os._exit(1)
             if self.stop:
                 break
-            sleep(1)
+            sleep(60)

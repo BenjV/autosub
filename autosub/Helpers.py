@@ -1,8 +1,8 @@
 #
 # The Autosub helper functions
 #
-
 import logging
+from logging import handlers
 import re
 import json
 from zipfile import ZipFile
@@ -32,6 +32,40 @@ def CleanName(title):
         if m:
             return m.group(1), ' (' + m.group(2) + ')'
     return title, None
+
+def InitLogging():  
+    # initialize logging
+    # A log directory has to be created in the start directory
+    print "AutoSub: Starting output to log. Bye!"
+    Format = '%(asctime)s %(levelname)-3s %(funcName)-12s:%(message)s'
+    try:
+        fmt = logging.Formatter(Format,datefmt='%d-%m %H:%M:%S')
+        logging.addLevelName(10,'DBG')
+        logging.addLevelName(20,'INF')
+        logging.addLevelName(30,'WRN')
+        logging.addLevelName(40,'ERR')
+        logging.addLevelName(50,'CRI')
+        log = logging.getLogger("thelogger")   
+        log.setLevel(autosub.LOGLEVEL)
+        autosub.LOGHANDLER = logging.handlers.RotatingFileHandler(autosub.LOGFILE, 'a', autosub.LOGSIZE, autosub.LOGNUM)
+        autosub.LOGHANDLER.setFormatter(fmt)
+        autosub.LOGHANDLER.setLevel(autosub.LOGLEVEL)
+        log.addHandler(autosub.LOGHANDLER)
+    except Exception as error:
+        log.error('Problem Initialising the logger. %s' % error)
+        sys.exit()
+        #CONSOLE log handler
+    try:
+        autosub.CONSOLE = logging.StreamHandler()
+        autosub.CONSOLE.setLevel(autosub.LOGLEVELCONSOLE)
+        autosub.CONSOLE.setFormatter(fmt)
+        log.addHandler(autosub.CONSOLE)
+    except Exception as error:
+        log.error('Problem Initialising the console logger. %s' % error)
+        pass
+    if autosub.DAEMON:
+        autosub.CONSOLE.setLevel(50)
+    return log
 
 def CheckVersion():
     '''

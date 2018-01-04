@@ -32,7 +32,6 @@ def ReadConfig():
         else:
             print error.message
             sys.exit(1)
-
     section = 'config'
     if not cfg.has_section(section):
         print "No config found so a default config.properties is created."
@@ -378,6 +377,7 @@ def WriteConfig():
     except Exception as error:
         return error
         # here we read the config back because the UPPERCASE variants of the config (for searching) has to be filled
+    log.debug('Config is saved.')
     ReadConfig()
     return 'Config has been saved.'
 
@@ -391,8 +391,6 @@ def displaySkipshow():
     for x in autosub.SKIPSHOW:
         s += x + " = " + str(autosub.SKIPSHOW[x]) + "\n"
     return s
-
-
 
 def displayNamemapping():
     """
@@ -415,7 +413,6 @@ def displayAddic7edmapping():
     for ImdbId in autosub.USERADDIC7EDMAPPING:
         s += ImdbId + " = " + str(autosub.USERADDIC7EDMAPPING[ImdbId]) + "\n"
     return s
-
 
 def _upgradeConf(cfg, from_version, to_version):
     if from_version == 0:

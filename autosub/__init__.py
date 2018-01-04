@@ -100,7 +100,8 @@ WEBROOT = ''
 
 DAEMON = None
 INIT = True
-DBFILE = 'database.db'
+DBNAME = 'database.db'
+DBFILE = None
 DBVERSION = None
 IDCACHE = None
 DOWNLOADS = None

@@ -20,9 +20,9 @@ import autosub.Config
 from autosub.version import autosubversion
 from autosub.Db import initDb
 import autosub.notify as notify
-import autosub.Helpers
 from autosub.OpenSubtitles import OS_Login,OS_Logout
 from autosub.Tvdb import GetToken
+from autosub.Helpers import InitLogging, UpdateAutoSub, RebootAutoSub, CheckVersion
 
 def redirect(abspath, *args, **KWs):
     assert abspath[0] == '/'
@@ -153,7 +153,9 @@ class Config:
         # Set all internal variablesp
         autosub.SERIESPATH = os.path.normpath(seriespath)
         autosub.BCKPATH = os.path.normpath(bckpath)
-        autosub.LOGFILE = logfile if logfile else autosub.LOGFILE
+        if autosub.LOGFILE != logfile:
+            autosub.LOGFILE = logfile
+            InitLogging()
         autosub.DOWNLOADENG = True if downloadeng else False
         autosub.DOWNLOADDUTCH = True if downloaddutch else False
         autosub.FALLBACKTOENG = True if fallbacktoeng else False
@@ -523,7 +525,7 @@ class Home:
 
     @cherrypy.expose
     def checkVersion(self):
-        if autosub.Helpers.CheckVersion() == 'OK':
+        if CheckVersion() == 'OK':
             message = 'Active version &emsp;: ' + autosubversion + '<BR>Github version&emsp;: ' + autosub.GITHUBVERSION
         else:
             message = 'Could not get Version Info from Github.'
@@ -535,12 +537,12 @@ class Home:
 
     @cherrypy.expose
     def UpdateAutoSub(self):
-        threading.Thread(target=autosub.Helpers.UpdateAutoSub).start()
+        threading.Thread(target=UpdateAutoSub).start()
         redirect("/home")
 
     @cherrypy.expose
     def RebootAutoSub(self):
-        threading.Timer(1,autosub.Helpers.RebootAutoSub).start()
+        threading.Timer(1,RebootAutoSub).start()
         redirect("/home")
 
     @cherrypy.expose
@@ -556,7 +558,7 @@ class Home:
     def shutdown(self):
         autosub.SEARCHSTOP = True
         tmpl = PageTemplate(file="interface/templates/stopped.tmpl")
-        threading.Timer(2, autosub.AutoSub.stop).start()
+        threading.Thread(target=autosub.AutoSub.stop).start()
         return str(tmpl)
 
     @cherrypy.expose
