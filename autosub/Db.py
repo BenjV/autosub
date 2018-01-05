@@ -214,15 +214,20 @@ def upgradeDb(from_version, to_version):
                 else: Distro = None
                 NewRow.append(Distro)
                 NewRow.append(OldRow[9])
-                NewRow.append(OldRow[4][:-1])
+                if OldRow[4] and OldRow[4][-1:].lower() == 'p':
+                    NewRow.append(OldRow[4][:-1])
+                else:
+                    NewRow.append(OldRow[4])
                 NewRow.append(OldRow[7])
                 if 'opensubtitles' in subtitle: Website = u'opensubtitles'
                 elif 'addic7ed'    in subtitle: Website = u'addic7ed'
                 elif 'subscene'    in subtitle: Website = u'subscene'
                 else: Website = u'podnapisi'
                 NewRow.append(Website)
-                if OldRow[6] == 'Dutch': NewRow.append(u'nl')
-                else: NewRow.append(u'en')
+                if OldRow[6] == 'Dutch':
+                    NewRow.append(u'nl')
+                else:
+                    NewRow.append(u'en')
                 NewRow.append(None)
                 NewRow.append(OldRow[11])
                 NewTable.append(NewRow)
