@@ -1,47 +1,48 @@
 #import autosub
 #from autosub.version import autosubversion
 	
-	<!-- Auto-Sub Modal -->
-	<div id="DisplayMessage" class="modal fade">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-					<h1 class="modal-title">
-						#try
-							$modalheader
-						#except
-							<!-- There is no header provided by the system -->
-						#end try:
-					</h1>
-				</div>
-				<div class="modal-body">
-					#try
-						$message
-					#except:
-						<!-- There is no message from the system -->
-					#end try
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-				</div>
-			</div><!-- /.modal-content -->
-		  </div><!-- /.modal-dialog -->
-		</div><!-- /.modal -->
-		<script src="$autosub.WEBROOT/scripts/jquery.js"></script>
-		<script src="$autosub.WEBROOT/scripts/bootstrap.js"></script>
-		<script src="$autosub.WEBROOT/scripts/jquery.dataTables.js"></script>
-		#try	
-			#if $displaymessage == "Yes"
-				<script type="text/javascript">
-					jQuery(function ($) {
-						\$("#DisplayMessage").modal()
-					});
-				</script>
-			#end if
-		#except
-			<!-- There is no message from the system -->
-		#end try
-		<script src="$autosub.WEBROOT/scripts/autosub-custom.js"></script>
-	</body>
+    <!-- Auto-Sub Modal -->
+    <div id="DisplayMessage" class="modal fade">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h1 class="modal-title">
+              #try
+                $modalheader
+              #except
+                <!-- There is no header provided by the system -->
+              #end try:
+            </h1>
+          </div>
+          <div class="modal-body">
+            #try
+              $message
+            #except:
+              <!-- There is no message from the system -->
+            #end try
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+      
+    <script src="$autosub.WEBROOT/scripts/jquery.js"></script>
+    <script src="$autosub.WEBROOT/scripts/autosub-custom.js"></script>
+    <script src="$autosub.WEBROOT/scripts/bootstrap.js"></script>
+    <script src="$autosub.WEBROOT/scripts/jquery.dataTables.js"></script>
+    #try	
+      #if $displaymessage == "Yes"
+        <script type="text/javascript">
+          jQuery(function ($) {
+            \$("#DisplayMessage").modal()
+          });
+        </script>
+      #end if
+    #except
+      <!-- There is no message from the system -->
+    #end try
+  </body>
 </html>

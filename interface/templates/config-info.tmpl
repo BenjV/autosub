@@ -137,5 +137,37 @@
       <td><a href="https://subscene.com/" target="_blank">https://subscene.com/</a></td>
     </tr>
   </table>
+  <hr>
+<h4><strong>Releasenotes version 1.2.xx</strong></h4>
+<strong>Uitbreidingen:</strong><br>
+ - Commandline: -c path\config.properties zal ook dat path voor de database en logfile gebruikt worden<br>
+ - Uitbreiding van de minmatch score met disto (e.g. amazon, netflix, hbo enz.)<br>
+ - Mogelijkheid om de lees/schrijf rechten van de gedownloadde sub te setten (werkt niet onder Windows)<br>
+ - Mogelijkheid om een "must match" tabel van releasgroepen op te nemen.<br>
+&emsp;Als autosub zo'n releasegroep tegenkomt moet zowel de sub als de video de desbetreffende releasegroep bevatten anders is er geen match.<br>
+ - web, webrip en web-dl zijn nu aparte source qualifiers, dus web is niet me er gelijk aan web-dl<br>
+ - Lijst met meer dan 3200 releasegroepen toegevoegd die automatisch wordt geupdate vanaf github.<br>
+&emsp;Dus als er een nieuwe releasegroep opduikt of als ik er een gemist heb hoor ik het graag dan voeg ik hem toe.<br>
+ - Lijst met Addic Id's wordt ook automatisch vanaf github bijgewerkt dus hier hoor ik ook graag als er een gemist wordt.<br>
+ - Voor oude video's wordt minder vaak naar subs gezocht.(zie beneden voor uitleg)<br>
+&emsp;Dat zie je doordat ze "greyed out"(plus een streepje in plaats van een vinkje) in de wanted lijst staan.<br>
+ - Subs waar niet voldoende info voor aanwezig is om aan de minmatch score te voldoen staan "greyed out" in de wanted lijst.<br>
+ - De layout van de home pagina is aangepast om efficienter met de ruimte om te gaan.<br>
+ - De bron van de sub is aan de "Downloaded" lijst toegevoegd waardoor de hover functie komt te vervallen.<br>
+ - Het zoeken van subs op Addic7ed is uitgebreid met een retry.<br>
+&emsp;Als je naar een oude sub zoekt blijkt addic7ed de eerste keer vaak geen resultaten te geven, maar na een retry wel.<br>
+ - De analyse-functie van de video bestandsnamen is geheel herschreven mede door toevoeging van de distro functionaliteit van de minmatch score.<br>
+ - Als er een disto (bijvoorbeeld AMZ) in de sub voorkomt zal hij matchen met alle video files waar het woord web in voorkomt als source.<br>
+<br>
+<strong>Zoekschema voor oude video's:</strong><br>
+Tussen 0 en 4 weken wordt altijd gezocht naar de sub.<br>
+Tussen 4 en 16 weken wordt er een keer per week gezocht op een dag gezocht.<br>
+Ouder dan 16 weken wordt er een keer per 4 weken gezocht op een dag gezocht.<br>
+<br>
+<strong>Vervallen:</strong><br>
+ - De preview van de sub is vervallen.<br>
+&emsp;De manier waarop dat geimplementeerd was had tot gevolg dat alle subs die gedownload waren in memory gelezen werden.<br>
+&emsp;Dat maakte de zaak erg traag als je veel subs hebt gedownload.<br>
+ - De hover functie van de "Downloaded" lijst is vervallen omdat alle informatie nu in de kolommen staat.<br>
 </div>
 #include $join($autosub.PATH.encode(), "interface/templates/footer.tmpl")

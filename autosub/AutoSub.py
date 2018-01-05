@@ -1,18 +1,12 @@
-import Scheduler
-import autosub.checkSub
-import autosub.WebServer
-import logging
-import os,sys,json
+import logging,os,sys,json,webbrowser,HTMLParser
 import cherrypy
 from time import sleep
-import webbrowser
-import signal
-import HTMLParser #Don't remove this one, needed for the windows bins
 from uuid import getnode
 import requests
 from requests.packages import chardet
 from xmlrpclib import Server as xmlRpcServer 
 import autosub
+from autosub import Scheduler,WebServer,checkSub
 import autosub.version as Versions
 from autosub.Config import ReadConfig
 from autosub.Db import initDb as InitDatabase
@@ -225,6 +219,8 @@ def start():
     _ReadFiles()
         # Initialise the database
     InitDatabase()
+    if autosub.LAUNCHBROWSER and not autosub.UPDATED:
+        Browser()
     log.info("PID is: %s" %autosub.PID)
     log.info("Currrent Directory is: %s" %autosub.PATH)
     log.info("Current Config Directory is: %s" % autosub.CONFIGPATH)
@@ -235,8 +231,7 @@ def start():
     log.info("Starting the Search thread thread")
     autosub.CHECKSUB = autosub.Scheduler.Scheduler(autosub.checkSub.checkSub(), True, "CHECKSUB")
     autosub.CHECKSUB.thread.start()
-    if autosub.LAUNCHBROWSER and not autosub.UPDATED:
-        Browser()
+
 
 def stop():
     autosub.SEARCHSTOP = True

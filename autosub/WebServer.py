@@ -1,28 +1,26 @@
 # The Webserver module
 
 import cherrypy
-import logging
-import sys, os
-import sqlite3
+import logging,sys,os,sqlite3,threading
 from shutil import copy as filecopy
 from codecs import open as CodecsOpen
 from ast import literal_eval
 from re import findall
-log = logging.getLogger('thelogger')
-
 try:
     from Cheetah.Template import Template
 except:
     print "ERROR!!! Cheetah is not installed yet. Download it from: http://pypi.python.org/pypi/Cheetah/2.4.4"
     sys.exit(1)
-import threading
-import autosub.Config
+log = logging.getLogger('thelogger')
+import autosub
+from autosub.Config import WriteConfig
 from autosub.version import autosubversion
 from autosub.Db import initDb
 import autosub.notify as notify
 from autosub.OpenSubtitles import OS_Login,OS_Logout
 from autosub.Tvdb import GetToken
 from autosub.Helpers import InitLogging, UpdateAutoSub, RebootAutoSub, CheckVersion
+from autosub.Addic7ed import Addic7edAPI
 
 def redirect(abspath, *args, **KWs):
     assert abspath[0] == '/'
@@ -115,7 +113,7 @@ class Config:
                     episodestoskip = str(season)
             autosub.SKIPSHOW[title] = episodestoskip
             autosub.SKIPSHOWUPPER[title.upper()] = episodestoskip
-            message = autosub.Config.WriteConfig()
+            message = WriteConfig()
 
             #print season, episode
             Name = 'ImdbId' if title.isnumeric() else 'show'
@@ -135,8 +133,8 @@ class Config:
     def saveConfig(self, subeng, skipstringnl, skipstringen, skipfoldersnl,skipfoldersen, subnl, postprocesscmd, 
                    logfile, seriespath, bckpath, subcodec,  username, 
                    password, webroot, skipshow, lognum, loglevelconsole, loglevel, 
-                   webserverip, webserverport, mustmatch, usernamemapping,
-                   opensubtitlesuser, opensubtitlespasswd,  addic7eduser, addic7edpasswd,useraddic7edmapping,equalmatch=None,
+                   webserverip, webserverport, mustmatch, usernamemapping,useraddic7edmapping,
+                   opensubtitlesuser=None, opensubtitlespasswd=None,  addic7eduser=None, addic7edpasswd=None,equalmatch=None,
                    ReadOwner=None, ReadGroup=None, ReadWorld=None, WriteOwner=None, WriteGroup=None, WriteWorld=None,tvdbuser = None,tvdbaccountid = None,
                    addic7ed=None,opensubtitles=None, podnapisi=None, subscene=None,
                    wantedfirst = None, browserrefresh = None, skiphiddendirs = None,useaddic7ed=None,launchbrowser=None,interval = None, logsize=None,
@@ -194,7 +192,7 @@ class Config:
         autosub.SKIPSTRINGEN = skipstringen
         autosub.SKIPFOLDERSNL = skipfoldersnl
         autosub.SKIPFOLDERSEN = skipfoldersen
-        autosub.MINMATCHSCORE = int(mmssource) + int(mmssdistro) + int(mmsquality) + int(mmscodec) + int(mmsrelease)
+        autosub.MINMATCHSCORE = int(mmssource) + int(mmssdistro) + int(mmsrelease) + int(mmsquality) + int(mmscodec)
         autosub.EQUALMATCH = True if equalmatch == 'True' else autosub.EQUALMATCH
         autosub.SEARCHINTERVAL = int(interval)*3600
     # here we change the loglevels if neccessary
@@ -227,7 +225,7 @@ class Config:
         if autosub.WEBSERVERIP != webserverip or int(autosub.WEBSERVERPORT) != int(webserverport) or autosub.USERNAME != username or autosub.PASSWORD != password or autosub.WEBROOT != webroot:
             Reboot = True
         # Now save to the configfile
-        message = autosub.Config.WriteConfig()
+        message = WriteConfig()
         if Reboot:
             message += '\n There are settings changed which need a reboot. Please do a manual reboot'
         tmpl = PageTemplate(file="interface/templates/config-settings.tmpl")
@@ -293,7 +291,7 @@ class Config:
         autosub.KODIUPDATEONCE = True if kodiupdateonce else False
 
         # Now save to the configfile
-        message = autosub.Config.WriteConfig()
+        message = WriteConfig()
 
         tmpl = PageTemplate(file="interface/templates/config-notification.tmpl")
         tmpl.message = message
@@ -420,7 +418,7 @@ class Config:
 
     @cherrypy.expose
     def testAddic7ed(self, addic7eduser, addic7edpasswd, dummy):
-        if autosub.ADDIC7EDAPI.A7_Login(addic7eduser, addic7edpasswd):
+        if Addic7edAPI().A7_Login(addic7eduser, addic7edpasswd):
             return "<strong>Success</strong>."
         else:
             return "<strong>Failure</strong>."

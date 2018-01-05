@@ -20,7 +20,7 @@ class Addic7edAPI():
 
     def A7_Login(self, addic7eduser=None, addic7edpasswd=None):
         try:
-            if not self.session.head(self.server,timeout=10).ok:
+            if not self.session.head(self.server,timeout=13).ok:
                 log.error('Addic7ed website is not reachable')
                 return False
         except Exception as error:
@@ -65,7 +65,7 @@ class Addic7edAPI():
         if autosub.ADDIC7EDLOGGED_IN:
             autosub.ADDIC7EDLOGGED_IN = False
             try:
-                Result = self.session.get(self.server + '/logout.php', timeout=10)
+                Result = self.session.get(self.server + '/logout.php', timeout=22)
                 log.debug('Addic7ed logged out')
             except Exception as error:
                 log.error('%s' % error)
@@ -93,7 +93,7 @@ class Addic7edAPI():
             else:
                 log.debug('Retry! Url= %s'% SearchUrl)
             try:
-                Result = self.session.get(SearchUrl,timeout=31)
+                Result = self.session.get(SearchUrl,timeout=22)
                 self.lasttime = time()
             except Exception as error:
                 log.error('%s' % error)

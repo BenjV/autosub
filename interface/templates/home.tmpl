@@ -94,12 +94,17 @@
                         </td>
                       <td>
                         #set $SE = "S" + $var['season'] + "E" + $var['episode']
+                        #if $var['ImdbId']
+                          #set $Skip = $var['ImdbId']
+                        #else
+                          #set $Skip = $var['show']
+                        #end if
                         <div class="dropup">
                           <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-wrench"></span></a>
                           <ul class="dropdown-menu"><h5>
-                            <li><a href="$autosub.WEBROOT/config/skipShow/$var['ImdbId']/-1">Skip Show</a></li>
-                            <li><a href="$autosub.WEBROOT/config/skipShow/$var['ImdbId']/$var['season']">Skip Season S$var['season']</a></li>
-                            <li><a href="$autosub.WEBROOT/config/skipShow/$var['ImdbId']/$var['season']/$var['episode']">Skip Episode $SE</a></li>
+                            <li><a href="$autosub.WEBROOT/config/skipShow/$Skip/-1">Skip Show</a></li>
+                            <li><a href="$autosub.WEBROOT/config/skipShow/$Skip/$var['season']">Skip Season S$var['season']</a></li>
+                            <li><a href="$autosub.WEBROOT/config/skipShow/$Skip/$var['season']/$var['episode']">Skip Episode $SE</a></li>
                             </h5>
                           </ul>
                         </div>
