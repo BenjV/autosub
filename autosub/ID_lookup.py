@@ -7,6 +7,7 @@ import autosub
 # 
 autosub.NAMEMAPPING={
 u"3" :                                          [u"4922804", u"3%"],
+u"3%":                                          [u"4922804", u"3%"],
 u"ATLANTIS" :                                   [u"2705602", u"Atlantis (2013)"],
 u"BEAUTY AND THE BEAST" :                       [u"2193041", u"Beauty and the Beast (2012)"],
 u"Chicago P D " :                               [u"2805096", u"Chicago P.D."],
