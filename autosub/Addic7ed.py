@@ -100,11 +100,9 @@ class Addic7edAPI():
                 Count += 1
                 continue
             if Result.status_code < 400:
-                if Sub:
-                    if Result.apparent_encoding == 'UTF-8-SIG':
-                        return Result.text[1:]
-                else:
-                    return Result.text
+                if Sub and Result.apparent_encoding == 'UTF-8-SIG':
+                    return Result.text[1:]
+                return Result.text
             elif Count == 1:
                 sleep(2)
                 Count += 1
