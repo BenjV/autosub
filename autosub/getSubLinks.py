@@ -101,7 +101,7 @@ def _SS_Search(Wanted, sourceWebsites, SubListNL, SubListEN):
         # Only subs with high enough score get processed.
     for Item in Results['results']['items']:
         if Item['site'][:-4].lower() in sourceWebsites:
-            ReleaseName = HTMLParser().unescape(Item['release'])
+            ReleaseName = HTMLParser().unescape(Item['release']) if Item.get('release') else None
             Release = ProcessName(ReleaseName)
             if not Release or not _scoreMatch(Release, Wanted):
                 continue
@@ -111,7 +111,7 @@ def _SS_Search(Wanted, sourceWebsites, SubListNL, SubListEN):
             Release['url']      = Item.get('url')
             Release['website']  = Item.get('site','').lower()[:-4]
             Release['SubCodec'] = None
-            Release['title']    = HTMLParser().unescape(Item.get('episode_title'))
+            Release['title']    = HTMLParser().unescape(Item['episode_title']) if Item.get('episode_title') else None
             Release['releaseName'] = Wanted['file']
             Release['language'] = autosub.DUTCH if Item.get('language') == u'Dutch' else autosub.ENGLISH
             log.debug('Score:%s Needed:%s for %s sub of %s.' % ('{0:05b}'.format(Release['score']).replace('1','X').replace('0','-'), autosub.MINMATCHDSP, Release['language'], Item['release']))

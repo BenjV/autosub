@@ -63,7 +63,8 @@ def _getShowid(ShowName):
         if not ImdbId:
                 # Still not found ask the Tvdb website but use the correct suffix if aplicable
             ImdbId, TvdbId, TvdbShowName = GetTvdbId(TvdbShowName)
-            UpdateCache = True
+            if ImdbId:
+                UpdateCache = True
         # If an Id found try to find the addicId in mappings or on the addic7d website
     if (ImdbNameMappingId or ImdbId) and not AddicId:
         Id = ImdbId if ImdbId else ImdbNameMappingId
@@ -210,6 +211,8 @@ def _walkDir(path):
                     Wanted['folder'] = dirname
                     Wanted['Search'] = Search
                     Wanted['ImdbId'],Wanted['A7Id'], Wanted['TvdbId'], Wanted['show'] = _getShowid(Wanted['show'])
+                    if not Wanted['ImdbId']:
+                        continue
                     if SkipShow(Wanted['ImdbId'],Wanted['show'], Wanted['season'], Wanted['episode']):
                         log.debug("SKIPPED %s by Skipshow rules." % Wanted['file'])
                         continue
@@ -244,4 +247,4 @@ def ScanDisk():
             log.error('Something went wrong scanning the folders. Message is: %s' % error)
             return False
     log.info("Finished round of local disk checking")
-    return True
+    return

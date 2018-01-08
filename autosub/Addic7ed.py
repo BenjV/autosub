@@ -1,7 +1,7 @@
 #
 # The Addic7ed method specific module
 #
-import re
+import re,codecs
 import requests
 from time import time, sleep
 import autosub
@@ -75,7 +75,7 @@ class Addic7edAPI():
         autosub.ADDIC7EDAPI = None
         autosub.ADDIC7EDLOGGED_IN = False
 
-    def getpage(self, Page, Delay=True):
+    def getpage(self, Page, Delay=True, Sub=False):
         """
         Make a GET request on `url`
         :param string url: part of the URL to reach with the leading slash
@@ -93,24 +93,28 @@ class Addic7edAPI():
             else:
                 log.debug('Retry! Url= %s'% SearchUrl)
             try:
-                Result = self.session.get(SearchUrl,timeout=22)
+                Result = self.session.get(SearchUrl,timeout=13)
                 self.lasttime = time()
             except Exception as error:
                 log.error('%s' % error)
                 Count += 1
                 continue
             if Result.status_code < 400:
-                #Result.encoding = Result.apparent_encoding
-                return Result.text
-            else:
-                log.error('A7 request failed with status code %d' % Result.status_code)
+                if Sub:
+                    if Result.apparent_encoding == 'UTF-8-SIG':
+                        return Result.text[1:]
+                else:
+                    return Result.text
+            elif Count == 1:
                 sleep(2)
                 Count += 1
+            else:
+                log.error('A7 request failed with status code %d' % Result.status_code)
         return None
  
     def A7_download(self, downloadlink):
         try:
-            Result = self.getpage(downloadlink)
+            Result = self.getpage(downloadlink,True,True)
             if Result:
                 autosub.DOWNLOADS_A7 += 1
                 log.debug('Successfuly downloaded a sub from Addic7ed.')

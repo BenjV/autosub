@@ -236,7 +236,8 @@ def ProcessName(Info,FullName=False):
             show_dict['info'] = Info.lower()
                 # Search for the different info fields with the regexes.
 
-        Pos = len(show_dict['info'])
+        #Pos = len(show_dict['info'])
+        Pos = 0
         Match = quality.search(show_dict['info'])
         if Match:
             show_dict['quality'] = quality_syn.get(Match.group(1),Match.group(1))

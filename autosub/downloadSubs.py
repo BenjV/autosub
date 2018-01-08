@@ -11,7 +11,7 @@ import requests
 import zipfile
 import re 
 from urlparse import urljoin
-import os, shutil, errno, subprocess, sys
+import os, shutil, errno, subprocess, sys,codecs
 import time
 from Tvdb import FindEpTitle
 from subprocess import Popen, PIPE
@@ -22,7 +22,7 @@ import xmlrpclib, io, gzip
 log = logging.getLogger('thelogger')
 
 
-def unzip(Session, url):
+def _getzip(Session, url):
     # returns a file-like String object    
     try:
         Result = Session.get(url,verify=autosub.CERTIFICATEPATH,timeout=22)
@@ -41,14 +41,15 @@ def unzip(Session, url):
         if name.lower().endswith('srt'):
             try:
                 Data = zip.read(name)
-                Codec = chardet.detect(Data)['encoding']
-                fpr = io.TextIOWrapper(zip.open(name),errors='replace',encoding = Codec,newline='')
-                SubData = fpr.read()
-                fpr.close()
+                if Data.startswith(codecs.BOM_UTF8 ):
+                    SubData = unicode(Data[3:],'UTF-8')
+                else:
+                    Codec = chardet.detect(Data)['encoding']
+                    SubData = unicode(Data,Codec)
                 if SubData:
                     return SubData
             except Exception as error:
-                pass
+                log.error(error.message)
     log.debug("No subtitle files was found in the zip archive for %s" % url)
     return None
   
@@ -121,10 +122,10 @@ def _SSdownload(subSeekerLink,website):
     except Exception as error:
         log.error("Failed to get the downloadpage from %s. Message : %s" % (website,error)) 
         return None
-
     if Result.status_code > 399 or not Result.text:
         return False
     Result.encoding = 'utf-8'
+
     DownLoadLink = None
     if website == 'podnapisi':
         try:
@@ -143,34 +144,33 @@ def _SSdownload(subSeekerLink,website):
     if not DownLoadLink:
         log.error('Could not find the downloadlink %s on %s' % (DownLoadLink, website))
         return None
-    SubData = unzip(Session, DownLoadLink)
+    SubData = _getzip(Session, DownLoadLink)
     if SubData:
         return(SubData)
     else:
         return None
 
 def WriteSubFile(SubData, SubFileOnDisk):
-# this routine tries to write the sub but first check if it is a correct sub
-# this is done by checking the first two line for the correct subtitles format
-    if SubData[0] == u'1':
-        StartPos = 3 if SubData[1] == u'\r' else 2
-        if re.match("\d{2}:\d{2}:\d{2},\d{3}\s*-->\s*\d{2}:\d{2}:\d{2},\d{3}",SubData[StartPos:StartPos + 29]):
-            Permission = int(str(autosub.SUBRIGHTS['owner']) + str(autosub.SUBRIGHTS['group']) + str(autosub.SUBRIGHTS['world']),8)
-            try:
-                log.debug("Saving the subtitle file %s to the filesystem." % SubFileOnDisk)
-                if not autosub.SEARCHSTOP:
-                    with io.open(SubFileOnDisk, 'wb') as fp:
-                        fp.write(SubData.encode(autosub.SUBCODEC,errors='replace'))
-                    if sys.platform != "win32":
-                        os.chmod(SubFileOnDisk, Permission)
-                else:
-                    return False
-                return True
-            except Exception as error:
-                log.error('Problem writing subfile. %s' % error)
-                pass
-        else:
-            log.debug('File is not a valid subtitle format. skipping it.')
+        # this routine tries to write the sub but first check if it is a correct sub
+        # this is done by checking the first two line for the correct subtitles format
+    StartPos = 3 if SubData[1] == u'\r' else 2
+    if SubData[0] == '1' and re.match("\d{2}:\d{2}:\d{2},\d{3}\s*-->\s*\d{2}:\d{2}:\d{2},\d{3}",SubData[StartPos:StartPos + 29]):
+        try:
+            log.debug("Saving the subtitle file %s to the filesystem." % SubFileOnDisk)
+            if not autosub.SEARCHSTOP:
+                with io.open(SubFileOnDisk, 'wb') as fp:
+                    fp.write(SubData.encode(autosub.SUBCODEC,errors='replace'))
+                if sys.platform != "win32":
+                    Permission = int(str(autosub.SUBRIGHTS['owner']) + str(autosub.SUBRIGHTS['group']) + str(autosub.SUBRIGHTS['world']),8)
+                    os.chmod(SubFileOnDisk, Permission)
+            else:
+                log.info("Stopped by User intervention.")
+                return False
+            return True
+        except Exception as error:
+            log.error('Problem writing subfile. %s' % error)
+    else:
+        log.error('File is not a valid subtitle format. skipping it.')
     return False  
 
 def MyPostProcess(Wanted,SubSpecs,Sub):
@@ -301,7 +301,7 @@ def DownloadSub(Wanted,SubList):
     _add_to_down(Wanted,Sub)
 
         # Send notification if activated
-    if autosub.NOTIFYNL or autosub.NOTIFYEN:
+    if (autosub.NOTIFYNL and Sub['language'] == autosub.DUTCH) or (autosub.NOTIFYEN and Sub['language'] == autosub.ENGLISH):
         import autosub.notify as notify
         notify.notify(Sub['language'], Sub['releaseName'],Sub['website'].split('.')[0])
 

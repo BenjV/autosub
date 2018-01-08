@@ -207,7 +207,7 @@ def UpdateAutoSub():
 
 
 def SkipShow(Imdb,showName, season, episode):
-    if showName.upper() in autosub.SKIPSHOWUPPER.keys() or  Imdb in autosub.SKIPSHOWUPPER.keys():
+    if (showName and showName.upper() in autosub.SKIPSHOWUPPER.keys()) or  (Imdb and Imdb in autosub.SKIPSHOWUPPER.keys()):
         try:
             for ShowId, SkipList in autosub.SKIPSHOWUPPER.iteritems():
                 if ShowId == Imdb or  showName.upper() == ShowId:

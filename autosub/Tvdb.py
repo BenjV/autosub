@@ -3,7 +3,7 @@
 #
 # The Tvdb API V1 and V2 module
 #
-
+import cgi
 from logging import getLogger
 import requests
 from json import dumps
@@ -94,10 +94,11 @@ def GetTvdbId(ShowName):
     Keyword arguments:
     ShowName -- Name of the show to search the showid for
     """
+    Name = ShowName.replace("&"," ")
     if not(autosub.TVDBACCOUNTID and _checkToken()) :
         return None, None, None
     try:
-        Result = autosub.TVDBSESSION.get(autosub.TVDBAPI + '/search/series?name=' + ShowName, data=autosub.TVDBSESSION.headers['Authorization'][7:],timeout=10).json()
+        Result = autosub.TVDBSESSION.get(autosub.TVDBAPI + '/search/series?name=' + Name, data=autosub.TVDBSESSION.headers['Authorization'][7:],timeout=10).json()
     except Exception as error:
         log.error(error.message)
         return None, None, None
