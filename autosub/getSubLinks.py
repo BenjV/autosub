@@ -241,9 +241,9 @@ def _OS_Search(Wanted,SubListNL,SubListEN):
         Release['title']       = unicode(Sub.get('MovieName').split('"')[2].lstrip())
         Release['releaseName'] = unicode(Sub.get('MovieReleaseName'))
         Release['language']    = unicode(Sub.get('ISO639'))
-        if Release['language'] == u'nl':
+        if Release['language'] == autosub.DUTCH:
             SubListNL.append(Release)
-        else:
+        elif Release['language'] == autosub.ENGLISH:
             SubListEN.append(Release)
     return
 

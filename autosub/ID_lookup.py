@@ -49,5 +49,6 @@ u"SCANDAL" :                                    [u"1837576", u"Scandal (2012)"],
 u"SPARTACUS BLOOD AND SAND" :                   [u"1442449", u"Spartacus"],
 u"S W A T":                                     [u"6111130", u"S.W.A.T. (2017)"],
 u"S W A T. (2017)":                             [u"6111130", u"S.W.A.T. (2017)"],
+u"S-W-A-T-2017-":                               [u"6111130", u"S.W.A.T. (2017)"],
 u"THE O C" :                                    [u'0362359', u"The O.C."],
 u"YOUNG & HUNGRY":                              [u"2084712", u"Young & Hungry"]}

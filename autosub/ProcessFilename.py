@@ -108,6 +108,29 @@ codec_syn = {
     u'h.265' : u'h265'
     }
 
+audio_codec = [
+    u'truehd7.1',
+    u'dts-hd.ma.7.1'
+    u'dts-hd.ma.5.1'
+    u'dts-hr.ma.7.1',
+    u'dts-hr.ma.5.1',
+    u'dts-hr.ma.7.1',
+    u'dts-X.7.1',
+    u'dts-X.5.1',
+    u'hd.ma.7.1',
+    u'hd.ma5.1',
+    u'hd.ma.2.0'
+    u'hd.ma.1.0',
+    u'dd5.1',
+    u'dd+5.1',
+    u'ddp2.0',
+    u'ddp5.1',
+    u'aac7.1',
+    u'aac5.1',
+    u'aac2.0',
+    u'aac',
+    u'avchd',
+    ]
 
 # Dict with compatible release groups
 twin_rlsgrp = {
@@ -234,76 +257,74 @@ def ProcessName(Info,FullName=False):
                 return None
         else:
             show_dict['info'] = Info.lower()
-                # Search for the different info fields with the regexes.
 
-        #Pos = len(show_dict['info'])
-        Pos = 0
+                # Set the pointer to end of the info string
+        Pos = len(show_dict['info'])
+
         Match = quality.search(show_dict['info'])
         if Match:
-            show_dict['quality'] = quality_syn.get(Match.group(1),Match.group(1))
-            if Match.start(1) < Pos :
-                Pos = Match.start(1)
-            show_dict['info'] = show_dict['info'].replace(Match.group(1),'')
+            Pos = Match.start(1) if Match.start(1) < Pos else Pos
+            show_dict['quality'] = Match.group(1)
+            show_dict['info'] = show_dict['info'].replace(Match.group(1),''.ljust(Match.end(1) - Match.start(1),'.'))
         else:
             show_dict['quality'] = None
 
         Match = distro.search(show_dict['info'])
         if Match:
-            show_dict['distro'] = distro_syn.get(Match.group(1),Match.group(1))
-            if Match.start(1) < Pos :
-                Pos = Match.start(1)
-            show_dict['info'] = show_dict['info'].replace(Match.group(1),'')
+            Pos = Match.start(1) if Match.start(1) < Pos else Pos
+            show_dict['distro'] = Match.group(1)
+            show_dict['info'] = show_dict['info'].replace(Match.group(1),''.ljust(Match.end(1) - Match.start(1),'.'))
         else:
             show_dict['distro'] = None
 
         Match = source.search(show_dict['info'])
         if Match:
-            show_dict['source'] = source_syn.get(Match.group(1),Match.group(1))
-            if Match.start(1) < Pos :
-                Pos = Match.start(1)
-            show_dict['info'] = show_dict['info'].replace(Match.group(1),'')
+            Pos = Match.start(1) if Match.start(1) < Pos else Pos
+            show_dict['source'] = Match.group(1)
+            show_dict['info'] = show_dict['info'].replace(Match.group(1),''.ljust(Match.end(1) - Match.start(1),'.'))
         else:
             show_dict['source'] = None
 
         Match = codec.search(show_dict['info'])
         if Match:
-            show_dict['codec'] = codec_syn.get(Match.group(1),Match.group(1))
-            if Match.start(1) < Pos :
-                Pos = Match.start(1)
-            show_dict['info'] = show_dict['info'].replace(Match.group(1),'')
+            Pos = Match.start(1) if Match.start(1) < Pos else Pos
+            show_dict['codec'] = Match.group(1)
+            show_dict['info'] = show_dict['info'].replace(Match.group(1),''.ljust(Match.end(1) - Match.start(1),'.'))
         else:
             show_dict['codec'] = None
 
             # Remove audio identifiers
         Match = audio.search(show_dict['info'])
         if Match:
-            if Match.start(1) < Pos : Pos = Match.start(1)
             show_dict['info'] = show_dict['info'].replace(Match.group(1),'')
-        for tag in tags:
-            Found = show_dict['info'].find(tag)
-            if Found != -1:
-                show_dict['info'] = show_dict['info'].replace(tag,'')
-                if  Found < Pos:
-                    Pos = Found
-            # Remove everything (normaly the episode title) before the attributes (quality,tag, distro,source and codec)
-        show_dict['info'] = show_dict['info'][Pos:]
-        show_dict['info'] = re.sub("[][. {}]+",".",show_dict['info'])
 
-            # Check if a releasegroup name is in the info string
+            # check to see if the regex missed some audio identifier
+        for Item in audio_codec:
+            Found = show_dict['info'].find(Item)
+            if Found != -1:
+                show_dict['info'] = show_dict['info'].replace(Item,'')
+
+            # remove special taggs
+        for Item in tags:
+            Found = show_dict['info'].find(Item)
+            if Found != -1:
+                show_dict['info'] = show_dict['info'].replace(Item,'')
+
+            # Remove everything (normaly the episode title) before the attributes (quality,tag, distro,source and codec)
+        show_dict['info'] = show_dict['info'][Pos:].strip('.')
+        show_dict['info'] = '.' + show_dict['info'] + '.'
+
+            # Now check the remaining info for releasegroups
         show_dict['rlsgrplst'] = []
         try:
             End = len(show_dict['info'])
             for item in autosub.RLSGRPS:
-                    # Make sure the releasegroup is surrounded with seperators
+                    # Make sure the releasegroup is surrounded with seperators otherwise it is a partial match.
                 Pos = show_dict['info'].find(item)
-                if Pos != -1:
-                    if (Pos == 0 or show_dict['info'][Pos-1] in Seps) and (Pos + len(item) == End or show_dict['info'][Pos+len(item)] in Seps):
-                        show_dict['rlsgrplst'].append(item)
-                        if Pos > 0 and show_dict['info'][Pos-1] == '-':
-                            show_dict['info'] = show_dict['info'].replace('-' + item,'')
-                        else:
-                            show_dict['info'] = show_dict['info'].replace(item,'')
-                        End = len(show_dict['info'])
+                if Pos == -1:
+                    continue
+                elif show_dict['info'][Pos-1] in Seps and show_dict['info'][Pos+len(item)] in Seps:
+                    show_dict['rlsgrplst'].append(item)
         except Exception as error:
             log.error('Problem finding group. %s' % error)
 
@@ -320,8 +341,6 @@ def ProcessName(Info,FullName=False):
                 if rlsgrp in rlsgrps_web    : show_dict['source'] = u'web'
                 if rlsgrp in rlsgrps_hdtv   : show_dict['source'] = u'hdtv'
                 if rlsgrp in rlsgrps_xvid   : show_dict['source'] = u'xvid'
-        if not show_dict['quality'] and show_dict['source'] != u'xvid':
-            show_dict['quality'] = u'720'
         if show_dict['rlsgrplst']:
             show_dict['releasegrp'] = show_dict['rlsgrplst'][0]
         else:

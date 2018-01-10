@@ -160,6 +160,7 @@ aiden0
 aihd
 ainex
 airline
+airtv
 airwaves
 aiten
 aj
@@ -1203,6 +1204,7 @@ gcd
 gdr
 ge-ba
 geckos
+geek
 geekrg
 gehenna
 gena
@@ -2161,6 +2163,7 @@ nyu
 o-l
 o-s
 o.k-subs
+o2stk
 o4l
 o69
 oas
