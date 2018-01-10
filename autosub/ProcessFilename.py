@@ -311,7 +311,7 @@ def ProcessName(Info,FullName=False):
                 show_dict['info'] = show_dict['info'].replace(Item,'')
 
             # Remove everything (normaly the episode title) before the attributes (quality,tag, distro,source and codec)
-        show_dict['info'] = show_dict['info'][Pos:].strip('.')
+        show_dict['info'] = show_dict['info'].strip('.')
         show_dict['info'] = '.' + show_dict['info'] + '.'
 
             # Now check the remaining info for releasegroups

@@ -199,9 +199,9 @@ def _walkDir(path):
                     Search = _checkdate(Wanted['SortTime'])
                     if autosub.MINMATCHSCORE & 16   and not Wanted['source']   : Search = False
                     elif autosub.MINMATCHSCORE & 8  and not Wanted['distro']   : Search = False
-                    elif autosub.MINMATCHSCORE & 4  and not Wanted['quality']  : Search = False
-                    elif autosub.MINMATCHSCORE & 2  and not Wanted['codec']    : Search = False
-                    elif autosub.MINMATCHSCORE & 1  and not Wanted['rlsgrplst']: Search = False
+                    elif autosub.MINMATCHSCORE & 4  and not Wanted['rlsgrplst']: Search = False
+                    elif autosub.MINMATCHSCORE & 2  and not Wanted['quality']  : Search = False
+                    elif autosub.MINMATCHSCORE & 1  and not Wanted['codec']    : Search = False
                     Wanted['timestamp'] = unicode(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(Wanted['SortTime'])))
                     Wanted['langs'] = langs
                     Wanted['NLext'] = NLext
