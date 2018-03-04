@@ -2,27 +2,11 @@
 # History:                                                                                                      #
 # First developed by zyronix to work with the website "Bierdopje"                                               #
 # After the ending of Bierdopje collincab took over and change it to use subtitleseeker instead of Bierdopje.   #
-# Donny stepped in a added the bootstrap user interface an the support for mobil devices and notifications.     #
+# Donny stepped in a added the bootstrap user interface an the support for mobile devices and notifications.    #
 # Later collincab added support for the website Addic7ed                                                        #
 # First collingcab and later Donny abbanded the project and Benj took over the support.                         #
 # He added support for the Opensubtitles API, the TVDB API v2 and numerous other options                        #
 #################################################################################################################
-import sys,os
-# Root path
-base_path = os.path.dirname(os.path.abspath(__file__))
-
-# Insert local directories into path
-sys.path.insert(0, os.path.join(base_path, 'library'))
-
-from getopt import getopt
-from time import sleep
-import locale,json
-import platform
-import autosub
-from autosub.AutoSub import start
-import cherrypy
-
-
 
 help_message = '''
 Usage:
@@ -45,32 +29,104 @@ class Usage(Exception):
     def __init__(self, msg):
         self.msg = msg
 
-def main(argv=None):
-    Update = False
-    if argv is None:
-        argv = sys.argv
+def signal_handler(signum, frame):
+    import autosub.Scheduler
+    autosub.Scheduler.stop(signum)
+
+def _daemon():
+    from os import fork,chdir,setsid,umask
+    from sys import exit,stdin
+
     try:
-        opts, args= getopt(argv[1:], "hc:dlu", ["help","config=","daemon","nolaunch","updated="])
+        if fork() > 0: exit(0)
+    except OSError:
+        exit(1)
+    chdir("/")
+    setsid()
+    umask(0)
+    try:
+        if fork() > 0: exit(0)
+    except OSError:
+        exit(1)
+    stdin.close()
+
+
+def main(argv=None):
+    import sys
+    from os import getcwd
+    #version_info,platform
+    from getopt import getopt
+    
+    if sys.version_info[0] != 2 or sys.version_info[1] < 7:
+        raise SystemExit('Unsupported python version (should be 2.7.xx)')
+    try:
+        opts,args = getopt(sys.argv[1:], "hc:dlu", ["help","config=","daemon","nolaunch"])
     except Exception as error:
-        print error
-        os._exit(1)
+        raise SystemExit(error.message)
     # option processing
+    LaunchBrowser = True
+    Cwd = getcwd()
     for option, value in opts:
+        print value
         if option in ("-h", "--help"):
             raise Usage(help_message)
-        if option in ("-c", "--config"):
-            autosub.CONFIGFILE = value
-        if option in ("-l", "--nolaunch"):
-            autosub.LAUNCHBROWSER = False
         if option in ("-d", "--daemon"):
             if sys.platform == "win32":
-                print "ERROR: No support for daemon mode in Windows"
-                # TODO: Service support for Windows
+                print "ERROR: No support for daemon mode in Windows. Use pythonw instead."
             else:
-                autosub.DAEMON = True
-        if option in ("-u"):
-            autosub.UPDATED = True
-    autosub.AutoSub.start()
+                _daemon()
+        if option in ("-c", "--config"):
+            WriteConf = value
+        if option in ("-l", "--nolaunch"):
+            LaunchBrowser = False
+
+        # Here we do the import no need to do it before if we deamonizing
+    import autosub
+    import autosub.Scheduler
+    from locale import setlocale,getpreferredencoding,LC_ALL
+    from os import getcwd, getpid, path,chdir,remove
+    from signal import signal, SIGTERM
+    from time import time
+    from distutils.dir_util import remove_tree
+    try:
+        setlocale(LC_ALL, '')
+        autosub.SYSENCODING = getpreferredencoding()
+    except:
+        pass
+    # for OSes that are poorly configured, like synology & slackware
+    if not autosub.SYSENCODING or autosub.SYSENCODING in ('ANSI_X3.4-1968', 'US-ASCII', 'ASCII'):
+        autosub.SYSENCODING = 'UTF-8'
+        # if we deamonise we lost the working directory so we set it back
+    chdir(Cwd)
+    autosub.PATH = unicode(Cwd, autosub.SYSENCODING)
+        # First we write the pidfile to the autosub folder
+    try:
+        autosub.PID = str(getpid())
+        with open(path.join(autosub.PATH,'autosub.pid') , "w") as fp:
+            fp.write(autosub.PID + '\n')
+    except Exception as error:
+        raise SystemExit(error.message)
+        # remove old folders and files
+    Items = ['interface/media','autosub/AutoSub.py','autosub/AutoSub.pyc']
+    for Item in Items:
+        Item = path.normpath(path.join(autosub.PATH,Item))
+        try:
+            remove(Item)
+        except OSError:
+            if path.exists(Item):
+                try:
+                    remove_tree(Item)
+                except Exception as error:
+                    log.error(error.message)
+        except:
+            pass
+
+    autosub.LASTRUN = autosub.STARTTIME = time() 
+    autosub.LAUNCHBROWSER = LaunchBrowser
+        # setup de signal handler for Termination with a SIGTERM signal
+    signal(SIGTERM, signal_handler)
+        # Here we start the scheduler to periodically run the checksub routine
+    autosub.Scheduler.start()
 
 if __name__ == "__main__":
-    sys.exit(main())
+    exit(main())

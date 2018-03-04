@@ -4,7 +4,7 @@
 import logging
 import time,sys,re,types
 from HTMLParser import HTMLParser
-import requests
+import library.requests as requests
 import autosub
 from operator import itemgetter
 from autosub.ProcessFilename import ProcessName
@@ -62,17 +62,8 @@ def _scoreMatch(Release, Wanted):
 
 def _SS_Search(Wanted, sourceWebsites, SubListNL, SubListEN):
         # Get the scored list for all SubtitleSeeker hits
-    SubseekerSession = requests.session()
-    try:
-        if not SubseekerSession.head('http://www.subtitleseeker.com',timeout=10).ok:
-            log.error('SubTitleSeeker website is not reachable')
-            return
-    except Exception as error:
-        log.error('SubTitleSeeker website is not reachable')
-        return
 
     log.debug('Search started for %s on sites: %s ' % (Wanted['ImdbId'],sourceWebsites))
-
         # Compose the search URL for the subtitle and language we want.
     if len(Wanted['langs']) == 2 :
         langs = 'english,dutch'
@@ -81,14 +72,22 @@ def _SS_Search(Wanted, sourceWebsites, SubListNL, SubListEN):
     else:
         langs = 'english'
     SearchUrl = "%s&imdb=%s&season=%s&episode=%s&language=%s&return_type=json" % (autosub.SUBSEEKERAPI, Wanted['ImdbId'], Wanted['season'], Wanted['episode'], langs)
-
-    # Let Subtitle seeker do a search voor the wanted sub
+        # Check to see if Subtitle Seeker is available
     try:
-        Results = SubseekerSession.get(SearchUrl,timeout=10).json()
-        SubseekerSession.close()
+        if not autosub.SS_SESSION.head('http://www.subtitleseeker.com',timeout=7).ok:
+            log.error('SubTitleSeeker website is not reachable')
+            return
     except Exception as error:
-        log.error("getSubLink: The SubtitleSeeker server returned an error. Message is %s" % error)
+        log.debug(error.message)
+        log.error('SubTitleSeeker website is not reachable')
         return
+        # Let Subtitle seeker do a search voor the wanted sub
+    try:
+        Results = autosub.SS_SESSION.get(SearchUrl,timeout=10).json()
+    except Exception as error:
+        log.error(error.message)
+        return
+
         # Check to see whether we have results or not
         # the json formatting from subtitleseeker is faulty in case of an error so we have to check the type insted of reading the error
     if not type(Results['results']) is types.DictType:
@@ -100,8 +99,10 @@ def _SS_Search(Wanted, sourceWebsites, SubListNL, SubListEN):
         # Score the subs and split the result in the two languages(if needed)
         # Only subs with high enough score get processed.
     for Item in Results['results']['items']:
-        if Item['site'][:-4].lower() in sourceWebsites:
-            ReleaseName = HTMLParser().unescape(Item['release']) if Item.get('release') else None
+        if Item['site'][:-4] and Item['site'][:-4].lower() in sourceWebsites:
+            if not Item.get('release'):
+                continue
+            ReleaseName = HTMLParser().unescape(Item['release'])
             Release = ProcessName(ReleaseName)
             if not Release or not _scoreMatch(Release, Wanted):
                 continue
@@ -145,8 +146,7 @@ def _A7_Search(Wanted,SubListNL,SubListEN):
         Subs = re.findall('<tr class="epeven completed">(.*?)</tr>', SubOverviewPage, re.S)
     except Exception as error:
         return
-
-    log.debug('%d subs found, now checking them.' % len(Subs))
+    log.debug('Subs found, now checking them.')
     for SubLine in Subs:
             # Scraper information:
             # 0 = Season number
@@ -271,6 +271,7 @@ def getSubLinks(Wanted):
         # If podnapisi or subscene is choosen call subtitleseeker
     if len(sourceWebsites) > 0 and not autosub.SEARCHSTOP:
         _SS_Search(Wanted, sourceWebsites, SubListNL, SubListEN)
+
         # Use Addic7ed if selected
         # and check if Addic7ed download limit has been reached
     if Wanted['A7Id'] and autosub.ADDIC7EDLOGGED_IN and not autosub.SEARCHSTOP:
@@ -278,9 +279,11 @@ def getSubLinks(Wanted):
             _A7_Search(Wanted, SubListNL, SubListEN)
         else:
             log.debug("You have reached your 24h limit of %s  Addic7ed downloads!" % autosub.DOWNLOADS_A7MAX)
+
         # Use OpenSubtitles if selected
     if autosub.OPENSUBTITLES and autosub.OPENSUBTITLESTOKEN and Wanted['ImdbId'] and not autosub.SEARCHSTOP:
         _OS_Search(Wanted,SubListNL,SubListEN)
+
         # Sort the sublist for dutch subs
     if SubListNL:
         SubListNL = sorted(SubListNL, key=itemgetter('score', 'website'), reverse=True)

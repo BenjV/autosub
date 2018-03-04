@@ -6,62 +6,55 @@ log = logging.getLogger('thelogger')
 
 
 def OS_Login(opensubtitlesusername=None,opensubtitlespasswd=None):
-        # Expose to test login
-        # When fields are empty it will check the config file
-    if opensubtitlesusername and opensubtitlespasswd:
-        try:
-            Result = autosub.OPENSUBTITLESSERVER.LogIn(opensubtitlesusername, opensubtitlespasswd, 'dut', autosub.OPENSUBTITLESUSERAGENT)
-        except:
-            log.debug('Login with user %s failed.'  % opensubtitlesusername)
-            return False
-        if opensubtitlesusername or opensubtitlespasswd:
-            log.info('Test Login with User %s. Result is: %s' %  (opensubtitlesusername,Result['status']))
+        # Expose to test login if all fields are filled
+        # Test Login are only possible if not Logged in already (uer interface does not allow it)
+    if opensubtitlesusername or opensubtitlespasswd:
+        if opensubtitlesusername and opensubtitlespasswd:
+            Test = True
         else:
-            log.debug('OS Login with User %s. Result is: %s' %  (opensubtitlesusername,Result['status']))
-        if Result['status'] == '200 OK':
+            log.info('Test login attempt without enough credentials.')
+            return False
+    else:
+        opensubtitlesusername = autosub.OPENSUBTITLESUSER
+        opensubtitlespasswd   = autosub.OPENSUBTITLESPASSWD
+        Test = False
+
+    try:
+        Result = autosub.OPENSUBTITLESSERVER.LogIn(opensubtitlesusername, opensubtitlespasswd, 'dut', autosub.OPENSUBTITLESUSERAGENT)
+    except Exception as error:
+        log.error('Login with user %s failed. %s'  % (opensubtitlesusername,error.message))
+        autosub.OPENSUBTITLESTOKEN = None
+        return False
+    if Result['status'] == '200 OK':
+        if Test:
+            log.info('OS Test Login with User %s. Result is: %s' %  (opensubtitlesusername,Result['status']))
+            OS_logout(Result['token'])
+            return True
+        else:
             autosub.OPENSUBTITLESTIME = time()
             autosub.OPENSUBTITLESTOKEN = Result['token']
+            log.debug('OS Login with User %s. Result is: %s' %  (opensubtitlesusername,Result['status']))
             return True
-        else:
-            autosub.OPENSUBTITLESTOKEN = None
-            return False
-        return True
     else:
-        if not autosub.OPENSUBTITLESUSER or not autosub.OPENSUBTITLESPASSWD:
-            return False
-        if not autosub.OPENSUBTITLESTOKEN:
-            try:
-                Result = autosub.OPENSUBTITLESSERVER.LogIn(autosub.OPENSUBTITLESUSER, autosub.OPENSUBTITLESPASSWD, 'dut', autosub.OPENSUBTITLESUSERAGENT)
-            except:
-                log.debug('Login with user %s failed.'  % autosub.OPENSUBTITLESUSER)
-                return False
-            log.info('Logged in as %s.' % autosub.OPENSUBTITLESUSER)
-            if Result['status'] == '200 OK':
-                autosub.OPENSUBTITLESTIME = time()
-                autosub.OPENSUBTITLESTOKEN = Result['token']
-            else:
-                log.debug('Could not establish a Session with the opensubtitle API server.')        
-                autosub.OPENSUBTITLESTOKEN = None
-                return False
-        else:
-            log.debug('Already Logged in with user %s'  % autosub.OPENSUBTITLESUSER)
-            return True
+        autosub.OPENSUBTITLESTOKEN = None
+        return False
 
-def OS_Logout():
-    if autosub.OPENSUBTITLESTOKEN:  
+
+def OS_Logout(Token=None):
+    if not Token:
+        Token = autosub.OPENSUBTITLESTOKEN
+    autosub.OPENSUBTITLESTOKEN = None
+    if Token:  
         try:
-            Result = autosub.OPENSUBTITLESSERVER.LogOut(autosub.OPENSUBTITLESTOKEN)
+            Result = autosub.OPENSUBTITLESSERVER.LogOut(Token)
         except:
-            autosub.OPENSUBTITLESTOKEN = None
-            log.error('OS logout with User %s failed. Probably a lost connection' % autosub.OPENSUBTITLESUSER)
+            log.error('OS logout failed. Probably a lost connection')
             return False
         if Result['status'] == '200 OK':
-            autosub.OPENSUBTITLESTOKEN = None
             log.debug('OpenSubtitles logged out.')
             return True
         else:
-            autosub.OPENSUBTITLESTOKEN = None
-            log.debug('Os logout with User %s failed. Message is: %s' %  (autosub.OPENSUBTITLESUSER, Result['status']))
+            log.error('Os logout failed. Message is: %s' %  (autosub.OPENSUBTITLESUSER, Result['status']))
             return False
     else:
         return True

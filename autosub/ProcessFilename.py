@@ -20,51 +20,14 @@ Seps ='[][_. {}-]'
 show_regex = [re.compile("^((?P<show>.+?){0}+)?s(?P<season>\d+){0}*e(?P<episode>\d+){0}+(?P<info>.+)*".format(Seps), re.I|re.U),
               re.compile("^((?P<show>.+?){0}+)?(?P<season>\d+)*x(?P<episode>\d+){0}*(?P<info>.+)*".format(Seps), re.I|re.U)]
 
-source = re.compile("(?:^|{0})(ahdtv|hdtv|web[.\s_-]?dl|blu[.\s_-]?ray|brrip|dvdrip|web[-_\s]?rip|hddvd|dvd|bdrip|web)(?:{0}|$)".format(Seps), re.U|re.I)
+source = re.compile("(?:^|{0})(ahdtv|hd\.tv|hdtv|web[.\s_-]?dl|blu[.\s_-]?ray|brrip|dvdrip|web[-_\s]?rip|hddvd|dvd|bdrip|web)(?:{0}|$)".format(Seps), re.U|re.I)
 distro = re.compile("(?:^|{0})(amazon|amzn|netflix|nf|hulu|stz|starz|hbo|syfy|brav[o]?|usan|byu|byutv)(?:{0}|$)".format(Seps), re.U|re.I)
 
-quality = re.compile("(?:^|{0}){0}*(4K|uhd|2160[p]*|1080[ip]*|720[ip]*|hd|sd)(?:{0}|$)".format(Seps), re.U|re.I)
+quality = re.compile("(?:^|{0}){0}*(4K|uhd|2160[p]*|1080[ip]*|720[ip]*)(?:{0}|$)".format(Seps), re.U|re.I)
 codec =   re.compile("(?:^|{0})([xh]+264|[xh]+.264|[xh]+265|[xh]+.265|xvid|dvix)(?:{0}|$)".format(Seps), re.U|re.I)
 
 audio = re.compile("(?:^|{0})([da][dd][acd][cp3]?[ 521]*[ .]?[o01]?|dts-hd[ .]?[ma]*|hdts|dts)(?:{0}|$)".format(Seps),re.U|re.I)
 
-#List of formal tags and other known words that can appear but have no meaning for autosub
-tags = [
-    '10bit',
-    'alternative.cut',
-    'buymore',
-    'colorized',
-    'convert',
-    'dc',
-    'dirfix',
-    'dubbed',
-    'english',
-    'extended',
-    'final',
-    'hevc',
-    'internal',
-    'nfofix',
-    'nzbgeek',
-    'oar',
-    'om',
-    'ppv',
-    'pre',
-    'proper',
-    'readnfo',
-    'real',
-    'remastered',
-    'repack',
-    'rerip',
-    'samplefix',
-    'scrambled',
-    'source.sample',
-    'subbed',
-    'uncensored',
-    'uncut',
-    'unrated',
-    'west.feed',
-    'ws'
-    ]
 
 # Dictionaries containing as keys, the nonstandard naming. Followed by there standard naming.
 # Very important!!! Should be unicode and all LOWERCASE!!!
@@ -78,13 +41,13 @@ distro_syn = {
     }
 
 source_syn = {
-    u'ahdtv'  : u'hdtv',
-    u'dvdrip' : u'dvdrip',
+    u'hd.tv'  : u'hdtv',
     u'dvd'    : u'dvdrip',
     u'bdrip'  : u'bluray',
-    u'blu-ray': u'bluray',
     u'brrip'  : u'bluray',
-    u'webdl'  : u'web-dl'
+    u'webdl'  : u'web-dl',
+    u'web'    : u'web',
+    u'webrip' : u'webrip'
     }
 
 quality_syn = {
@@ -130,6 +93,43 @@ audio_codec = [
     u'aac2.0',
     u'aac',
     u'avchd',
+    ]
+#List of formal tags and other known words that can appear but have no meaning for autosub
+tags = [
+    '10bit',
+    'alternative.cut',
+    'buymore',
+    'colorized',
+    'convert',
+    'dc',
+    'dirfix',
+    'dubbed',
+    'english',
+    'extended',
+    'final',
+    'hevc',
+    'internal',
+    'nfofix',
+    'nzbgeek',
+    'oar',
+    'om',
+    'ppv',
+    'pre',
+    'proper',
+    'readnfo',
+    'real',
+    'remastered',
+    'repack',
+    'rerip',
+    'samplefix',
+    'scrambled',
+    'source.sample',
+    'subbed',
+    'uncensored',
+    'uncut',
+    'unrated',
+    'west.feed',
+    'ws'
     ]
 
 # Dict with compatible release groups
@@ -241,8 +241,9 @@ def _cleanUp(series_name):
     except:
         log.error("Cleanup problem of: %s" % serie_name)
         return None
-
 def ProcessName(Info,FullName=False):
+    source_syn['web']    = autosub.WEB
+    source_syn['webrip'] = autosub.WEBRIP
     try:
         show_dict = {}
         if FullName:
@@ -264,7 +265,7 @@ def ProcessName(Info,FullName=False):
         Match = quality.search(show_dict['info'])
         if Match:
             Pos = Match.start(1) if Match.start(1) < Pos else Pos
-            show_dict['quality'] = Match.group(1)
+            show_dict['quality'] = quality_syn.get(Match.group(1),Match.group(1))
             show_dict['info'] = show_dict['info'].replace(Match.group(1),''.ljust(Match.end(1) - Match.start(1),'.'))
         else:
             show_dict['quality'] = None
@@ -272,7 +273,7 @@ def ProcessName(Info,FullName=False):
         Match = distro.search(show_dict['info'])
         if Match:
             Pos = Match.start(1) if Match.start(1) < Pos else Pos
-            show_dict['distro'] = Match.group(1)
+            show_dict['distro'] = distro_syn.get(Match.group(1),Match.group(1))
             show_dict['info'] = show_dict['info'].replace(Match.group(1),''.ljust(Match.end(1) - Match.start(1),'.'))
         else:
             show_dict['distro'] = None
@@ -280,7 +281,7 @@ def ProcessName(Info,FullName=False):
         Match = source.search(show_dict['info'])
         if Match:
             Pos = Match.start(1) if Match.start(1) < Pos else Pos
-            show_dict['source'] = Match.group(1)
+            show_dict['source'] = source_syn.get(Match.group(1),Match.group(1))
             show_dict['info'] = show_dict['info'].replace(Match.group(1),''.ljust(Match.end(1) - Match.start(1),'.'))
         else:
             show_dict['source'] = None
@@ -288,7 +289,7 @@ def ProcessName(Info,FullName=False):
         Match = codec.search(show_dict['info'])
         if Match:
             Pos = Match.start(1) if Match.start(1) < Pos else Pos
-            show_dict['codec'] = Match.group(1)
+            show_dict['codec'] = codec_syn.get(Match.group(1),Match.group(1))
             show_dict['info'] = show_dict['info'].replace(Match.group(1),''.ljust(Match.end(1) - Match.start(1),'.'))
         else:
             show_dict['codec'] = None
@@ -311,7 +312,10 @@ def ProcessName(Info,FullName=False):
                 show_dict['info'] = show_dict['info'].replace(Item,'')
 
             # Remove everything (normaly the episode title) before the attributes (quality,tag, distro,source and codec)
+        show_dict['info'] = show_dict['info'][Pos:]
+            # Remove all the replacement dots.
         show_dict['info'] = show_dict['info'].strip('.')
+            # add seperator dots at begin and end
         show_dict['info'] = '.' + show_dict['info'] + '.'
 
             # Now check the remaining info for releasegroups

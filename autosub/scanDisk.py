@@ -6,17 +6,29 @@ import os
 import platform
 import re
 import time
-from datetime import datetime
-import unicodedata
-from requests.packages import chardet
-from collections import deque
+from library.requests.packages import chardet
 # Autosub specific modules
 import autosub
-from autosub.Helpers import SkipShow, CleanName
-from Tvdb import GetShowName,GetTvdbId
+from autosub.Helpers import SkipShow
+from Tvdb import GetTvdbId
 from ProcessFilename import ProcessName
 # Settings
 log = logging.getLogger('thelogger')
+
+_suffix = [re.compile('(.+)\s+\(?(\d{4})\)?(?:$)', re.I|re.U),
+           re.compile('(.+)\s+\(?(us)\)?(?:$)', re.I|re.U),
+           re.compile('(.+)\s+\(?(uk)\)?(?:$)', re.I|re.U)]
+
+def _cleanName(title):
+    for reg in _suffix:
+        try:
+            m = re.match(reg, title)
+        except TypeError:
+            log.error("Error while processing: %s" % title)
+            return title, None
+        if m:
+            return m.group(1), ' (' + m.group(2) + ')'
+    return title, None
 
 _ignore = re.compile('_failed_|_unpack_|@eaDir|@.*thumb',re.I)
 
@@ -46,15 +58,14 @@ def _decode(Name):
 def _getShowid(ShowName):
     ImdbId = AddicId = AddicUserId= TvdbId = ImdbNameMappingId = TvdbShowName = None
     UpdateCache = False
-    PartName, Suffix = CleanName(ShowName)
+    PartName, Suffix = _cleanName(ShowName)
     TvdbShowName = PartName + Suffix.upper() if Suffix else ShowName
     UpdateCache = False
-    log.debug('Trying to get info for %s' %ShowName)
                 # First see if the ShowName is in the mappings
     Name = u''
     if ShowName.upper() in autosub.NAMEMAPPING:
         ImdbNameMappingId, Name = autosub.NAMEMAPPING[ShowName.upper()]
-    elif TvdbShowName.upper() in autosub.NAMEMAPPING:
+    elif TvdbShowName and TvdbShowName.upper() in autosub.NAMEMAPPING:
         ImdbNameMappingId, Name = autosub.NAMEMAPPING[TvdbShowName.upper()]
     if Name: TvdbShowName = Name
     if not ImdbNameMappingId:
@@ -77,30 +88,26 @@ def _getShowid(ShowName):
         autosub.IDCACHE.setId(TvdbShowName, ImdbId, AddicId, TvdbId)
     if ImdbNameMappingId: ImdbId = ImdbNameMappingId
     if not AddicId: AddicId = 0
-    log.debug("Id's are: IMDB: %s, Addic7ed: %d, ShowName: %s, TvdbName: %s" %(ImdbId,AddicId,ShowName,TvdbShowName))
+    log.debug("IMDB: %s, Addic7ed: %d, ShowName: %s, TvdbName: %s" %(ImdbId,AddicId,ShowName,TvdbShowName))
     return ImdbId, AddicId, TvdbId, TvdbShowName
 
 
 def _checkdate(FileTime):
         # check how old the video is and apply old video rules
-        # Filedate is a list of year(yyyy), weeknum(1-52), daynum(1-7)
-    FileDate = datetime.fromtimestamp(FileTime).isocalendar()
-    Now = time.time()
-    ToDay = datetime.fromtimestamp(Now).isocalendar()
-    Diff = Now - FileTime
-    if Diff < 2419200: # untill 4 weeks: always
-        return True
-    elif Diff < 9676800: # between 4 weeks and 16 weeks on one day a week
-        if FileDate[2] == ToDay[2]:
-            return True
-        else:
-            return False
-    elif FileDate[1] & 4 and FileDate[2] == ToDay[2]: # above 16 weeks once per 4 weeks on one day
-        return True
-    else:
-        return False 
+        # Calculate the difference in days.
+    Diff = int(time.time() - FileTime)/25200
+    if Diff < 28:       # untill 4 weeks: always
+        return 0
+    else:               # between 4 and 16 weeks every week, above 16 weeks once every 4 weeks
+        Factor = 7 if Diff < 112 else 28
+        Rest = Diff % Factor
+        Diff = Factor - Rest + autosub.SEARCHINTERVAL/86400
+    if  Diff % Factor == autosub.SEARCHINTERVAL/86400:
+        return 0
+    return Factor - Diff % Factor + autosub.SEARCHINTERVAL/86400
 
-def _walkDir(path):
+def _walkDir(path,Forced=None):
+    SearchCount = 0
     SkipListNL    = autosub.SKIPSTRINGNL.split(",")  if len(autosub.SKIPSTRINGNL) > 0  else []
     SkipListEN    = autosub.SKIPSTRINGEN.split(",")  if len(autosub.SKIPSTRINGEN) > 0  else []
     NLext = u'.' + autosub.SUBNL  + u'.srt' if autosub.SUBNL  else u'.srt'
@@ -148,13 +155,13 @@ def _walkDir(path):
             if not filename: continue
             if autosub.SEARCHSTOP:
                 log.info('Forced Stop by user')
-                return
+                return 0
             try:
                 Name,ext = os.path.splitext(filename)
+                ext = ext.lower()
                 if ext[1:] in ('avi', 'mkv', 'wmv', 'ts', 'mp4'):
                     if re.search('sample', filename, re.I): continue
                         # Check which languages we want to download based on user settings.
-                    log.debug('Processing file: %s' % filename)
                     langs = []
                         # Do the dutch subs
                     if autosub.DOWNLOADDUTCH and not SkipThisFolderNL:
@@ -162,11 +169,11 @@ def _walkDir(path):
                         for SkipItem in SkipListNL:
                             if not SkipItem: continue 
                             if re.search(SkipItem, filename,re.I|re.U):
-                                log.info("%s Dutch sub skipped by skiprules" % filename)
+                                log.debug("%s Dutch sub skipped by skiprules" % filename)
                                 Skipped = True
                                 break
                         if Skipped:
-                            log.info("%s found in %s so skipped for Dutch subs" % (SkipItem, filename))
+                            log.debug("%s found in %s so skipped for Dutch subs" % (SkipItem, filename))
                         elif os.path.exists(os.path.join(dirname, Name + NLext)):
                             Skipped = True
                             log.debug("%s skipped because the Dutch subtitle already exists" % filename) 
@@ -178,11 +185,11 @@ def _walkDir(path):
                         for SkipItem in SkipListEN:
                             if not SkipItem: continue 
                             if re.search(SkipItem, filename, re.I|re.U):
-                                log.info("%s English sub skipped by skiprules" % filename)
+                                log.debug("%s English sub skipped by skiprules" % filename)
                                 Skipped = True
                                 break
                         if Skipped:
-                            log.info("%s found in %s so skipped for English subs" % (SkipItem, filename))
+                            log.debug("%s found in %s so skipped for English subs" % (SkipItem, filename))
                         elif os.path.exists(os.path.join(dirname, Name + ENext)):
                             Skipped = True
                             log.debug("scanDir: %s skipped because the English subtitle already exists" % filename) 
@@ -192,16 +199,18 @@ def _walkDir(path):
                         continue
                     Wanted = ProcessName(Name,True)
                     if not Wanted:
-                        log.info('Not enough info in the filename: %s so skipping it' % filename)
+                        log.debug('Not enough info in the filename: %s so skipping it' % filename)
                         continue
                     FileSpecs = os.path.join(dirname, filename)
                     Wanted['SortTime'] = os.path.getmtime(FileSpecs)
-                    Search = _checkdate(Wanted['SortTime'])
-                    if autosub.MINMATCHSCORE & 16   and not Wanted['source']   : Search = False
-                    elif autosub.MINMATCHSCORE & 8  and not Wanted['distro']   : Search = False
-                    elif autosub.MINMATCHSCORE & 4  and not Wanted['rlsgrplst']: Search = False
-                    elif autosub.MINMATCHSCORE & 2  and not Wanted['quality']  : Search = False
-                    elif autosub.MINMATCHSCORE & 1  and not Wanted['codec']    : Search = False
+                    Wanted['Remain'] = _checkdate(Wanted['SortTime'])
+                    MinMatch = True
+                    if   autosub.MINMATCHSCORE & 16 and not Wanted['source']   : MinMatch = False
+                    elif autosub.MINMATCHSCORE & 8  and not Wanted['distro']   : MinMatch = False
+                    elif autosub.MINMATCHSCORE & 4  and not Wanted['rlsgrplst']: MinMatch = False
+                    elif autosub.MINMATCHSCORE & 2  and not Wanted['quality']  : MinMatch = False
+                    elif autosub.MINMATCHSCORE & 1  and not Wanted['codec']    : MinMatch = False
+                    Search = True if (Forced or Wanted['Remain'] == 0) and MinMatch else False
                     Wanted['timestamp'] = unicode(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(Wanted['SortTime'])))
                     Wanted['langs'] = langs
                     Wanted['NLext'] = NLext
@@ -210,41 +219,43 @@ def _walkDir(path):
                     Wanted['container'] = ext
                     Wanted['folder'] = dirname
                     Wanted['Search'] = Search
+                    Wanted['nomatch'] = not MinMatch
+                    if Search: SearchCount += 1
                     Wanted['ImdbId'],Wanted['A7Id'], Wanted['TvdbId'], Wanted['show'] = _getShowid(Wanted['show'])
                     if not Wanted['ImdbId']:
                         continue
                     if SkipShow(Wanted['ImdbId'],Wanted['show'], Wanted['season'], Wanted['episode']):
                         log.debug("SKIPPED %s by Skipshow rules." % Wanted['file'])
                         continue
-                    log.info("%s WANTED FOR: %s" % (langs, filename))
+                    log.info("%s wanted for: %s" % (langs, filename))
                     autosub.WANTEDQUEUE.append(Wanted)
                     time.sleep(0.01)
             except Exception as error:
                 log.error('Problem scanning file %s. Error is: %s' %(filename, error.message))
     autosub.WANTEDQUEUE.sort(key=lambda k:k['SortTime'],reverse=True )
-    return
+    return SearchCount
 
 
-def ScanDisk():
+def ScanDisk(Forced=None):
     """
     Scan the specified path for episodes without Dutch or (if wanted) English subtitles.
     If found add these Dutch or English subtitles to the WANTEDQUEUE.
     """
+    Count = 0
     log.info("Starting round of local disk checking at %s" % autosub.SERIESPATH)
     if autosub.SERIESPATH == u'':
         log.info('No seriepath defined.')
-        return True
+        return 0
     seriespaths = [x.strip() for x in autosub.SERIESPATH.split(',')]
     for seriespath in seriespaths:
-
-
         if not os.path.exists(seriespath):
-            log.error("Serie Search path %s does not exist, aborting..." % seriespath)
+            log.error("Serie Search path %s does not exist, aborting search..." % seriespath)
             continue
         try:
-            _walkDir(seriespath)
+            Count += _walkDir(seriespath,Forced)
         except Exception as error:
-            log.error('Something went wrong scanning the folders. Message is: %s' % error)
-            return False
-    log.info("Finished round of local disk checking")
-    return
+            log.error(error.message)
+            return 0
+    Found = len(autosub.WANTEDQUEUE)
+    log.info("Found %d video(s) will search for %d sub(s)" % (Found,Count))
+    return Count

@@ -1,5 +1,5 @@
 #import autosub
-
+<br>
 <div class="form-group">&nbsp;
 	<label class="col-sm-2 text-right">Website</label>
 	<label class="col-sm-1">&nbsp;</label>  
@@ -30,7 +30,7 @@
 </div>
 <div class="form-group">
 	<label class="col-sm-2 control-label">Addic7ed 
-		<a data-toggle="tooltip" data-html="true" title="Tick to use this website. <br><br>Login Test is disabled when search is busy">
+		<a data-toggle="tooltip" data-html="true" title="Tick to use this website.<br><br>Login Test is disabled when search is busy">
 			<span class="glyphicon glyphicon-info-sign"></span>
 		</a>
 	</label>
@@ -38,54 +38,65 @@
 		#if $autosub.ADDIC7ED:
 			<div class="checkbox-inline"><input type="checkbox" name="addic7ed" checked value="Yes"></div>
 		#else:
-			<div class="checkbox"><input type="checkbox" name="addic7ed" value="Yes"></div>
+			<div class="checkbox-inline"><input type="checkbox" name="addic7ed" value="Yes"></div>
 		#end if
 	</div>
-	<div class="col-sm-2 form-group-sm"><input type="text" class="form-control" id ="addic7eduser" name="addic7eduser" value="$autosub.ADDIC7EDUSER" placeholder="Username"></div>
-	<div class="col-sm-2 form-group-sm"><input type="password" class="form-control" id = addic7edpasswd name="addic7edpasswd" value="$autosub.ADDIC7EDPASSWD" placeholder="Password"></div>
+	<div class="col-sm-2 form-group-sm">
+    <input type="text" class="form-control" id ="addic7eduser" name="addic7eduser" value="$autosub.ADDIC7EDUSER" placeholder="Username"/>
+  </div>
+	<div class="col-sm-2 form-group-sm">
+    <input type="password" class="form-control" id = addic7edpasswd name="addic7edpasswd" value="$autosub.ADDIC7EDPASSWD" placeholder="Password"/>
+  </div>
 	<span id="testAddic7ed-result"></span>
   #if $autosub.SEARCHBUSY:
-		<div  align="center"class="col-sm-2 form-group-sm"><input type="button" class="btn btn-default" value="Test" id="testAddic7ed" disabled></div>
+		<div  align="center"class="col-sm-2 form-group-sm">
+      <input type="button" class="btn btn-default" value="Test" id="testAddic7ed" disabled/>
+    </div>
 	#else:
-		<div  align="center"class="col-sm-2 form-group-sm"><input type="button" data-toggle="tooltip" title="Login Test" class="btn btn-default" value="Test" id="testAddic7ed"></div>
+		<div  align="center"class="col-sm-2 form-group-sm">
+      <input type="button" data-toggle="tooltip" title="Login Test" class="btn btn-default" value="Test" id="testAddic7ed"/>
+    </div>
 	#end if
 </div>
 
 <div class="form-group">
 	<label class="col-sm-2 control-label">Opensubtitles 
-		<a data-toggle="tooltip" data-html="true" title="Tick to use this website. <br><br>Login Test is disabled when search is busy">
+		<a data-toggle="tooltip" data-html="true" title="Tick to use this website.<br><br>Login Test is disabled when search is busy">
 			<span class="glyphicon glyphicon-info-sign"></span>
 		</a>
 	</label>
 	<div class="col-sm-1">
     #if $autosub.OPENSUBTITLES:
-      <div class="checkbox-inline"><input type="checkbox" name="opensubtitles" checked value="Yes"></div>
+      <div class="checkbox-inline"><input type="checkbox" name="opensubtitles" checked value="Yes"/></div>
     #else:
-      <div class="checkbox"><input type="checkbox" name="opensubtitles" value="Yes"></div>
+      <div class="checkbox-inline"><input type="checkbox" name="opensubtitles" value="Yes"/></div>
     #end if
 	</div>
-	<div class="col-sm-2 form-group-sm"><input type="text" class="form-control" id="opensubtitlesuser" name="opensubtitlesuser" value="$autosub.OPENSUBTITLESUSER" placeholder="Username"></div>
-	<div class="col-sm-2 form-group-sm"><input type="password" class="form-control" id="opensubtitlespasswd" name="opensubtitlespasswd" value="$autosub.OPENSUBTITLESPASSWD" placeholder="Password"></div>
+	<div class="col-sm-2 form-group-sm"><input type="text" class="form-control" id="opensubtitlesuser" name="opensubtitlesuser" value="$autosub.OPENSUBTITLESUSER" placeholder="Username"/></div>
+	<div class="col-sm-2 form-group-sm"><input type="password" class="form-control" id="opensubtitlespasswd" name="opensubtitlespasswd" value="$autosub.OPENSUBTITLESPASSWD" placeholder="Password"/></div>
 	<span id="testOpenSubtitles-result" text-left></span>
 	#if $autosub.SEARCHBUSY :
-		<div align="center" class= "col-sm-2 form-group-sm"><input type="button" disabled class="btn btn-default" value="Test" id="testOpenSubtitles"></div>
+		<div align="center" class= "col-sm-2 form-group-sm"><input type="button" disabled class="btn btn-default" value="Test" id="testOpenSubtitles"/></div>
 	#else:
-		<div align="center" class= "col-sm-2 form-group-sm"><input type="button" data-toggle="tooltip" title="Login Test" class="btn btn-default" value="Test" id="testOpenSubtitles"></div>
+		<div align="center" class= "col-sm-2 form-group-sm"><input type="button" data-toggle="tooltip" title="Login Test" class="btn btn-default" value="Test" id="testOpenSubtitles"/></div>
 	#end if
 </div>
-
-
+<hr>
+<div class="form-group">
+	<label class="col-sm-3 control-label">Via SubtitleSeeker: 
+	</label>
+</div>
 <div class="form-group">
 	<label class="col-sm-2 control-label">Podnapisi 
 		<a data-toggle="tooltip" title="Tick to use this website.">
 			<span class="glyphicon glyphicon-info-sign"></span>
 		</a>
 	</label>
-	<div class="col-sm-5">
+	<div class="col-sm-1">
 		#if $autosub.PODNAPISI:
-			<div class="checkbox-inline"><input type="checkbox" name="podnapisi" checked value="Yes"></div>
+			<div class="checkbox-inline"><input type="checkbox" name="podnapisi" checked value="Yes"/></div>
 		#else:
-			<div class="checkbox"><input type="checkbox" name="podnapisi" value="Yes"></div>
+			<div class="checkbox-inline"><input type="checkbox" name="podnapisi" value="Yes"/></div>
 		#end if
 	</div>
 </div>
@@ -96,11 +107,11 @@
 			<span class="glyphicon glyphicon-info-sign"></span>
 		</a>
 	</label>
-	<div class="col-sm-5">
+	<div class="col-sm-1">
 		#if $autosub.SUBSCENE:
-			<div class="checkbox-inline"><input type="checkbox" name="subscene" checked value="Yes"></div>
+			<div class="checkbox-inline"><input type="checkbox" name="subscene" checked value="Yes"/></div>
 		#else:
-			<div class="checkbox"><input type="checkbox" name="subscene" value="Yes"></div>
+			<div class="checkbox-inline"><input type="checkbox" name="subscene" value="Yes"/></div>
 		#end if
 	</div>
 </div>

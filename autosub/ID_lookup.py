@@ -42,6 +42,7 @@ u"ONCE UPON TIME" :                             [u"1843230", u"Once Upon a Time 
 u"ONCE UPON A TIME 2011" :                      [u"1843230", u"Once Upon a Time (2011)"],
 u"THE AMERICANS" :                              [u"2149175", u"The Americans (2013)"],
 u"THE LIBRARIANS US":                           [u"3663490", u"The Librarians (2014)"],
+u"THE LIBRARIANS":                              [u"3663490", u"The Librarians (2014)"],
 u"THE O C" :                                    [u"0362359", u"The O.C"],
 u"UNTOUCHABLES-THE VENTURE BROS":               [u"0417373", u"The Venture Bros."],
 u"THE WITNESS FOR THE PROSECUTION (2016)":      [u"5834256", u"The Witness for the Prosecution"],

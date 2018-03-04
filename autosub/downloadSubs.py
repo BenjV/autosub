@@ -7,7 +7,7 @@
 import autosub
 import logging
 from OpenSubtitles import OS_NoOp
-import requests
+import library.requests as requests
 import zipfile
 import re 
 from urlparse import urljoin
@@ -15,7 +15,7 @@ import os, shutil, errno, subprocess, sys,codecs
 import time
 from Tvdb import FindEpTitle
 from subprocess import Popen, PIPE
-from requests.packages import chardet
+from library.requests.packages import chardet
 
 import xmlrpclib, io, gzip
 # Settings
@@ -25,7 +25,7 @@ log = logging.getLogger('thelogger')
 def _getzip(Session, url):
     # returns a file-like String object    
     try:
-        Result = Session.get(url,verify=autosub.CERTIFICATEPATH,timeout=22)
+        Result = Session.get(url,verify=autosub.CERT,timeout=15)
     except:
         log.debug("Zip file at %s couldn't be retrieved" % url)
         return None
@@ -57,7 +57,7 @@ def _getzip(Session, url):
 def _OSdownload(SubId, SubCodec):
 
     log.debug("Download subtitle: %s" % SubId)
-    time.sleep(6)
+    time.sleep(1)
     if not OS_NoOp():
         return None
     try:
@@ -104,10 +104,9 @@ def _OSdownload(SubId, SubCodec):
 
 def _SSdownload(subSeekerLink,website):
 
-    Session = requests.session()
-    time.sleep(6)
+    time.sleep(1)
     try:
-        SubLinkPage = Session.get(subSeekerLink,timeout=10)
+        SubLinkPage = autosub.SS_SESSION.get(subSeekerLink,timeout=10)
     except Exception as error:
         log.error("Failed to find the link on SubtitleSeekers. Message : %s" % error)        
         return None
@@ -115,12 +114,12 @@ def _SSdownload(subSeekerLink,website):
     try:
         SubLink = re.findall('Download : <a href="(.*?)"', SubLinkPage.text)[0]
     except Exception as error:
-        log.error("Failed to find the redirect link on SubtitleSeekers. Message : %s" % error)        
+        log.error("Failed to find the redirect link on SubtitleSeekers. Message : %s" % error.message)        
         return None
     try:
-        Result= Session.get(SubLink,verify=autosub.CERTIFICATEPATH,timeout=10)
+        Result= autosub.SS_SESSION.get(SubLink,verify=autosub.CERT,timeout=10)
     except Exception as error:
-        log.error("Failed to get the downloadpage from %s. Message : %s" % (website,error)) 
+        log.error("Failed to get the downloadpage from %s. Message : %s" % (website,error.message)) 
         return None
     if Result.status_code > 399 or not Result.text:
         return False
@@ -156,19 +155,25 @@ def WriteSubFile(SubData, SubFileOnDisk):
     StartPos = 3 if SubData[1] == u'\r' else 2
     if SubData[0] == '1' and re.match("\d{2}:\d{2}:\d{2},\d{3}\s*-->\s*\d{2}:\d{2}:\d{2},\d{3}",SubData[StartPos:StartPos + 29]):
         try:
-            log.debug("Saving the subtitle file %s to the filesystem." % SubFileOnDisk)
             if not autosub.SEARCHSTOP:
+                autosub.WRITELOCK = True
                 with io.open(SubFileOnDisk, 'wb') as fp:
                     fp.write(SubData.encode(autosub.SUBCODEC,errors='replace'))
-                if sys.platform != "win32":
-                    Permission = int(str(autosub.SUBRIGHTS['owner']) + str(autosub.SUBRIGHTS['group']) + str(autosub.SUBRIGHTS['world']),8)
-                    os.chmod(SubFileOnDisk, Permission)
+                autosub.WRITELOCK = False
+                log.debug("%s is saved." % SubFileOnDisk)
+                try:
+                    if sys.platform != "win32":
+                        Permission = int(str(autosub.SUBRIGHTS['owner']) + str(autosub.SUBRIGHTS['group']) + str(autosub.SUBRIGHTS['world']),8)
+                        os.chmod(SubFileOnDisk, Permission)
+                except Exception as error:
+                    log.error(error.message)
             else:
                 log.info("Stopped by User intervention.")
                 return False
             return True
         except Exception as error:
-            log.error('Problem writing subfile. %s' % error)
+            autosub.WRITELOCK = False
+            log.error(error.message)
     else:
         log.error('File is not a valid subtitle format. skipping it.')
     return False  
@@ -193,7 +198,6 @@ def MyPostProcess(Wanted,SubSpecs,Sub):
     DstDir        = os.path.join(DstRoot, SerieName, SeasonDir)
     DstVidSpecs   = os.path.join(DstDir, Wanted['episode'] + ' ' + EpisodeName + Wanted['container'])
     DstSubSpecs   = os.path.join(DstDir, Wanted['episode'] + ' ' + EpisodeName + '.srt')
-    Muxing = True
 
     # Now we check whether the "Season" directory already exists
     # if not we create it.
@@ -206,37 +210,45 @@ def MyPostProcess(Wanted,SubSpecs,Sub):
     log.debug('Destination Dir is %s' % DstDir)
     # muxing is not possible for all containers only .mkv and .mp4 are supported
     # if muxing is off, the video and the sub will be copied to the desitnation.
-    if Wanted['container'].lower() != '.mkv' and  Wanted['container'].lower() != '.mp4':
+    if Wanted['container'] == '.mkv' or  Wanted['container'] == '.mp4':
+        Muxing = True
+    else:
         Muxing = False
 
-    Cmd = [ffmpegLoc,'-loglevel error -n -i',VideoSpecs,'-i',SubSpecs,'-c copy -map 0:V -map 0:a -map 1:s -metadata:s:s:0 language=dut',LangId,'-disposition:s:s:0 +default+forced', DstVidSpecs]
-    log.debug('ffmpegCmd is %s' % ffmpegCmd)
+    Cmd = [ffmpegLoc, '-loglevel error -n -i',VideoSpecs,'-i',SubSpecs,'-c copy -map 0:V -map 0:a -map 1:s -metadata:s:s:0 language=dut -disposition:s:s:0 +default+forced', DstVidSpecs]
+    log.debug('ffmpegCmd is %s' % Cmd)
+    ToRemove = VideoSpecs
     if Muxing:
-        Merge = subprocess.Popen(ffmpegCmd, stderr = subprocess.PIPE)
-        output,error = Merge.communicate()
-        if error:
-            log.error("Error message from ffmpeg is: %s" % error)
-              # Remove possible leftovers from failed muxing.
-            RemoveFile = TempFileSpecs if SecondSub else DstVidSpecs
-            try:
-                os.remove(RemoveFile)
-            except Exception as error:
-                log.error(error.message)
-        else:
-              # remove the original file if the muxed one is in place
-            if os.path.isfile(DstVidSpecs) :
-                try:
-                    os.remove(VideoSpecs)       
-                except Exception as error:
-                    log.error(error.message)
-      # Copy the sub in case the muxing failed.
-    shutil.copy2(SubSpecs,DstSubSpecs)
-    if not Muxing or error:
+        try:
+            error = None
+            ffmpeg_error = None
+            Merge = subprocess.Popen(Cmd, stderr = subprocess.PIPE)
+            output,ffmpeg_error = Merge.communicate()
+            if ffmpeg_error:
+                log.error("ffmpeg error: %s" % error)
+                Muxing = False
+                ToRemove = DstVidSpecs
+        except Exception as error:
+            log.error(error.message)
+            Muxing = False
+            ToRemove = DstVidSpecs
+            # if muxing failed remove the leftover else remove the original video.
+        try:
+            os.remove(ToRemove)
+        except Exception as error:
+            log.error(error.message)
+
+        # No muxing done so we copy the video and the sub to the destination
+    if not Muxing:
         try:
             shutil.move(VideoSpecs,DstVidSpecs)
+            shutil.copy2(SubSpecs,DstSubSpecs)
+            try:
+                os.remove(VideoSpecs)
+            except Exception as error:
+                log.error(error.message)
         except Exception as error:
-            log.error("Problem moving files. Message is: %s" % error)
-    return
+            log.error(error.message)
 
 def _add_to_down(Wanted, Found):
     Downloaded = []
@@ -259,8 +271,6 @@ def _add_to_down(Wanted, Found):
         autosub.DOWNLOADED.append(tuple(Downloaded[0:12]))
 
 def DownloadSub(Wanted,SubList):    
-      
-    log.debug("Download dict: %r" % Wanted)
     destdir = Wanted['folder']
     destsrt = os.path.join(Wanted['folder'], Wanted['file'])
     if autosub.DUTCH in SubList[0]['language'] :
@@ -290,10 +300,11 @@ def DownloadSub(Wanted,SubList):
             if WriteSubFile(SubData,destsrt):
                 Downloaded = True           
                 break
+    time.sleep(0.1)
     if Downloaded:
-        log.info('%s subtitle "%s" is downloaded from %s' % (Sub['language'],Sub['releaseName'],Sub['website']))
+        log.info('%s subtitle for "%s" is downloaded from %s' % (Sub['language'],Sub['releaseName'],Sub['website']))
     else:
-        log.debug("Could not download any correct subtitle file for %s" % Wanted['file'])
+        log.info("Could not download any correct subtitle file for %s" % Wanted['file'])
         return False   
     Wanted['subtitle'] = "%s downloaded from %s" % (Sub['releaseName'].strip(),Sub['website'])
     Sub['timestamp'] = unicode(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(os.path.getmtime(destsrt))))
@@ -315,9 +326,9 @@ def DownloadSub(Wanted,SubList):
             PostProcess = subprocess.Popen(Cmd.encode(autosub.SYSENCODING), shell = True, stdin = PIPE, stdout = PIPE, stderr = PIPE)
             PostProcessOutput, PostProcessErr = PostProcess.communicate()
         except Exception as error:
-            log.error('Problem starting postprocess. Error is: %s' % error)
+            log.error('Problem starting postprocess. Error is: %s' % error.message)
         if PostProcess.returncode != 0 or PostProcessErr:
-            log.error("PostProcess: %s" % PostProcessErr)
+            log.error(PostProcessErr)
         else:
             log.debug('Postprocess succesfully finished!')
     if autosub.NODE_ID == 73855751279:

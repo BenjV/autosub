@@ -2,49 +2,48 @@
 #
 # The Autosub config Module
 #
-
-import os,re
+import os,re,sys
 import logging
-from codecs import open as CodecsOpen
+import codecs
 from ConfigParser import SafeConfigParser
 import autosub
 import autosub.version as version
 import autosub.ID_lookup
 
-log = logging.getLogger('thelogger')
-
 def ReadConfig():
     """
     Read the config file and set all the variables.
     """
-
     # Read config file
     cfg = SafeConfigParser()
+    #cfg.optionxform = lambda option: option
     cfg.optionxform = lambda option: option
     try:
-        with CodecsOpen(autosub.CONFIGFILE, 'r', autosub.SYSENCODING) as f:
-            cfg.readfp(f)
+        with codecs.open(autosub.CONFIGFILE, 'r', autosub.SYSENCODING) as fp:
+            cfg.readfp(fp)
     except Exception as error:
         if error.errno == 2:
             print "No config found so a default config.properties is created."
             Message = WriteConfig()
             return
         else:
-            print error.message
+            sys.stderr.write(error.message)
             sys.exit(1)
     section = 'config'
     if not cfg.has_section(section):
         print "No config found so a default config.properties is created."
         Message = WriteConfig()
         return
+        # Check to see if we were updated and if so remove this info from the config.
+
     if cfg.has_option(section, "configversion"):        autosub.CONFIGVERSION       = cfg.getint("config", "configversion") 
-    if cfg.has_option(section, "wantedfirst"):          autosub.WANTEDFIRST         = cfg.getboolean(section, "wantedfirst")
     if cfg.has_option(section, 'downloaddutch'):        autosub.DOWNLOADDUTCH       = cfg.getboolean(section, 'downloaddutch')
     if cfg.has_option(section, 'downloadeng'):          autosub.DOWNLOADENG         = cfg.getboolean(section, 'downloadeng')
     if cfg.has_option(section, "fallbacktoeng"):        autosub.FALLBACKTOENG       = cfg.getboolean(section, "fallbacktoeng")
     if cfg.has_option(section, "notifyen"):             autosub.NOTIFYEN            = cfg.getboolean(section, "notifyen")
     if cfg.has_option(section, "notifynl"):             autosub.NOTIFYNL            = cfg.getboolean(section, "notifynl")
-    if cfg.has_option(section, "launchbrowser"):        autosub.LAUNCHBROWSER       = cfg.getboolean(section, "launchbrowser")
+    if autosub.LAUNCHBROWSER:
+        if cfg.has_option(section, "launchbrowser"):        autosub.LAUNCHBROWSER       = cfg.getboolean(section, "launchbrowser")
     if cfg.has_option(section, "skiphiddendirs"):       autosub.SKIPHIDDENDIRS      = cfg.getboolean(section, "skiphiddendirs")
     if cfg.has_option(section, "englishsubdelete"):     autosub.ENGLISHSUBDELETE    = cfg.getboolean(section, "englishsubdelete")
     if cfg.has_option(section, "podnapisi"):            autosub.PODNAPISI           = cfg.getboolean(section, "podnapisi")
@@ -53,15 +52,19 @@ def ReadConfig():
     if cfg.has_option(section, "opensubtitles"):        autosub.OPENSUBTITLES       = cfg.getboolean(section, "opensubtitles")
     if cfg.has_option(section, "hearingimpaired"):      autosub.HI                  = cfg.getboolean(section, "hearingimpaired")
     if cfg.has_option(section, "equalmatch"):           autosub.EQUALMATCH          = cfg.getboolean(section, "equalmatch")
+    if cfg.has_option(section, "web"):                  autosub.WEB                 = cfg.get(section, "web")
+    if cfg.has_option(section, "webrip"):               autosub.WEBRIP              = cfg.get(section, "webrip")
     if cfg.has_option(section, 'minmatchscore'):        autosub.MINMATCHSCORE       = cfg.getint(section, 'minmatchscore')
     if cfg.has_option(section, 'searchinterval'):       autosub.SEARCHINTERVAL      = cfg.getint(section, 'searchinterval')
+    autosub.SEARCHINTERVAL = 43200  if autosub.SEARCHINTERVAL < 43200 else autosub.SEARCHINTERVAL
+    autosub.SEARCHINTERVAL = 604800 if autosub.SEARCHINTERVAL > 604800 else autosub.SEARCHINTERVAL
     if cfg.has_option(section, "browserrefresh"):       autosub.BROWSERREFRESH      = cfg.getint(section, "browserrefresh")
     if cfg.has_option(section, "path"):                 autosub.PATH                = os.path.normpath(cfg.get(section, "path"))
     if cfg.has_option(section, "rootpath"):             autosub.SERIESPATH          = os.path.normpath(cfg.get(section, "rootpath"))
     if cfg.has_option(section, "seriespath"):           autosub.SERIESPATH          = os.path.normpath(cfg.get(section, "seriespath"))
-    if autosub.SERIESPATH  == '.':                      autosub.SERIESPATH  = u''
+    if autosub.SERIESPATH  == '.':                      autosub.SERIESPATH          = u''
     if cfg.has_option(section, "bckpath"):              autosub.BCKPATH             = os.path.normpath(cfg.get(section, "bckpath"))
-    if autosub.BCKPATH  =='.':                          autosub.BCKPATH = u''
+    if autosub.BCKPATH  =='.':                          autosub.BCKPATH             = u''
     if cfg.has_option(section, "subeng"):               autosub.SUBENG              = cfg.get(section, "subeng")
     if cfg.has_option(section, "subnl"):                autosub.SUBNL               = cfg.get(section, "subnl")
     if cfg.has_option(section, "postprocesscmd"):       autosub.POSTPROCESSCMD      = cfg.get(section, "postprocesscmd")
@@ -129,9 +132,10 @@ def ReadConfig():
     autosub.SKIPSHOW      = {}
     SkipShows = dict(cfg.items(section))
         #autosub.SKIPSHOW = dict(cfg.items('skipshow'))
-        # The following 5 lines convert the skipshow to uppercase. And also convert the variables to a list
-        # also replace the "~" with ":" neccesary because the config parser sees ":" as a delimiter
-        # The UPPER version is for searching, the normal for dispaly in the user interface
+        # The following 4 lines convert the skipshow to uppercase.
+        # Convert the variables to a list
+        # Replace the "~" with ":" neccesary because the config parser sees ":" as a delimiter
+        # The UPPER version is for searching, the normal for display in the user interface
     for show in SkipShows:
         if re.match("^[0-9 ,.-]+$", SkipShows[show]):
             autosub.SKIPSHOW[show.replace('~',':')] = SkipShows[show]
@@ -165,7 +169,7 @@ def ReadConfig():
                 autosub.NAMEMAPPING[Name.upper()]  = [NameMapping[ConfigName].strip(),u'']
             autosub.USERNAMEMAPPING[Name] = NameMapping[ConfigName].strip()
         else:
-            print 'ReadConfig: Username mapping has an unknown format.',ConfigName,' = ',NameMapping[ConfigName] 
+            sys.stderr.write('ReadConfig: Username mapping has an unknown format.',ConfigName,' = ',NameMapping[ConfigName])
    
     # ******************
     # * Notify Section *
@@ -226,8 +230,16 @@ def ReadConfig():
     if autosub.CONFIGVERSION < autosub.version.configversion:
         _upgradeConf(cfg, autosub.CONFIGVERSION, autosub.version.configversion)
     elif autosub.CONFIGVERSION > autosub.version.configversion:
-        print "Config: ERROR! Config version higher then this version of AutoSub supports. Update AutoSub!"
+        sys.stderr.write("Config: ERROR! Config version higher then this version of AutoSub supports. Update AutoSub!")
         os._exit(1)
+
+    if cfg.has_option('config', "updating") and cfg.getboolean('config', 'updating'):
+        autosub.UPDATING = False
+        Message = WriteConfig()
+        autosub.UPDATING = True
+    else:
+        autosub.UPDATING = False
+    return
 
 def WriteConfig():
     cfg = SafeConfigParser()
@@ -235,9 +247,10 @@ def WriteConfig():
 
     section = 'config'
     cfg.add_section(section)
+    cfg.set(section, "updating", str(autosub.UPDATING) )
     cfg.set(section, "path", autosub.PATH )
-    cfg.set(section, "seriespath", autosub.SERIESPATH)
-    cfg.set(section, "bckpath", autosub.BCKPATH)
+    cfg.set(section, "seriespath", str(autosub.SERIESPATH))
+    cfg.set(section, "bckpath", str(autosub.BCKPATH))
     cfg.set(section, 'downloaddutch', str(autosub.DOWNLOADDUTCH))
     cfg.set(section, 'downloadeng', str(autosub.DOWNLOADENG))
     cfg.set(section, "subeng", autosub.SUBENG)
@@ -245,7 +258,6 @@ def WriteConfig():
     cfg.set(section, "fallbacktoeng", str(autosub.FALLBACKTOENG))
     cfg.set(section, "notifyen", str(autosub.NOTIFYEN))
     cfg.set(section, "notifynl", str(autosub.NOTIFYNL))
-    cfg.set(section, "wantedfirst", str(autosub.WANTEDFIRST))
     cfg.set(section, "launchbrowser", str(autosub.LAUNCHBROWSER))
     cfg.set(section, "skiphiddendirs", str(autosub.SKIPHIDDENDIRS))
     cfg.set(section, "englishsubdelete", str(autosub.ENGLISHSUBDELETE))
@@ -256,7 +268,9 @@ def WriteConfig():
     cfg.set(section, "hearingimpaired", str(autosub.HI))
     cfg.set(section, 'minmatchscore', str(autosub.MINMATCHSCORE))
     cfg.set(section, 'equalmatch', str(autosub.EQUALMATCH))
-    cfg.set(section, "configversion", str(autosub.CONFIGVERSION ))  
+    cfg.set(section, 'web', str(autosub.WEB))
+    cfg.set(section, 'webrip', str(autosub.WEBRIP))
+    cfg.set(section, "configversion", str(autosub.CONFIGVERSION ))
     cfg.set(section, 'searchinterval', str(autosub.SEARCHINTERVAL))
     cfg.set(section, "browserrefresh", str(autosub.BROWSERREFRESH))
     cfg.set(section, "postprocesscmd", autosub.POSTPROCESSCMD)
@@ -283,9 +297,8 @@ def WriteConfig():
 
     section = 'logfile'
     cfg.add_section(section)
-    cfg.set(section, "logfile", str(autosub.LOGFILE))
+    cfg.set(section, "logfile", autosub.LOGFILE)
     cfg.set(section, "loglevel", str(autosub.LOGLEVEL))
-    cfg.set(section, "loglevelconsole",str(autosub.LOGLEVELCONSOLE))
     cfg.set(section, "logsize", str(autosub.LOGSIZE))
     cfg.set(section, "lognum", str(autosub.LOGNUM))
 
@@ -372,13 +385,13 @@ def WriteConfig():
         cfg.set(section, ImdbId, str(autosub.USERADDIC7EDMAPPING[ImdbId]))
 
     try:
-        with open(autosub.CONFIGFILE, 'wb') as cfile:
-            cfg.write(cfile)
+        with codecs.open(autosub.CONFIGFILE, 'wb', autosub.SYSENCODING) as fp:
+            cfg.write(fp)
+            fp.flush()
+            os.fsync
     except Exception as error:
         return error
-        # here we read the config back because the UPPERCASE variants of the config (for searching) has to be filled
-    log.debug('Config is saved.')
-    ReadConfig()
+
     return 'Config has been saved.'
 
 def displaySkipshow():
@@ -480,20 +493,6 @@ def _upgradeConf(cfg, from_version, to_version):
                     autosub.LOGLEVEL = logging.CRITICAL
                 else:
                     autosub.LOGLEVEL = logging.INFO
-            if cfg.has_option(section, "loglevelconsole"):
-                LogLevel = cfg.get(section, "loglevelconsole").upper()
-                if LogLevel == u'ERROR':
-                    autosub.LOGLEVELCONSOLE = logging.ERROR
-                elif LogLevel == u"WARNING":
-                    autosub.LOGLEVELCONSOLE = logging.WARNING
-                elif LogLevel == u"DEBUG":
-                    autosub.LOGLEVELCONSOLE = logging.DEBUG
-                elif LogLevel == u"INFO":
-                    autosub.LOGLEVELCONSOLE = logging.INFO
-                elif LogLevel == u"CRITICAL":
-                    autosub.LOGLEVELCONSOLE = logging.CRITICAL
-                else:
-                    autosub.LOGLEVELCONSOLE = logging.INFO
             autosub.CONFIGVERSION = 5
         elif from_version == 5 and to_version == 6:
             section = 'config'

@@ -13,7 +13,7 @@ CONFIGPATH = None
 LOGFILE = None
 LOGNAME = u"AutoSubService.log"
 BCKPATH=u''
-BROWSERREFRESH = int(1)
+BROWSERREFRESH = int(0)
 FALLBACKTOENG = False
 DOWNLOADENG = False
 DOWNLOADDUTCH = True
@@ -26,13 +26,14 @@ NOTIFYEN = False
 SKIPSHOW = {}
 SKIPSHOWUPPER = {}
 MUSTMATCH = ['TBS', 'cookiemonster']
+WEB = 'web'
+WEBRIP = 'webrip'
 USERNAMEMAPPING = {}
 USERADDIC7EDMAPPING = {}
 POSTPROCESSCMD = u''
 MINMATCHSCORE = int(0)
 EQUALMATCH = True
 CONFIGVERSION = int(6)
-WANTEDFIRST = True
 ENGLISHSUBDELETE = False
 PODNAPISI = False
 SUBSCENE = False
@@ -53,9 +54,7 @@ OPENSUBTITLESTIME = float(0)
 OPENSUBTITLESBADSUBS = []
 
 LOGLEVEL = int(20)
-CONSOLE = None
 LOGHANDLER = None
-LOGLEVELCONSOLE = int(40)
 LOGSIZE = int(1048576)
 LOGNUM = int(3)
 
@@ -72,7 +71,7 @@ ZIPURL = u'https://github.com/BenjV/autosub/archive/master.zip'
 SUBSEEKERAPI = u"http://api.subtitleseeker.com/get/title_subtitles/?api_key=24430affe80bea1edf0e8413c3abf372a64afff2"
 RLSGRPURL = u'https://raw.githubusercontent.com/BenjV/autosub/master/ReleaseGroups.txt'
 RLSGRPS = []
-
+SS_SESSION = None
 
 TIMEOUT = 300
 DOWNLOADS_A7 = int(0)
@@ -80,7 +79,8 @@ DOWNLOADS_A7MAX = int(40)
 DOWNLOADS_A7TIME = float(0)
 DOWNLOADED = []
 
-SEARCHINTERVAL = int(21600)
+SEARCHINTERVAL = 43200
+LASTRUN = float(0)
 SEARCHTIME= float(0)
 SEARCHBUSY = False
 SEARCHSTOP = False
@@ -93,12 +93,11 @@ LASTESTDOWNLOAD = []
 
 WEBSERVERIP = '0.0.0.0'
 WEBSERVERPORT = '9960'
-LAUNCHBROWSER = False
+LAUNCHBROWSER = True
 USERNAME = ''
 PASSWORD = ''
 WEBROOT = ''
 
-DAEMON = None
 INIT = True
 DBNAME = 'database.db'
 DBFILE = None
@@ -109,12 +108,11 @@ DOWNLOADS = None
 MOBILEUSERAGENTS = None
 MOBILEAUTOSUB = True
 
-UPDATED = False
 SKIPSTRINGNL = u''
 SKIPSTRINGEN = u''
 SKIPFOLDERSNL = u''
 SKIPFOLDERSEN = u''
-CERTIFICATEPATH=u''
+CERT=u''
 VERSION = int(0)
 GITHUBVERSION ="?.?.?"
 A7MAPDATE = None
@@ -127,6 +125,8 @@ DUTCH = u'nl'
 SYSENCODING = None
 NODE_ID = None
 PID = None
+UPDATING = False
+MESSAGE = ''
 
 # notifiers
 NOTIFYMAIL = False

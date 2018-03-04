@@ -107,14 +107,20 @@
             <p>
               <table border="0px" cellspacing="0px" cellpadding="0px">					
                 <tr>
-                  #if $autosub.SEARCHBUSY :
-                    <div class="well well-sm center well-header">Search is busy... </font></div>
-                  #else
-                    <div class="well well-sm center well-header">Time until next run:
-                      $int($time.strftime('%H', $time.gmtime(($autosub.SEARCHINTERVAL - ($time.time() - $autosub.CHECKSUB.lastrun) )))) hours and 
-                      $int($time.strftime('%M', $time.gmtime(($autosub.SEARCHINTERVAL - ($time.time() - $autosub.CHECKSUB.lastrun) )))) minutes
-                    </div>
-                  #end if
+        <b><font size="3">
+          #if $autosub.SEARCHBUSY :
+            Search is busy...
+          #else
+            Next Search in :<font color="royalblue">
+            #try:
+              #set $nextrun = $autosub.SEARCHINTERVAL - ($time.time() - $autosub.LASTRUN )
+              $int($time.strftime('%H', $time.gmtime($nextrun))) hours and 
+              $int($time.strftime('%M', $time.gmtime($nextrun))) min.
+            #except:
+              Search is busy...
+            #end try
+          #end if
+        </b></font>
                 </tr>
               </table>
             </p>

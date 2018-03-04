@@ -2,10 +2,11 @@ README
 Releasenotes voor autosub version 1.2.0
 
 Uitbreidingen:
+- The "Forced Search" pulldown negeert de time contrains en zoekt nu voor alle video's een sub. Alleen de scheduled Search past de time contrains voor oude video's toe.
 - Als er op de commandline de optie -c wordt gebruikt om een andere path\config.properties te gebruiken wordt dat path ook al locatie gebruikt om de database en logfile neer te zetten
 - Uitbreiding van de minmatch score met disto (e.g. amazon, netflix, hbo enz.)
 - Mogelijkheid om de lees/schrijf rechten van de gedownloadde sub te setten (werkt niet onder Windows)
-- Mogelijkheid om een "must match" tabel van releasgroepen op te nemen.
+- Mogelijkheid om een "must match" tabel van releasegroepen op te nemen.
   Als autosub zo'n releasegroep tegenkomt moet zowel de sub als de video de desbetreffende releasegroep bevatten anders is er geen match.
 - web, webrip en web-dl zijn nu aparte source qualifiers, dus web is niet meer gelijk aan web-dl
 - Lijst met meer dan 3200 releasegroepen toegevoegd die automatisch wordt geupdate vanaf github.
@@ -30,6 +31,7 @@ Vervallen:
   De manier waarop dat geimplementeerd was had tot gevolg dat alle subs die gedownload waren in memory gelezen werden.
   Dat maakte de zaak erg traag als je veel subs hebt gedownload.
 - De hover functie van de "Downloaded" lijst is vervallen omdat alle informatie nu in de kolommen staat.
+- Wanted First is vervallen. De layout van het Home scherm is nu fixed op eerst "Wanted" en daarna 'Downloaded" 
 
 Autosub info:
 

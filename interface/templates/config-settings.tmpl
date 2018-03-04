@@ -1,100 +1,101 @@
 #import autosub
-#import os
+#from os import path
 #from autosub.Config import displayNamemapping, displayAddic7edmapping
 #set $namemapping = displayNamemapping()
 #set $addic7edmapping = displayAddic7edmapping()
 
-#include $os.path.join($autosub.PATH.encode(), "interface/templates/header.tmpl")
+#include $path.join($autosub.PATH.encode(), "interface/templates/header.tmpl")
 
-  <script type="text/javascript">
-    <!--
-        autosubRoot = "$autosub.WEBROOT";
-    //-->
-	</script>
+        <script type="text/javascript">
+          <!--
+              autosubRoot = "$autosub.WEBROOT";
+          //-->
+        </script>
 
-  <form role="form" class="form-horizontal" method="post" action="$autosub.WEBROOT/config/saveConfig">
-		<div class="page-header"><h3>Jump to: &nbsp;
-			<small><a href="#general"> General &nbsp;</a></small>
-			<small><a href="#websites">Websites &nbsp;</a></small>
-			<small><a href="#logfile">Logfile & Webserver &nbsp;</a></small>
-			<small><a href="#skipshow">Skipshow &nbsp;</a></small>
-			<small><a href="#mustmatch">rlsgrp Must Match &nbsp;</a></small>
-			<small><a href="#namemapping">Name Mapping &nbsp;</a></small>
-			<small><a href="#addicmapping">Addic Mapping &nbsp;</a></small></h3>
-		</div>
-		<a id="general"></a>
-   	<div class="well well-sm center well-header"><b>General</b></div>
-		<div class="well well-sm">
-		  #include $os.path.join($autosub.PATH.encode(), "interface/templates/config-general.tmpl")		
-		</div>
-		<input type="submit" value="Save Changes" class="btn btn-primary" />
+        <form role="form" class="form-horizontal" method="post" action="$autosub.WEBROOT/config/saveConfig">
+          <div class="page-header"><h3>Jump to: &nbsp;
+            <small><a href="#general"> General &nbsp;</a></small>
+            <small><a href="#websites">Websites &nbsp;</a></small>
+            <small><a href="#logfile">Logfile & Webserver &nbsp;</a></small>
+            <small><a href="#skipshow">Skipshow &nbsp;</a></small>
+            <small><a href="#mustmatch">rlsgrp Must Match &nbsp;</a></small>
+            <small><a href="#namemapping">Name Mapping &nbsp;</a></small>
+            <small><a href="#addicmapping">Addic Mapping &nbsp;</a></small></h3>
+          </div>
+          <a id="general"></a>
+          <div class="well well-sm center well-header"><h4><b>General</b></h4>
+            <div class="well well-sm">
+              #include $path.join($autosub.PATH.encode(), "interface/templates/config-general.tmpl")		
+            </div>
+            <input type="submit" value="Save Changes" class="btn pull-left btn-primary" /><br>
+          </div>
+          <a id="websites"></a>
+          <div class="well well-sm center well-header"><h4><b>Websites</b></h4>
+            <div class="well well-sm">
+              #include $path.join($autosub.PATH.encode(), "interface/templates/config-websites.tmpl")
+            </div>
+              <input type="submit" value="Save Changes" class="btn pull-left btn-primary"/><br>
+          </div>
+          <div class="form-group">
+            <div class="col-sm-12">
+              <div class="col-sm-6">
+                <div class="well well-sm center well-header"><b>LogFile</b></div>
+                <a id="logfile"></a>
+                #include $path.join($autosub.PATH.encode(), "interface/templates/config-logfile.tmpl")
+              </div>
+              <div class="col-sm-6">
+                <a id="webserver"></a>
+                <div class="well well-sm center well-header"><b>Webserver</b></div>
+                #include $path.join($autosub.PATH.encode(), "interface/templates/config-webserver.tmpl")
+              </div>
+            </div>
+          </div>
+          #set $mustmatch = "\n".join($autosub.MUSTMATCH)
+          <div class="form-group">    
+            <div class="col-sm-12">
+              <div class="col-sm-9">
+                <div class="well well-sm center well-header"><b>Skipshow's list</b>
+                  <a data-placement="right" data-toggle="tooltip" data-html="true" title="This allows you to skip a Show.<br>Format is:<br>Showname(or ImdbId) = Seasonnr.,Episodenr.,Episodenr.<br>-1 will skip the whole show.<br>Only Seasonnr. will skip the whole season.<br>For example:<br> Show Name(or ImdbId) = 4.11,5<br>This will skip season 4 episode 11 and season 5 of show.">
+                    <span class="glyphicon glyphicon-info-sign"></span>
+                  </a>
+                  <textarea rows="10" id="skipshow" name="skipshow" class="form-control">$autosub.Config.displaySkipshow</textarea>
+                </div>
+              </div>
+              <div class="col-sm-3">
 
-		<a id="websites"></a>
-		<div class="well well-sm center well-header"><b>Websites</b></div>
-		<div class="well well-sm">
-		  #include $os.path.join($autosub.PATH.encode(), "interface/templates/config-websites.tmpl")
-		</div>
-		<input type="submit" value="Save Changes" class="btn btn-primary"><hr>
+                <div class="well well-sm center well-header"><b>Must match groups</b>
+                  <a data-placement="left" data-toggle="tooltip" data-html="true" title="These releasegroup must match.<br>Even if not included in the minmatch score.">
+                    <span class="glyphicon glyphicon-info-sign"></span>
+                  </a>
+                  <textarea rows="10" id="mustmatch" name="mustmatch" class="form-control">$mustmatch</textarea>
+                </div>
+              </div>
+            </div>
+          </div>
 
-    <div class="form-group">
-      <div class="col-sm-12">
-        <div class="col-sm-6">
-          <div class="well well-sm center well-header"><b>LogFile</b></div>
-          <a id="logfile"></a>
-          #include $os.path.join($autosub.PATH.encode(), "interface/templates/config-logfile.tmpl")
-        </div>
-        <div class="col-sm-6">
-          <a id="webserver"></a>
-          <div class="well well-sm center well-header"><b>Webserver</b></div>
-            #include $os.path.join($autosub.PATH.encode(), "interface/templates/config-webserver.tmpl")
-        </div>
+          <div class="form-group">
+            <div class="col-sm-12">
+              <div class="col-sm-9">
+                <div class="well well-sm center well-header"><b>Namemapping</b>
+                  <a data-placement="right" data-toggle="tooltip" data-html="true" title="This allows you to link a show to the Imdb Id.<br> This is the Id that you can see in the URL of the show.<br> For example, www.imdb.com/title/tt2193021 will result in:<br>Arrow = 2193021">
+                    <span class="glyphicon glyphicon-info-sign"></span>
+                  </a>
+                  <textarea rows="10" id="namemapping" name="usernamemapping" class="form-control">$namemapping</textarea>
+                </div>
+              </div>
+              <div class="col-sm-3">
+                <div class="well well-sm center well-header"><b>Imdb Id = Addic Id</b>
+                  <a data-placement="left" data-toggle="tooltip" data-html="true" title="This allows you to link an Addic7ed Id to an Imdb Id.<br>For example:<br>'www.addic7ed.com/show/3005' will result in:<br>2193021 = 3005">
+                    <span class="glyphicon glyphicon-info-sign"></span>
+                  </a>
+                  <textarea rows="10" id="addicmapping" name="useraddic7edmapping" class="form-control">$addic7edmapping</textarea>
+                </div>
+              </div>
+              <input type="submit" value="Save Changes" class="btn pull-left btn-primary" /><br>
+            </div>
+          </div>
+        </form>
+        <div style="position: fixed; bottom: 10px; right: 20px;"><a href="#top"><i class="icon-arrow-up"></i></a></div>
       </div>
     </div>
-    #set $mustmatch = "\n".join($autosub.MUSTMATCH)
-    <div class="form-group">    
-      <div class="col-sm-12">
-        <div class="col-sm-9">
-          <div class="well well-sm center well-header"><b>Skipshow's list</b>
-            <a data-placement="right" data-toggle="tooltip" data-html="true" title="This allows you to skip a Show.<br>Format is:<br>Showname(or ImdbId) = Seasonnr.,Episodenr.,Episodenr.<br>-1 will skip the whole show.<br>Only Seasonnr. will skip the whole season.<br>For example:<br> Show Name(or ImdbId) = 4.11,5<br>This will skip season 4 episode 11 and season 5 of show.">
-              <span class="glyphicon glyphicon-info-sign"></span>
-            </a>
-            <textarea rows="10" id="skipshow" name="skipshow" class="form-control">$autosub.Config.displaySkipshow</textarea>
-          </div>
-        </div>
-        <div class="col-sm-3">
-
-          <div class="well well-sm center well-header"><b>Must match groups</b>
-            <a data-placement="left" data-toggle="tooltip" data-html="true" title="These releasegroup must match.<br>Even if not included in the minmatch score.">
-              <span class="glyphicon glyphicon-info-sign"></span>
-            </a>
-            <textarea rows="10" id="mustmatch" name="mustmatch" class="form-control">$mustmatch</textarea>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <div class="col-sm-12">
-        <div class="col-sm-9">
-          <div class="well well-sm center well-header"><b>Namemapping</b>
-            <a data-placement="right" data-toggle="tooltip" data-html="true" title="This allows you to link a show to the Imdb Id.<br> This is the Id that you can see in the URL of the show.<br> For example, www.imdb.com/title/tt2193021 will result in:<br>Arrow = 2193021">
-              <span class="glyphicon glyphicon-info-sign"></span>
-            </a>
-            <textarea rows="10" id="namemapping" name="usernamemapping" class="form-control">$namemapping</textarea>
-          </div>
-        </div>
-        <div class="col-sm-3">
-          <div class="well well-sm center well-header"><b>Imdb Id = Addic Id</b>
-            <a data-placement="left" data-toggle="tooltip" data-html="true" title="This allows you to link an Addic7ed Id to an Imdb Id.<br>For example:<br>'www.addic7ed.com/show/3005' will result in:<br>2193021 = 3005">
-              <span class="glyphicon glyphicon-info-sign"></span>
-            </a>
-            <textarea rows="10" id="addicmapping" name="useraddic7edmapping" class="form-control">$addic7edmapping</textarea>
-          </div>
-        </div>
-
-    </div>
-    <input type="submit" value="Save Changes" class="btn btn-primary" />
-
-  </form>
-  <div style="position: fixed; bottom: 10px; right: 20px;"><a href="#top"><i class="icon-arrow-up"></i></a></div>
-  #include $os.path.join($autosub.PATH.encode(), "interface/templates/footer.tmpl")
+  #include $path.join($autosub.PATH.encode(), "interface/templates/footer.tmpl")

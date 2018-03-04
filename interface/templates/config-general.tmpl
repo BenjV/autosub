@@ -1,366 +1,369 @@
 #import autosub
 
-<div class="form-group">
-	<label for="Seriesfolder" class="col-sm-2 control-label">Series Folder
-		<a data-placement="bottom" data-toggle="tooltip" title="The folder(s) where your series are located. You can add more folders by separating with a comma. Example: D:\Series1,D:\Series2 - This field is required!">
-			<span class="glyphicon glyphicon-info-sign"></span>
-		</a>
-	</label>
-	<div class="col-sm-10"><input type="text" class="form-control" name="seriespath" value="$autosub.SERIESPATH" placeholder="Series folder"></div>
-</div>
+        <div class="form-group">
+          <label for="Seriesfolder" class="col-sm-2 control-label">Series Folder
+            <a data-placement="bottom" data-toggle="tooltip" title="The folder(s) where your series are located. You can add more folders by separating with a comma. Example: D:\Series1,D:\Series2 - This field is required!">
+              <span class="glyphicon glyphicon-info-sign"></span>
+            </a>
+          </label>
+          <div class="col-sm-10"><input type="text" class="form-control" name="seriespath" value="$autosub.SERIESPATH" placeholder="Series folder"/></div>
+        </div>
 
-<div class="form-group">
-	<label for="Bckfolder" class="col-sm-2 control-label">Bck/Rest Folder
-		<a data-placement="bottom" data-toggle="tooltip" title="The folder for the backup/restore location of config and database">
-			<span class="glyphicon glyphicon-info-sign"></span>
-		</a>
-	</label>
-	<div class="col-sm-10"><input type="text" class="form-control" name="bckpath" value="$autosub.BCKPATH" placeholder="Backup/Restore folder"></div>
-</div>
+        <div class="form-group">
+          <label for="Bckfolder" class="col-sm-2 control-label">Bck/Rest Folder
+            <a data-placement="bottom" data-toggle="tooltip" title="The folder for the backup/restore location of config and database">
+              <span class="glyphicon glyphicon-info-sign"></span>
+            </a>
+          </label>
+          <div class="col-sm-10"><input type="text" class="form-control" name="bckpath" value="$autosub.BCKPATH" placeholder="Backup/Restore folder"/></div>
+        </div>
 
+        <div class="form-group">
+          <label class="col-sm-2 control-label">MinMatchScore
+            <a data-placement="bottom" data-toggle="tooltip" data-html="true" title="What items <kbd>must</kbd> be matched before a subtitle is downloaded?">
+              <span class="glyphicon glyphicon-info-sign"></span>
+            </a>
+          </label>
+          <div class="col-sm-5" >
+            Source
+            #if $autosub.MINMATCHSCORE & 16
+              <input type="checkbox" name="mmssource" checked value="16" />
+            #else
+              <input type="checkbox" name="mmssource" value="16" />
+            #end if
+            &emsp;Distro
+            #if $autosub.MINMATCHSCORE & 8
+              <input type="checkbox" name="mmssdistro" checked value="8" />
+            #else
+              <input type="checkbox" name="mmssdistro" value="8" />
+            #end if
+            &emsp;ReleaseGroup
+            #if $autosub.MINMATCHSCORE & 4
+              <input type="checkbox" name="mmsrelease" checked value="4" />
+            #else
+              <input type="checkbox" name="mmsrelease" value="4" />
+            #end if
+            &emsp;Quality
+            #if $autosub.MINMATCHSCORE & 2
+              <input type="checkbox" name="mmsquality" checked value="2" />
+            #else
+              <input type="checkbox" name="mmsquality" value="2" />
+            #end if
+            &emsp;Codec
+            #if $autosub.MINMATCHSCORE & 1
+              <input type="checkbox" name="mmscodec" checked value="1" />
+            #else
+              <input type="checkbox" name="mmscodec" value="1" />
+            #end if
+          </div>
+        </div>
 
-<div class="form-group">
-	<label class="col-sm-2 control-label">MinMatchScore
-		<a data-placement="bottom" data-toggle="tooltip" data-html="true" title="What items <kbd>must</kbd> be matched before a subtitle is downloaded?">
-			<span class="glyphicon glyphicon-info-sign"></span>
-		</a>
-	</label>
-	<div class="col-sm-10">
-		Source
-		#if $autosub.MINMATCHSCORE & 16
-			<input type="checkbox" name="mmssource" checked value=16>
-		#else
-			<input type="checkbox" name="mmssource" value=16>
-		#end if
-		&emsp;Distro
-		#if $autosub.MINMATCHSCORE & 8
-			<input type="checkbox" name="mmssdistro" checked value=8>
-		#else
-			<input type="checkbox" name="mmssdistro" value=8>
-		#end if
-		&emsp;ReleaseGroup
-		#if $autosub.MINMATCHSCORE & 4
-			<input type="checkbox" name="mmsrelease" checked value=4>
-		#else
-			<input type="checkbox" name="mmsrelease" value=4>
-		#end if
-		&emsp;Quality
-		#if $autosub.MINMATCHSCORE & 2
-			<input type="checkbox" name="mmsquality" checked value=2>
-		#else
-			<input type="checkbox" name="mmsquality" value=2>
-		#end if
-		&emsp;Codec
-		#if $autosub.MINMATCHSCORE & 1
-			<input type="checkbox" name="mmscodec" checked value=1>
-		#else
-			<input type="checkbox" name="mmscodec" value=1>
-		#end if
-	</div>
-</div>
-<!--
-<div class="form-group">
-	<label class="col-sm-2 control-label">Distro/Source match
-		<a data-placement="bottom" data-toggle="tooltip" title="Source is also considerd to be matched, when Distro is matched or Distro in sub en 'web' in videonaam.">
-			<span class="glyphicon glyphicon-info-sign"></span>
-		</a>
-	</label>
-	<div class="col-sm-2">
-		#if $autosub.EQUALMATCH
-			<div class="checkbox-inline"><input type="checkbox" name="equalmatch" checked value="Yes"></div>
-		#else:
-			<div class="checkbox"><input type="checkbox"  name="equalmatch" value="Yes"></div>
-		#end if
-	</div>
-</div>
--->
+        <div class="form-group">
+          <label class="col-sm-2 control-label">Equals Web-dl
+            <a data-placement="bottom" data-toggle="tooltip" data-html="true" title="If checked the item will be treated as web-dl source">
+              <span class="glyphicon glyphicon-info-sign"></span>
+            </a>
+          </label>
+          <div class="col-sm-2" >
+            &emsp;&emsp;&nbsp;Webrip
+            #if $autosub.WEBRIP == 'web-dl'
+              <input type="checkbox" name="webrip" checked value="web-dl"/>
+            #else
+              <input type="checkbox" name="webrip" value="web-dl"/>
+            #end if
+            &emsp;&nbsp;&nbsp;Web
+            #if $autosub.WEB == 'web-dl'
+              <input type="checkbox" name="web" checked value="web-dl"/>
+            #else
+              <input type="checkbox" name="web" value="web-dl"/>
+            #end if
+          </div>
+        </div>
 
-<hr>
+        <!--
+        <div class="form-group">
+          <label class="col-sm-2 control-label">Distro/Source match
+            <a data-placement="bottom" data-toggle="tooltip" title="Source is also considerd to be matched, when Distro is matched or Distro in sub en 'web' in videonaam.">
+              <span class="glyphicon glyphicon-info-sign"></span>
+            </a>
+          </label>
+          <div class="col-sm-2">
+            #if $autosub.EQUALMATCH
+              <div class="checkbox-inline"><input type="checkbox" name="equalmatch" checked value="Yes"/></div>
+            #else:
+              <div class="checkbox"><input type="checkbox"  name="equalmatch" value="Yes"/></div>
+            #end if
+          </div>
+        </div>
+        -->
 
-<div class="row">
-    <label class="col-sm-2 control-label">Languages
-        <a data-toggle="tooltip" title="Select the languages you want to want subs for.">
-            <span class="glyphicon glyphicon-info-sign"></span>
-        </a>
-    </label>
-    	<div class="form-group">&nbsp;</div>
-	<div class="row">
-		<div class="col-sm-2"></div>
-		<div class="col-sm-2">
-			#if $autosub.DOWNLOADDUTCH == True:
-				<input type="checkbox" name="downloaddutch" checked value="Yes">&emsp;Dutch
-			#else:
-				<input type="checkbox" name="downloaddutch" value="Yes">&emsp;Dutch
-			#end if
-		</div>
-		<div class="col-sm-1">
-			#if $autosub.NOTIFYNL == True:
-				<input type="checkbox" name="notifynl" checked value="Yes">&emsp;Notify
-			#else:
-				<input type="checkbox" name="notifynl" value="Yes">&emsp;Notify
-			#end if
-		</div>
+        <hr>
+        <!--Languages choice-->
+        <div class="form-group">
+          <label class="col-sm-2 control-label">Languages
+            <a data-toggle="tooltip" title="Select the languages you want to want subs for.">
+              <span class="glyphicon glyphicon-info-sign"></span>
+            </a>
+          </label>
+          <div class="col-sm-2">
+            #if $autosub.DOWNLOADDUTCH == True:
+              <input type="checkbox" name="downloaddutch" checked value="Yes"/>&emsp;Dutch&nbsp;&nbsp;
+            #else:
+              <input type="checkbox" name="downloaddutch" value="Yes"/>&emsp;Dutch&nbsp;&nbsp;
+            #end if
+          </div>
+          <div class="col-sm-1">
+            #if $autosub.NOTIFYNL == True:
+              <input type="checkbox" name="notifynl" checked value="Yes"/>&emsp;Notify
+            #else:
+              <input type="checkbox" name="notifynl" value="Yes"/>&emsp;Notify
+            #end if
+          </div>
+          <label for="DutchSubtitleSuffix" class="col-sm-2 control-label">Dutch Suffix 
+            <a data-toggle="tooltip" title="Dutch subtitles are renamed to: filename.Dutch-extension.srt. Default is empty.">
+              <span class="glyphicon glyphicon-info-sign"></span>
+            </a>
+          </label>
+          <div class="col-sm-1">
+             <input type="text" class="form-control" name="subnl" value="$autosub.SUBNL"/>
+          </div>
+          <div class="form-group">&nbsp;</div>
+          <div class="col-sm-2"></div>
+          <div class="col-sm-2">
+            #if $autosub.DOWNLOADENG == True:
+              <input type="checkbox" name="downloadeng" checked value="Yes"/>&emsp;English
+            #else:
+              <input type="checkbox" name="downloadeng" value="Yes"/>&emsp;English
+            #end if
+          </div>
+          <div class="col-sm-1">
+            #if $autosub.NOTIFYEN == True:
+              <input type="checkbox" name="notifyen" checked value="Yes"/>&emsp;Notify
+            #else:
+              <input type="checkbox" name="notifyen" value="Yes"/>&emsp;Notify
+            #end if
+          </div>
+          <label for="EnglishSubtitleSuffix" class="col-sm-2 control-label">English Suffix 
+            <a data-toggle="tooltip" title="English subtitles are renamed to: filename.English-extension.srt. Must be different from the dutch extension.">
+              <span class="glyphicon glyphicon-info-sign"></span>
+            </a>
+          </label>
+          <div class="col-sm-1">
+            <input type="text" class="form-control" name="subeng" value="$autosub.SUBENG" placeholder="en"/>
+          </div>
+        </div>
+        <hr>
 
-		<label for="DutchSubtitleSuffix" class="col-sm-2 control-label">Dutch Suffix 
-			<a data-toggle="tooltip" title="Dutch subtitles are renamed to: filename.Dutch-extension.srt. Default is empty.">
-				<span class="glyphicon glyphicon-info-sign"></span>
-			</a>
-		</label>
-		<div class="col-sm-1 form-group-sm-1"><input type="text" class="form-control" name="subnl" value="$autosub.SUBNL"></div>
-    	<div class="form-group">&nbsp;</div>
+        <!--Options choice-->
+        <div class="form-group">
+          <label class="col-sm-2 control-label">Options
+            <a data-toggle="tooltip" title="Select the options you want to use.">
+              <span class="glyphicon glyphicon-info-sign"></span>
+            </a>
+          </label>
+          <div class="col-sm-4">
+            #if $autosub.FALLBACKTOENG == True:
+              <input type="checkbox" name="fallbacktoeng" checked value="Yes"/>&emsp;Fallback to English if Dutch not available
+            #else:
+              <input type="checkbox" name="fallbacktoeng" value="Yes"/>&emsp;Fallback to English when Dutch not available
+            #end if
+          </div>
+          <div class="col-sm-4">
+            #if $autosub.ENGLISHSUBDELETE == True:
+              <input type="checkbox" name="englishsubdelete" checked value="Yes"/>&emsp;Remove English sub when Dutch sub arrives
+            #else:
+              <input type="checkbox" name="englishsubdelete" value="Yes"/>&emsp;Remove English sub when Dutch sub arrives
+            #end if
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-sm-2"></div>
+          <div class="col-sm-2">&nbsp;&emsp;&emsp;
+            #if $autosub.SKIPHIDDENDIRS == True:
+              <input type="checkbox" name="skiphiddendirs" checked value="Yes"/>&emsp;Skip hidden Dir's
+            #else:
+              <input type="checkbox" name="skiphiddendirs" value="Yes"/>&emsp;Skip hidden Dir's
+            #end if
+          </div>
+          <div class="col-sm-6">&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&nbsp;&nbsp;&nbsp;
+            #if $autosub.HI == True:
+              <input type="checkbox" name="hearingimpaired" checked value="Yes"/>&emsp;Allow Hearing Impaired subs&nbsp;
+            #else:
+              <input type="checkbox" name="hearingimpaired" value="True"/>&emsp;Allow Hearing Impaired subs&nbsp;
+            #end if
+          </div>
+        </div>        
+        <hr>
+        <div class="form-group">
+          <label for="SkipSearch" class="col-sm-2 control-label">Skip Search Dutch  
+            <a data-toggle="tooltip" title="Skip search for Dutch subtitle if string in file name. Multiple strings seperated with a comma are allowed, spaces are considered part of the skipstring.">
+              <span class="glyphicon glyphicon-info-sign"></span></a>
+          </label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" name="skipstringnl" value="$autosub.SKIPSTRINGNL" placeholder="If one this strings are found in the video name, the search for Dutch subtitles will be skipped for that video."/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="SkipSearchEN" class="col-sm-2 control-label">Skip Search English 
+            <a data-toggle="tooltip" title="Skip search for English subtitle if string in file name. Multiple strings seperated with a comma are allowed, spaces are considered part of the skipstring">
+              <span class="glyphicon glyphicon-info-sign"></span>
+            </a>
+          </label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" name="skipstringen" value="$autosub.SKIPSTRINGEN" placeholder="If one this strings are found in the video name, the search for English subtitles will be skipped for that video.">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="SkipFolder" class="col-sm-2 control-label">Skip Folder Dutch  
+            <a data-toggle="tooltip" title="Skip search for Dutch subtitle in this folder (and subfolders). Multiple strings seperated with a comma are allowed. Folder must be a subfolder of the main Serie Folder(don't include the Serie Folder part).">
+              <span class="glyphicon glyphicon-info-sign"></span></a>
+          </label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" name="skipfoldersnl" value="$autosub.SKIPFOLDERSNL" placeholder="This subfolder(s) will not be searched for dutch subs."/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="SkipFoldersEN" class="col-sm-2 control-label">Skip Folder English 
+            <a data-toggle="tooltip" title="Skip search for English subtitle in this folder (and subfolders). Multiple strings seperated with a comma are allowed. Folder must be a subfolder of the main Serie Folder(don't include the Serie Folder part).">
+              <span class="glyphicon glyphicon-info-sign"></span>
+            </a>
+          </label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" name="skipfoldersen" value="$autosub.SKIPFOLDERSEN" placeholder="This subfolder(s) will not be searched for English subs."/>
+          </div>
+        </div>      
+        <hr>
+        #set $searchinterval = $autosub.SEARCHINTERVAL/3600
+        <div class="form-group">
+          <label for="Interval" class="col-sm-2 control-label">Search Interval <a data-placement="bottom" data-toggle="tooltip" title="Change the interval between the Searches in hours.Must be between 12 and 168 hours."><span class="glyphicon glyphicon-info-sign"></span></a></label>
+          <div class="col-sm-2">
+            <div class ="input-group">
+              <input type="text" class="form-control" name="interval" value="$searchinterval" placeholder="6"/>
+              <span class="input-group-addon">hours</span>
+            </div>
+          </div>
+        </div>	
+        <div class="form-group">
+          <label for="Refresh" class="col-sm-2 control-label">Screen Refresh Time<a data-placement="bottom" data-toggle="tooltip" title="Browser refresh Time for the home page in minutes.(0 = No AutoRefresh)."><span class="glyphicon glyphicon-info-sign"></span></a></label>
+          <div class="col-sm-2">
+            <div class ="input-group">
+              <input type="number" class="form-control" name="browserrefresh" value="$autosub.BROWSERREFRESH" placeholder="0"/>
+              <span class="input-group-addon">minutes</span>
+            </div>
+          </div>
+        </div>
 
-		<div class="col-sm-2"></div>
-		<div class="col-sm-2">
-			#if $autosub.DOWNLOADENG == True:
-				<input type="checkbox" name="downloadeng" checked value="Yes">&emsp;English
-			#else:
-				<input type="checkbox" name="downloadeng" value="Yes">&emsp;English
-			#end if
-		</div>
-		<div class="col-sm-1">
-			#if $autosub.NOTIFYEN == True:
-				<input type="checkbox" name="notifyen" checked value="Yes">&emsp;Notify
-			#else:
-				<input type="checkbox" name="notifyen" value="Yes">&emsp;Notify
-			#end if
-		</div>
-        <label for="EnglishSubtitleSuffix" class="col-sm-2 control-label">English Suffix 
-			<a data-toggle="tooltip" title="English subtitles are renamed to: filename.English-extension.srt. Must be different from the dutch extension.">
-				<span class="glyphicon glyphicon-info-sign"></span>
-			</a>
-		</label>
+        <div class="form-group">
+          <label class="col-sm-2 control-label">Codec for subfile 
+            <a data-toggle="tooltip" data-html="true" title="Choose the codec for the subtitle file.<br>Windows or UTF-8&nbsp;(for linux mediaplayers).">
+              <span class="glyphicon glyphicon-info-sign"></span>
+            </a>
+          </label>
+          <div class="col-sm-2">
+            <select name="subcodec" class="form-control">
+              <option value="windows-1252" #if $autosub.SUBCODEC == "windows-1252" then 'selected="selected"' else ""#>windows-1252</option>
+              <option value="utf-8"        #if $autosub.SUBCODEC == "utf-8"        then 'selected="selected"' else ""#>utf-8</option>
+            </select>
+          </div>
+        </div>
 
-        <div class="col-sm-1 form-group-sm-1"><input type="text" class="form-control" name="subeng" value="$autosub.SUBENG" placeholder="en"></div>
-    	<div class="form-group">&nbsp;</div>
-    	<div class="form-group">&nbsp;</div>
+        <div class="row">
+          <div class="form-group">
+            <label class="col-sm-2 control-label">Launch Browser 
+              <a data-toggle="tooltip" title="Should we start a browser every time Auto-Sub starts? This overwrites the commandline parameters.">
+                <span class="glyphicon glyphicon-info-sign"></span>
+              </a>
+            </label>
+            <div class="col-sm-1">
+              #if $autosub.LAUNCHBROWSER == True:
+                <div class="checkbox-inline"><input type="checkbox" name="launchbrowser" checked value="True"/></div>
+              #else:
+                <div class="checkbox"><input type="checkbox" name="launchbrowser" value="True"/></div>
+              #end if
+            </div>
+          </div>
 
-		<label class="col-sm-2 control-label">Options
-			<a data-toggle="tooltip" title="Select the options you want to use.">
-				<span class="glyphicon glyphicon-info-sign"></span>
-			</a>
-		</label>
-
-		<div class="col-sm-4">
-			#if $autosub.FALLBACKTOENG == True:
-				<input type="checkbox" name="fallbacktoeng" checked value="Yes">&emsp;Fallback to English if Dutch not available
-			#else:
-				<input type="checkbox" name="fallbacktoeng" value="Yes">&emsp;Fallback to English when Dutch not available
-			#end if
-		</div>
-		<div class="form-group">&nbsp;</div>
-		<div class="col-sm-2"></div>
-		<div class="col-sm-4">
-			#if $autosub.ENGLISHSUBDELETE == True:
-				<input type="checkbox" name="englishsubdelete" checked value="Yes">&emsp;Remove English sub when Dutch sub arrives
-			#else:
-				<input type="checkbox" name="englishsubdelete" value="True">&emsp;Remove English sub when Dutch sub arrives
-			#end if
-		</div>
-		<div class="form-group">&nbsp;</div>
-		<div class="col-sm-2"></div>
-		<div class="col-sm-4">
-			#if $autosub.HI == True:
-				<input type="checkbox" name="hearingimpaired" checked value="Yes">&emsp;Allow Hearing Impaired subs
-			#else:
-				<input type="checkbox" name="hearingimpaired" value="True">&emsp;Allow Hearing Impaired subs
-			#end if
-		</div>
-
-	</div>
-</div>	
-				
-<hr>
-<div>		
-	<div class="form-group">
-		<label for="SkipSearch" class="col-sm-2 control-label">Skip Search Dutch  
-			<a data-toggle="tooltip" title="Skip search for Dutch subtitle if string in file name. Multiple strings seperated with a comma are allowed, spaces are considered part of the skipstring.">
-				<span class="glyphicon glyphicon-info-sign"></span></a>
-		</label>
-		<div class="col-sm-10">
-			<input type="text" class="form-control" name="skipstringnl" value="$autosub.SKIPSTRINGNL" placeholder="If one this strings are found in the video name, the search for Dutch subtitles will be skipped for that video.">
-		</div>
-	</div>
-	<div class="form-group">
-		<label for="SkipSearchEN" class="col-sm-2 control-label">Skip Search English 
-			<a data-toggle="tooltip" title="Skip search for English subtitle if string in file name. Multiple strings seperated with a comma are allowed, spaces are considered part of the skipstring">
-				<span class="glyphicon glyphicon-info-sign"></span>
-			</a>
-		</label>
-		<div class="col-sm-10">
-			<input type="text" class="form-control" name="skipstringen" value="$autosub.SKIPSTRINGEN" placeholder="If one this strings are found in the video name, the search for English subtitles will be skipped for that video.">
-		</div>
-	</div>
-</div>
-
-<div>		
-	<div class="form-group">
-		<label for="SkipFolder" class="col-sm-2 control-label">Skip Folder Dutch  
-			<a data-toggle="tooltip" title="Skip search for Dutch subtitle in this folder (and subfolders). Multiple strings seperated with a comma are allowed. Folder must be a subfolder of the main Serie Folder(don't include the Serie Folder part).">
-				<span class="glyphicon glyphicon-info-sign"></span></a>
-		</label>
-		<div class="col-sm-10">
-			<input type="text" class="form-control" name="skipfoldersnl" value="$autosub.SKIPFOLDERSNL" placeholder="This subfolder(s) will not be searched for dutch subs.">
-		</div>
-	</div>
-	<div class="form-group">
-		<label for="SkipFoldersEN" class="col-sm-2 control-label">Skip Folder English 
-			<a data-toggle="tooltip" title="Skip search for English subtitle in this folder (and subfolders). Multiple strings seperated with a comma are allowed. Folder must be a subfolder of the main Serie Folder(don't include the Serie Folder part).">
-				<span class="glyphicon glyphicon-info-sign"></span>
-			</a>
-		</label>
-		<div class="col-sm-10">
-			<input type="text" class="form-control" name="skipfoldersen" value="$autosub.SKIPFOLDERSEN" placeholder="This subfolder(s) will not be searched for English subs.">
-		</div>
-	</div>
-</div>
-				
-<hr>
-#set $searchinterval = $autosub.SEARCHINTERVAL/3600
-<div class="form-group">
-	<label for="Interval" class="col-sm-2 control-label">Search Interval <a data-placement="bottom" data-toggle="tooltip" title="Change the interval between the Searches in hours.Cannot not be set lower then 6 hours."><span class="glyphicon glyphicon-info-sign"></span></a></label>
-	<div class="col-sm-2">
-		<div class ="input-group">
-			<input type="text" class="form-control" name="interval" value="$searchinterval" placeholder="6">
-			<span class="input-group-addon">hours</span>
-		</div>
-	</div>
-</div>	
-<div class="form-group">
-	<label for="Refresh" class="col-sm-2 control-label">Screen Refresh Timer <a data-placement="bottom" data-toggle="tooltip" title="Browser refresh Time for the home page in minutes.(0 = No AutoRefresh)."><span class="glyphicon glyphicon-info-sign"></span></a></label>
-	<div class="col-sm-2">
-		<div class ="input-group">
-			<input type="number" class="form-control" name="browserrefresh" value="$autosub.BROWSERREFRESH" placeholder="0">
-			<span class="input-group-addon">minutes</span>
-		</div>
-	</div>
-</div>
-
-
-<div class="form-group">
-	<label class="col-sm-2 control-label">Launch Browser 
-		<a data-toggle="tooltip" title="Should we start a browser every time Auto-Sub starts? This overwrites the commandline parameters.">
-			<span class="glyphicon glyphicon-info-sign"></span>
-		</a>
-	</label>
-	<div class="col-sm-5">
-		#if $autosub.LAUNCHBROWSER == True:
-			<div class="checkbox-inline"><input type="checkbox" name="launchbrowser" checked value="True"></div>
-		#else:
-			<div class="checkbox"><input type="checkbox" name="launchbrowser" value="True"></div>
-		#end if
-	</div>
-</div>
-
-<div class="form-group">
-	<label class="col-sm-2 control-label">Skip Hidden 
-		<a data-toggle="tooltip" title="Should we scan hidden directories (directories that start with a dot, for example .AppleDouble)? Doesn't work for Windows style hidden directories.">
-			<span class="glyphicon glyphicon-info-sign"></span>
-		</a>
-	</label>
-	<div class="col-sm-5">
-		#if $autosub.SKIPHIDDENDIRS == True:
-			<div class="checkbox-inline"><input type="checkbox" name="skiphiddendirs" checked value="True"></div>
-		#else:
-			<div class="checkbox"><input type="checkbox" name="skiphiddendirs" value="True"></div>
-		#end if
-	</div>
-</div>
-
-<div class="form-group">
-	<label class="col-sm-2 control-label">Home table order 
-		<a data-toggle="tooltip" title="Which table do you want displayed first on the Home page? (Wanted or Downloaded).">
-			<span class="glyphicon glyphicon-info-sign"></span>
-		</a>
-	</label>
-	<div class="col-sm-5">
-		#if $autosub.WANTEDFIRST:
-			<div class="checkbox-inline"><input type="checkbox" name="wantedfirst" checked value="Yes">Wanted first</div>
-		#else:
-			<div class="checkbox"><input type="checkbox" name="wantedfirst" value="Yes">Wanted first</div>
-		#end if
-	</div>
-</div>
-
-<div class="form-group">
-	<label for="SubCodec" class="col-sm-2 control-label">Codec for subfile 
-		<a data-placement="bottom" data-toggle="tooltip" title="Choose the codec for the subtitlefile. Windows or UTF-8(for linux mediaplayers).">
-			<span class="glyphicon glyphicon-info-sign"></span>
-		</a>
-	</label>
-	<div class="col-sm-2">
-		<select name="subcodec" class="form-control">
-			<option value="windows-1252" #if $autosub.SUBCODEC == "windows-1252" then 'selected="selected"' else ""#>windows-1252</option>
-			<option value="utf-8"        #if $autosub.SUBCODEC == "utf-8"        then 'selected="selected"' else ""#>utf-8</option>
-		</select>
-	</div>
-</div>
-<br>
-<div class="protection">&nbsp;
-	<label class="col-sm-2 text-center">SubFile Privs</label> 
-		<a data-toggle="tooltip" title="Does not work on Windows!)">
-			<span class="glyphicon glyphicon-info-sign"></span>
-		</a>
-	<label class="col-sm-1 text-center">&nbsp;&nbsp;&nbsp;&nbsp;Owner</label> 
-	<label class="col-sm-1 text-center">&nbsp;&nbsp;Group</label>
-	<label class="col-sm-1 text-center">Everyone</label>
-	<label class="col-sm-7 text-center"></label>
-</div> 
-<div class="form-group">
-	<label class="col-sm-2 control-label">Read
-		<a data-toggle="tooltip" title="Give read access on subtitle file">
-			<span class="glyphicon glyphicon-info-sign"></span>
-		</a>
-	</label>
-	<div class="col-sm-4">
-	    <label class="col-sm-1 text-center">&nbsp;</label>
-		#if $autosub.SUBRIGHTS['owner'] & 4
-			<div class="col-sm-3"><input type="checkbox" name="ReadOwner" checked value="True"></div>
-		#else
-			<div class="col-sm-3"><input type="checkbox" name="ReadOwner" value="False"></div>
-		#end if
-		#if $autosub.SUBRIGHTS['group'] & 4
-			<div class="col-sm-3"><input type="checkbox" name="ReadGroup" checked value="True"></div>
-		#else
-			<div class="col-sm-3"><input type="checkbox" name="ReadGroup" value="False"></div>
-		#end if
-		#if $autosub.SUBRIGHTS['world'] & 4
-			<div class="col-sm-3"><input type="checkbox" name="ReadWorld" checked value="True"></div>
-		#else
-			<div class="col-sm-3"><input type="checkbox" name="ReadWorld" value="False"></div>
-		#end if
-	</div>
-</div>
-<div class="form-group">
-	<label class="col-sm-2 control-label">Write
-		<a data-toggle="tooltip" title="Give write access on subtitle file">
-			<span class="glyphicon glyphicon-info-sign"></span>
-		</a>
-	</label>
-	<div class="col-sm-4">
-	    <label class="col-sm-1 text-center"></label> 
-		#if $autosub.SUBRIGHTS['owner'] & 2
-			<div class="col-sm-3"><input type="checkbox" name="WriteOwner" checked value="True"></div>
-		#else
-			<div class="col-sm-3"><input type="checkbox" name="WriteOwner" value="False"></div>
-		#end if
-		#if $autosub.SUBRIGHTS['group'] & 2
-			<div class="col-sm-3"><input type="checkbox" name="WriteGroup" checked value="True"></div>
-		#else
-			<div class="col-sm-3"><input type="checkbox" name="WriteGroup" value="False"></div>
-		#end if
-		#if $autosub.SUBRIGHTS['world'] & 2
-			<div class="col-sm-3"><input type="checkbox" name="WriteWorld" checked value="True"></div>
-		#else
-			<div class="col-sm-3"><input type="checkbox" name="WriteWorld" value="False"></div>
-		#end if
-	</div>
-</div>
-#set $Cmd = "For Example:  " + $os.path.join($os.path.dirname($sys.executable),"python") + " " + $os.path.join($autosub.PATH,"PostProcessScript.py")
-<div class="form-group">
-	<label for="PostProcess" class="col-sm-2 control-label">Post Process Cmd 
-		<a data-placement="bottom" data-toggle="tooltip" title="Auto-Sub will run this command after downloading a subtitle. Check the wiki for more info.">
-			<span class="glyphicon glyphicon-info-sign"></span>
-		</a>
-	</label>
-	<div class="col-sm-10"><input type="text" class="form-control" name="postprocesscmd" value="$autosub.POSTPROCESSCMD" placeholder="$Cmd"></div>
-</div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label">Skip Hidden 
+              <a data-toggle="tooltip" title="Should we scan hidden directories (directories that start with a dot, for example .AppleDouble)? Doesn't work for Windows style hidden directories.">
+                <span class="glyphicon glyphicon-info-sign"></span>
+              </a>
+            </label>
+            <div class="col-sm-1">
+              #if $autosub.SKIPHIDDENDIRS == True:
+                <div class="checkbox-inline"><input type="checkbox" name="skiphiddendirs" checked value="True"/></div>
+              #else:
+                <div class="checkbox"><input type="checkbox" name="skiphiddendirs" value="True"/></div>
+              #end if
+            </div>
+          </div>
+          <br>
+          <div class="form-group">
+            <label class="col-sm-2 control-label">SubFile Privs
+              <a data-toggle="tooltip" title="Does not work on Windows!">
+                <span class="glyphicon glyphicon-info-sign"></span>
+              </a>
+            </label>
+            <label class="col-sm-1 text-center">&nbsp;&nbsp;&nbsp;&nbsp;Owner</label> 
+            <label class="col-sm-1 text-center">&nbsp;&nbsp;Group</label>
+            <label class="col-sm-1 text-center">Everyone</label>
+            <label class="col-sm-7 text-center"></label>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label">Read
+              <a data-toggle="tooltip" title="Give read access on subtitle file">
+                <span class="glyphicon glyphicon-info-sign"></span>
+              </a>
+            </label>
+            <div class="col-sm-4">
+              #if $autosub.SUBRIGHTS['owner'] & 4
+                <div class="col-sm-3"><input type="checkbox" name="ReadOwner" checked value="True"/></div>
+              #else
+                <div class="col-sm-3"><input type="checkbox" name="ReadOwner" value="False"/></div>
+              #end if
+              #if $autosub.SUBRIGHTS['group'] & 4
+                <div class="col-sm-3"><input type="checkbox" name="ReadGroup" checked value="True"/></div>
+              #else
+                <div class="col-sm-3"><input type="checkbox" name="ReadGroup" value="False"/></div>
+              #end if
+              #if $autosub.SUBRIGHTS['world'] & 4
+                <div class="col-sm-3"><input type="checkbox" name="ReadWorld" checked value="True"/></div>
+              #else
+                <div class="col-sm-3"><input type="checkbox" name="ReadWorld" value="False"/></div>
+              #end if
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label">Write
+              <a data-toggle="tooltip" title="Give write access on subtitle file">
+                <span class="glyphicon glyphicon-info-sign"></span>
+              </a>
+            </label>
+            <div class="col-sm-4">
+              #if $autosub.SUBRIGHTS['owner'] & 2
+                <div class="col-sm-3"><input type="checkbox" name="WriteOwner" checked value="True"/></div>
+              #else
+                <div class="col-sm-3"><input type="checkbox" name="WriteOwner" value="False"/></div>
+              #end if
+              #if $autosub.SUBRIGHTS['group'] & 2
+                <div class="col-sm-3"><input type="checkbox" name="WriteGroup" checked value="True"/></div>
+              #else
+                <div class="col-sm-3"><input type="checkbox" name="WriteGroup" value="False"/></div>
+              #end if
+              #if $autosub.SUBRIGHTS['world'] & 2
+                <div class="col-sm-3"><input type="checkbox" name="WriteWorld" checked value="True"/></div>
+              #else
+                <div class="col-sm-3"><input type="checkbox" name="WriteWorld" value="False"/></div>
+              #end if
+            </div>
+          </div>
+          #set $Cmd = "For Example:  " + $os.path.join($os.path.dirname($sys.executable),"python") + " " + $os.path.join($autosub.PATH,"PostProcessScript.py")
+          <div class="form-group">
+            <label for="PostProcess" class="col-sm-2 control-label">Post Process Cmd 
+              <a data-placement="bottom" data-toggle="tooltip" title="Auto-Sub will run this command after downloading a subtitle.">
+                <span class="glyphicon glyphicon-info-sign"></span>
+              </a>
+            </label>
+            <div class="col-sm-8"><input type="text" class="form-control" name="postprocesscmd" value="$autosub.POSTPROCESSCMD" placeholder="$Cmd"></div>
+          </div>
+        </div>

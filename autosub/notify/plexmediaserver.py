@@ -69,7 +69,7 @@ def _update_library(plexserverhost, plexserverport, plexserverusername, plexserv
                 "X-Plex-Version": "1.0"
             }
             try:
-                response = requests.post("https://plex.tv/users/sign_in.xml", headers=headers,verify=autosub.CERTIFICATEPATH,timeout=10);
+                response = requests.post("https://plex.tv/users/sign_in.xml", headers=headers,verify=autosub.CERT,timeout=10);
             except:
                 log.error("Error while trying to contact plexmediaserver")
                 return False

@@ -4,13 +4,14 @@ $(document).ready(function () {
         "deferRender": true,
         "orderClasses": true,
         "stateSave": true,
-        "iCookieDuration": 60 * 60 * 24 * 365,
+        "iCookieDuration": 32000000,
         "stateDuration": -1,
         "lengthMenu": [ [5, 10, 25, 50, 100, -1],[5, 10, 25, 50, 100, "All"] ],
-        "order": [[3, "desc"]],
+        "order": [[4, "asc"]],
         "columnDefs": [
+            {"orderData": [3, 4], "targets": [3] },
             {"orderData": [0, 1, 2], "targets": [0] },
-            {"orderable": false, "targets": [4, 5, 11, 12]}
+            {"orderable": false, "targets": [5, 11, 12]}
         ],
     });
 
@@ -18,7 +19,7 @@ $(document).ready(function () {
         "deferRender": true,
         "orderClasses": true,
         "stateSave": true,
-        "iCookieDuration": 60 * 60 * 24 * 365,
+        "iCookieDuration": 32000000,
         "stateDuration": -1,
         "lengthMenu": [ [5, 10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"] ],
         "order": [[3, "desc"]],
@@ -290,16 +291,3 @@ $(document).ready(function () {
     });  
 });
 
-
-// Code to sort the Wanted/Downloaded tables on the Home page.
-var lines = $(".overview");
-var elems = $(".overview div");
-var numElems = elems.length;
-for (var index = 1; index <= elems.length; index++) {
-    var elemId = "Display" + index;
-    var containerIndex = parseInt((index - 1) / 4, 10);
-    var container = lines[containerIndex];
-    var elem = document.getElementById(elemId);
-    elem.parentNode.removeChild(elem);
-    container.appendChild(elem);
-}

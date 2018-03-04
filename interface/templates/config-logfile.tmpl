@@ -24,19 +24,6 @@
   </div>
 
   <div class="form-group">
-    <label for="Loglevelconsole" class="col-sm-4 control-label">Loglevel Console
-      <a data-placement="right" data-toggle="tooltip" title="Set the loglevel for the console."><span class="glyphicon glyphicon-info-sign"></span></a>
-    </label>
-    <div class="col-sm-3">
-      <select name="loglevelconsole" class="form-control">
-        <option value=$logging.INFO  #if $autosub.LOGLEVELCONSOLE == 20 then 'selected="selected"' else "" #>Info</option>
-        <option value=$logging.ERROR #if $autosub.LOGLEVELCONSOLE == 40 then 'selected="selected"' else "" #>Error</option>
-        <option value=$logging.DEBUG #if $autosub.LOGLEVELCONSOLE == 10 then 'selected="selected"' else "" #>Debug</option>
-      </select>
-    </div>
-  </div>
-
-  <div class="form-group">
     <label for="Lognum" class="col-sm-4 control-label">Max logfile's
       <a data-placement="right" data-toggle="tooltip" title="Number of logfiles to keep on disk."><span class="glyphicon glyphicon-info-sign"></span></a>
     </label>
@@ -57,6 +44,5 @@
       </div>
     </div>
   </div>
-
 
 </div>

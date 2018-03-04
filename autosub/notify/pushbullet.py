@@ -1,7 +1,7 @@
 import logging
 import autosub
 import json
-from requests.auth import HTTPBasicAuth
+from library.requests.auth import HTTPBasicAuth
 from httplib import HTTPSConnection
 from urllib import urlencode
 

@@ -1,21 +1,18 @@
 # 
 # Autosub Tvdb.py 
 #
-# The Tvdb API V1 and V2 module
+# The Tvdb API V2 module
 #
-import cgi
 from logging import getLogger
-import requests
+import library.requests as requests
 from json import dumps
 from time import time
-from urllib import quote
 from difflib import SequenceMatcher as SM
 try:
     import xml.etree.cElementTree as ET
 except:
     import xml.etree.ElementTree as ET
 import autosub
-from datetime import date
 
 log = getLogger('thelogger')
 
@@ -25,30 +22,26 @@ def _checkToken():
        return GetToken()
         # if token is about to expire refresh the token lease time
     elif time() - autosub.TVDBTIME > 80000:
-        if not requests.head(autosub.TVDBAPI,timeout=10).ok:
-            log.error('Tvdb website is not reachable')
-            return False
+        try:
+            if not requests.head(autosub.TVDBAPI,verify=autosub.CERT,timeout=10).ok:
+                log.error('Tvdb website is not reachable')
+                return False
+        except Exception as error:
+                log.error(error.message)
+                return False
         autosub.TVDBTIME = time()
-        TvdbResult = autosub.TVDBSESSION.get(autosub.TVDBAPI + '/refresh_token',data=autosub.TVDBSESSION.headers['Authorization'][7:],timeout=10).json()
-        if not 'Error' in TvdbResult and 'token' in TvdbResult:
-            return True
-        else:
-                # token lease refresh failed so we try to get a new token.
-            return GetToken()
+        try:
+            TvdbResult = autosub.TVDBSESSION.get(autosub.TVDBAPI + '/refresh_token',data=autosub.TVDBSESSION.headers['Authorization'][7:],timeout=10).json()
+            if not 'Error' in TvdbResult and 'token' in TvdbResult:
+                return True
+            else:
+                    # token lease refresh failed so we try to get a new token.
+                return GetToken()
+        except Exception as error:
+            log.error(error.message)
+            return False
         #Token is available and lease is not expired so everthing is ok
     return True
-
-
-#def _FindImdbId(TvdbId):
-#   if not _checkToken():
-#        return False
-#   Result = autosub.TVDBSESSION.get(autosub.TVDBAPI + '/series/' + TvdbId, data=autosub.TVDBSESSION.headers['Authorization'][7:],timeout=10).json()
-#   if 'Error' in Result:
-#       log.debug("Tvdb returnd an error: %s" % Result['Error'])
-#       return None,None,None
-#   return Result['data']['imdbId'][2:]
-
-
 
 def GetToken(user=None,id=None):
     if not autosub.TVDBACCOUNTID:
@@ -67,26 +60,23 @@ def GetToken(user=None,id=None):
         auth_data['userkey']  = autosub.TVDBACCOUNTID   
     Data = dumps(auth_data)
     try:
-        TvdbResult = autosub.TVDBSESSION.post(autosub.TVDBAPI + '/login',data=Data,timeout=10).json()
-    except Exception as error:
-        log.error('Login problem. error= %s' % error)
-    if 'Error' in TvdbResult:
-        if Test:
-            log.info('Message from Tvdb API is: "%s"' % TvdbResult['Error'])
-        else:
+        TvdbResult = autosub.TVDBSESSION.post(autosub.TVDBAPI + '/login',data=Data,verify=autosub.CERT,timeout=10).json()
+        if 'Error' in TvdbResult:
             log.error('Error from Tvdb API is: "%s"' % TvdbResult['Error'])
+            return False
+            # Check if we got a token
+        elif 'token' in TvdbResult:
+                # if not a Test from userinterface, store the data in the session header, otherwise ignore the data and just return success
+            if not Test:
+                autosub.TVDBTIME = time()
+                autosub.TVDBSESSION.headers.update({"Authorization": "Bearer " + TvdbResult['token']})
+            return True
+        else:
+            log.error("No Token returned from Tvdb API. Maybe connection problems?")
+            return False
+    except Exception as error:
+        log.error(error.message)
         return False
-        # Check if we got a token
-    if 'token' in TvdbResult:
-            # if not a Test from userinterface, store the data in the session header, otherwise ignore the data and just return success
-        if not Test:
-            autosub.TVDBTIME = time()
-            autosub.TVDBSESSION.headers.update({"Authorization": "Bearer " + TvdbResult['token']})
-        return True
-    else:
-        log.error("No Token returned from Tvdb API. Maybe connection problems?")
-        return False
-
 
 def GetTvdbId(ShowName):
     """
@@ -96,17 +86,18 @@ def GetTvdbId(ShowName):
     """
     Name = ShowName.replace("&"," ")
     if not(autosub.TVDBACCOUNTID and _checkToken()) :
-        return None, None, None
+        return None, None, ShowName
     try:
-        Result = autosub.TVDBSESSION.get(autosub.TVDBAPI + '/search/series?name=' + Name, data=autosub.TVDBSESSION.headers['Authorization'][7:],timeout=10).json()
+        Result = autosub.TVDBSESSION.get(autosub.TVDBAPI + '/search/series?name=' + Name, data=autosub.TVDBSESSION.headers['Authorization'][7:],verify=autosub.CERT,timeout=10).json()
+        if 'Error' in Result:
+            log.error("Tvdb returnd an error: %s" % Result['Error'])
+            return None,None,ShowName
     except Exception as error:
         log.error(error.message)
-        return None, None, None
-    if 'Error' in Result:
-        log.error("Tvdb returnd an error: %s" % Result['Error'])
-        return None,None,None
+        return None, None, ShowName
 
     HighScore = 0
+    HighName = None
     for Data in Result['data']:
         Score = SM(None, Data['seriesName'].upper(), ShowName.upper()).ratio()
         if Score >= HighScore and Score > 0.666 :
@@ -115,19 +106,19 @@ def GetTvdbId(ShowName):
             HighName = Data['seriesName']
     if HighName:
         try:
-            Result = autosub.TVDBSESSION.get(autosub.TVDBAPI + '/series/' + TvdbId, data=autosub.TVDBSESSION.headers['Authorization'][7:],timeout=10).json()
+            Result = autosub.TVDBSESSION.get(autosub.TVDBAPI + '/series/' + TvdbId, data=autosub.TVDBSESSION.headers['Authorization'][7:],verify=autosub.CERT,timeout=10).json()
             if 'Error' in Result:
                 log.error("Tvdb returned an error: %s" % Result['Error'])
-                return None, None, None
+                return None, None, ShowName
             else:
                 ImdbId = Result['data']['imdbId'][2:] if len( Result['data']['imdbId']) > 2 else None
-                TvdbId = str(Result['data']['id']).decode("utf-8")
+                TvdbId = str(Result['data']['id']).decode("utf-8") if Result['data']['id'] else None
                 return ImdbId, TvdbId, HighName
         except Exception as error:
             log.error(error.message)
-            return None, None, None
+            return None, None, ShowName
     log.debug("Tvbd did not return a match for: %s" % ShowName)
-    return None, None, None
+    return None, None, ShowName
 
 
 def GetShowName(ImdbId):
@@ -137,9 +128,10 @@ def GetShowName(ImdbId):
     if not (autosub.TVDBACCOUNTID and _checkToken()):
         return None, None
     try:
-        Result = autosub.TVDBSESSION.get(autosub.TVDBAPI + '/search/series?imdbId=tt' + ImdbId, data=autosub.TVDBSESSION.headers['Authorization'][7:],timeout=10).json()
+        Result = autosub.TVDBSESSION.get(autosub.TVDBAPI + '/search/series?imdbId=tt' + ImdbId, data=autosub.TVDBSESSION.headers['Authorization'][7:],verify=autosub.CERT,timeout=10).json()
     except Exception as error:
         log.error(error.message)
+        return None, None
     if 'Error' in Result:
         log.error("Tvdb returned an error: %s" % Result['Error'])
         return None, None
@@ -150,9 +142,11 @@ def FindEpTitle(TvdbId, Season, Episode):
         return None
     Cmd = autosub.TVDBAPI + '/series/%s/episodes/query?airedSeason=%s&airedEpisode=%s'%(TvdbId,Season,Episode)
     try:
-        Result = autosub.TVDBSESSION.get(Cmd,timeout=10).json()
+        Result = autosub.TVDBSESSION.get(Cmd,verify=autosub.CERT,timeout=10).json()
     except Exception as error:
         log.error(error.message)
+        return None
     if 'Error' in Result:
-        log.error("Tvdb returnd an error: %s" % Result['Error']) 
+        log.error("Tvdb returnd an error: %s" % Result['Error'])
+        return None
     return Result['data'][0]['episodeName']
