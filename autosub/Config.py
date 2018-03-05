@@ -23,7 +23,6 @@ def ReadConfig():
             cfg.readfp(fp)
     except Exception as error:
         if error.errno == 2:
-            print "No config found so a default config.properties is created."
             Message = WriteConfig()
             return
         else:
@@ -31,7 +30,6 @@ def ReadConfig():
             sys.exit(1)
     section = 'config'
     if not cfg.has_section(section):
-        print "No config found so a default config.properties is created."
         Message = WriteConfig()
         return
         # Check to see if we were updated and if so remove this info from the config.
@@ -273,9 +271,9 @@ def WriteConfig():
     cfg.set(section, "configversion", str(autosub.CONFIGVERSION ))
     cfg.set(section, 'searchinterval', str(autosub.SEARCHINTERVAL))
     cfg.set(section, "browserrefresh", str(autosub.BROWSERREFRESH))
+    cfg.set(section, "opensubtitlespasswd", autosub.OPENSUBTITLESPASSWD)
     cfg.set(section, "postprocesscmd", autosub.POSTPROCESSCMD)
     cfg.set(section, "opensubtitlesuser", autosub.OPENSUBTITLESUSER)
-    cfg.set(section, "opensubtitlespasswd", autosub.OPENSUBTITLESPASSWD)
     cfg.set(section, "addic7eduser", autosub.ADDIC7EDUSER)
     cfg.set(section, "addic7edpasswd", autosub.ADDIC7EDPASSWD)
     cfg.set(section, "tvdbuser", autosub.TVDBUSER)
@@ -430,16 +428,12 @@ def displayAddic7edmapping():
 def _upgradeConf(cfg, from_version, to_version):
     if from_version == 0:
         return
-    print "Config: Upgrading config version from %d to %d" %(from_version, to_version)
     upgrades = to_version - from_version
     if upgrades != 1:
-        print "Config: More than 1 upgrade required. Starting subupgrades"
         for x in range (0, upgrades):
             _upgradeConf(cfg, from_version + x, from_version + x + 1)
     else:
         if from_version == 1 and to_version == 2:
-            print "Config: Upgrading minmatchscores"
-            print "Config: Old value's Minmatchscore: %d" %(autosub.MINMATCHSCORE)
             if autosub.MINMATCHSCORE != 0:
                 if (autosub.MINMATCHSCORE % 2) == 0:
                     autosub.MINMATCHSCORE = (autosub.MINMATCHSCORE * 2) + 2
@@ -447,7 +441,6 @@ def _upgradeConf(cfg, from_version, to_version):
                     autosub.MINMATCHSCORE = (autosub.MINMATCHSCORE * 2) + 1
             autosub.CONFIGVERSION = 2
             WriteConfig()
-            print "Config: Config upgraded to version 2"
         elif from_version == 2 and to_version == 3:
             for title in autosub.SKIPSHOWUPPER:
                 items = autosub.SKIPSHOWUPPER[title]
@@ -456,7 +449,6 @@ def _upgradeConf(cfg, from_version, to_version):
                 string_items = ','.join(items)
             autosub.CONFIGVERSION = 3
             WriteConfig()
-            print "Config: Config upgraded to version 3"
         elif from_version == 3 and to_version == 4:
             if cfg.has_option('config', 'checksub'): autosub.SEARCHINTERVAL = cfg.getint('config', 'checksub')
             if cfg.has_option('config','homelayoutfirst'):
@@ -502,4 +494,3 @@ def _upgradeConf(cfg, from_version, to_version):
                     autosub.MINMATCHSCORE += 8
                     WriteConfig()
             autosub.CONFIGVERSION = 6
-            print "Config: Config upgraded to version 6"

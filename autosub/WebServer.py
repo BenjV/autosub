@@ -492,6 +492,10 @@ class Home:
         return str(tmpl)
 
     @cherrypy.expose
+    def runHidden(self):
+        threading.Thread(target=autosub.checkSub.checkSub,args=(False,)).start()
+
+    @cherrypy.expose
     def stopSearch(self):
         tmpl = PageTemplate(file="interface/templates/home.tmpl")
         if autosub.SEARCHBUSY:
@@ -519,6 +523,7 @@ class Home:
         autosub.UPDATING = True
         autosub.MESSAGE = 'Autosub is Updated!'
         threading.Thread(target=autosub.Helpers.UpdateAutoSub).start()
+        del autosub.WANTEDQUEUE[:]
         tmpl = PageTemplate(file="interface/templates/status.tmpl")
         tmpl.modalheader = "Information"
         while autosub.UPDATING:

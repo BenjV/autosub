@@ -1,7 +1,7 @@
 #import autosub
 #from sys import executable, version
 #from os.path import split,join,dirname
-#from requests import __version__ as requestsversion
+#from library.requests import __version__ as requestsversion
 #from cherrypy import __version__ as cherrypyversion
 #from autosub.version import autosubversion
 
@@ -137,19 +137,21 @@
         </tr>
       </table>
       <hr>
-      <h4><strong>Releasenotes version 1.2.18</strong></h4>
+      <h4><strong>Releasenotes version 1.2.19</strong></h4>
       <strong>Uitbreidingen:</strong><br>
+       - Removed all output to consol when deamonising.<br>
        - De "Forced Search" pulldown  zoekt nu naar alle subs en past niet meer de leefdtijd check toe die de "scheduled" search wel heeft.<br>
        - Optie toegevoegd om web en/of webrip als web-dl te zien.<br>
        - Minimum "search interval" is nu 12 uur and max 7 dagen(= 168 uur).<br>
        - Voor video's waar niet naar gezocht wordt zal de wachttijd in dagen getoond worden.<br>
        - Voor video's die niet aan de minimale match instelling uit de config voldoen zal een streepje getoont worden.<br>
+       - De search interval tijd begin nu te lopen aan het begin van de search in plaats van aan het eind.<br>
        - Commandline opties: bij opgeven van "-c path\config.properties" zal dat path ook voor de database en logfile gebruikt worden.<br>
        - Uitbreiding van de minmatch score met disto (e.g. amazon, netflix, hbo enz.).<br>
        - Mogelijkheid om de lees/schrijf rechten van de "downloaded" sub te setten (werkt niet onder Windows).<br>
        - Mogelijkheid om een "must match" tabel van release-groepen op te nemen.<br>
       &emsp;Als autosub zo'n release-groep tegenkomt moet zowel de sub als de video de desbetreffende release-groep bevatten anders is er geen match.<br>
-       - web, webrip en web-dl zijn nu aparte source qualifiers, dus web is niet me er gelijk aan web-dl.<br>
+       - web, webrip en web-dl zijn nu aparte source qualifiers, dus web is niet meer gelijk aan web-dl.<br>
        - Lijst met meer dan 3200 releasegroepen toegevoegd die automatisch wordt geupdate vanaf github.<br>
       &emsp;Dus als er een nieuwe releasegroep opduikt of als ik er een gemist heb hoor ik het graag dan voeg ik hem toe.<br>
        - Lijst met Addic Id's wordt ook automatisch vanaf github bijgewerkt dus hier hoor ik ook graag als er een gemist wordt.<br>

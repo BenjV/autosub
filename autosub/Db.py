@@ -120,7 +120,6 @@ def createDatabase():
         cursor.execute("PRAGMA user_version = 11")
         Db.commit()
         autosub.DBVERSION = 11
-        print "createDatabase: Succesfully created the sqlite database"
     except Exception as error:
         print error.message
         os._exit(1)
@@ -128,10 +127,8 @@ def createDatabase():
     return True
 
 def upgradeDb(from_version, to_version):
-    print "upgradeDb: Upgrading database  from version %d to version %d" %(from_version, to_version)
     upgrades = to_version - from_version
     if upgrades != 1:
-        print "upgradeDb: %s upgrades are required. Starting subupgrades" % upgrades
         for x in range (0, upgrades):
             upgradeDb(from_version + x, from_version + x + 1)
     else:

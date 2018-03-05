@@ -35,7 +35,6 @@ def Initialize():
 
         # Check if the folder exits en/or is writable
     if not os.path.exists(autosub.CONFIGPATH):
-        print "Config path does not exist so creating it"
         try: 
             os.makedirs(autosub.CONFIGPATH)
         except Exception as error:
@@ -44,7 +43,6 @@ def Initialize():
     FileName = os.path.normpath(autosub.PATH +'/autosub/AutoSub.py')
     if os.path.isfile(FileName):
         os.remove(FileName)
-    print "AutoSub: Initializing variables and loading config"
 
     ReadConfig()
     if 'Alpha' in Versions.autosubversion:
@@ -104,7 +102,7 @@ def StartCherrypy():
                            })
     else:
         cherrypy.config.update({'server.socket_host': autosub.WEBSERVERIP,'server.socket_port': int(autosub.WEBSERVERPORT)})
-        RootPath = str(os.path.normpath(os.path.join(autosub.PATH,'interface')))
+    RootPath = str(os.path.normpath(os.path.join(autosub.PATH,'interface')))
     conf={
             '/': {
             'tools.encode.encoding': 'utf-8',
@@ -126,6 +124,9 @@ def StartCherrypy():
     except Exception as error:
         log.error(error.message)
         raise SystemExit(error.message)
+    cherrypy.config.update({'log.screen': False,
+                            'log.access_file': '',
+                            'log.error_file': ''})
     log.info("Starting CherryPy webserver")
     try:
         cherrypy.server.start()
@@ -135,14 +136,12 @@ def StartCherrypy():
 
         os._exit(1)
     cherrypy.server.wait()
-    cherrypy.config.update({'log.screen': False,
-                            'log.access_file': '',
-                            'log.error_file': ''})
+
 
 def _Scheduler():
         #Here we keep the thread going and schedule the search rounds
     while True:
-        sleep(1)
+        sleep(60)
         Interval = time() - autosub.LASTRUN 
         if (Interval  > autosub.SEARCHINTERVAL and Interval > 43200):
             autosub.LASTRUN = time()

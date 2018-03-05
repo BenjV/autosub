@@ -18,7 +18,6 @@ log = logging.getLogger('thelogger')
 def InitLogging():  
     # initialize logging
     # A log directory has to be created in the start directory
-    print "AutoSub: Starting output to log. Bye!"
     Format = '%(asctime)s %(levelname)-3s %(funcName)-15s:%(message)s'
     try:
         fmt = logging.Formatter(Format,datefmt='%d-%m %H:%M:%S')

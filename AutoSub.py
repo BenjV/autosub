@@ -38,18 +38,19 @@ def _daemon():
     from sys import exit,stdin
 
     try:
-        if fork() > 0: exit(0)
+        if fork() > 0:
+            exit(0)
     except OSError:
         exit(1)
     chdir("/")
     setsid()
     umask(0)
     try:
-        if fork() > 0: exit(0)
+        if fork() > 0:
+            exit(0)
     except OSError:
         exit(1)
     stdin.close()
-
 
 def main(argv=None):
     import sys
@@ -72,7 +73,7 @@ def main(argv=None):
             raise Usage(help_message)
         if option in ("-d", "--daemon"):
             if sys.platform == "win32":
-                print "ERROR: No support for daemon mode in Windows. Use pythonw instead."
+                raise SystemExit('ERROR: No support for daemon mode in Windows. Use pythonw instead.')
             else:
                 _daemon()
         if option in ("-c", "--config"):

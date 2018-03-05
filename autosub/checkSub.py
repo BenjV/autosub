@@ -71,7 +71,7 @@ def _UpdGithub():
 #    Check the SubtitleSeeker API for subtitles of episodes that are in the WANTEDQUEUE.
 #    If the subtitles are found, call DownloadSub
 #    """
-def checkSub(Forced=None):
+def checkSub(Forced=False):
         # setup some objects
     autosub.SEARCHBUSY  = True 
     autosub.SEARCHSTOP = False   
@@ -92,27 +92,41 @@ def checkSub(Forced=None):
         log.info("No website selected in config" )
     Downloaded = False
     if ScanDisk(Forced) != 0 and Info and not autosub.SEARCHSTOP:
+        SiteCount = 0
         log.info("Starting round of subs searching on %s" % Info )                  
             # Initiate a session to OpenSubtitles and login if it is choosen
         if autosub.OPENSUBTITLES and autosub.OPENSUBTITLESUSER and autosub.OPENSUBTITLESPASSWD:
-            OS_Login()
+            if OS_Login():
+               SiteCount += 1
             # Initiate a session to Addic7ed and login if it is choosen
         if autosub.ADDIC7ED and autosub.ADDIC7EDUSER and autosub.ADDIC7EDPASSWD:
             autosub.ADDIC7EDAPI = Addic7edAPI()
-            autosub.ADDIC7EDAPI.A7_Login()
-            # If the daily max is reached don't use addic7ed today
-        if autosub.DOWNLOADS_A7 >= autosub.DOWNLOADS_A7MAX:
-            log.info("Max downloads from Addic7ed reached for today.")
-            autosub.ADDIC7EDAPI.A7_Logout()
+            if autosub.ADDIC7EDAPI.A7_Login():
+                SiteCount += 1
+                # If the daily max is reached don't use addic7ed today
+            if autosub.ADDIC7EDLOGGED_IN and autosub.DOWNLOADS_A7 >= autosub.DOWNLOADS_A7MAX:
+                log.info("Max downloads from Addic7ed reached for today.")
+                autosub.ADDIC7EDAPI.A7_Logout()
+                SiteCount -= 1
             # Initiate a session to SubtitleSeeker if it is choosen
-        if autosub.PODNAPISI or autosub.SUBSCENE:
-            autosub.SS_SESSION = requests.session()
+        autosub.SS_SESSION = requests.session()
+        SSavalable = True
+        if autosub.PODNAPISI:
+            if not autosub.SS_SESSION.head('http://www.subtitleseeker.com',timeout=7).ok:
+                SSavalable = False
+                SiteCount += 1
+        if autosub.SUBSCENE and SSavalable:
+            if not autosub.SS_SESSION.head('http://www.subtitleseeker.com',timeout=7).ok:
+                SSavalable = False
+                SiteCount += 1
+        if SiteCount == 0:
+            log.info('None of the websites are available')
         Index = 0
         End = len(autosub.WANTEDQUEUE)
         # loop through the wanted list and try to find subs for the video's
         # because we remove a video from the list we cannot use the internal counter from a for loop
         # so we track the position in the list with the variable 'Index'
-        if not autosub.SEARCHSTOP:
+        if not autosub.SEARCHSTOP and SiteCount > 0:
             while Index < End:
                 if autosub.SEARCHSTOP:
                     log.info('Search stopped by User')
