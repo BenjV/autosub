@@ -241,10 +241,12 @@ def ScanDisk(Forced=None):
     Scan the specified path for episodes without Dutch or (if wanted) English subtitles.
     If found add these Dutch or English subtitles to the WANTEDQUEUE.
     """
+    autosub.SCANDISK = True
     Count = 0
     log.info("Starting round of local disk checking at %s" % autosub.SERIESPATH)
     if autosub.SERIESPATH == u'':
         log.info('No seriepath defined.')
+        autosub.SCANDISK = False
         return 0
     seriespaths = [x.strip() for x in autosub.SERIESPATH.split(',')]
     for seriespath in seriespaths:
@@ -255,7 +257,9 @@ def ScanDisk(Forced=None):
             Count += _walkDir(seriespath,Forced)
         except Exception as error:
             log.error(error.message)
+            autosub.SCANDISK = False
             return 0
     Found = len(autosub.WANTEDQUEUE)
     log.info("Found %d video(s) will search for %d sub(s)" % (Found,Count))
+    autosub.SCANDISK = False
     return Count

@@ -85,7 +85,7 @@ def Browser():
     host = 'localhost' if autosub.WEBSERVERIP == '0.0.0.0' else autosub.WEBSERVERIP
     url = 'http://%s:%s%s' % (host, autosub.WEBSERVERPORT,autosub.WEBROOT)
     try:
-        webbrowser.open(url, 2, True )
+        webbrowser.open(url, 0, True )
     except:
         log.error(error.message)
 
@@ -118,30 +118,28 @@ def StartCherrypy():
             },
         }
 
-    cherrypy.config.update({ 'server.shutdown_timeout': 1 })
+    cherrypy.config.update({ 'server.shutdown_timeout': 2 })
     try:
         cherrypy.tree.mount(autosub.WebServer.WebServerInit(), autosub.WEBROOT, config = conf)
     except Exception as error:
-        log.error(error.message)
+        log.error('Mount: %s' % error.message)
         raise SystemExit(error.message)
     cherrypy.config.update({'log.screen': False,
                             'log.access_file': '',
                             'log.error_file': ''})
     log.info("Starting CherryPy webserver")
     try:
-        cherrypy.server.start()
+        #cherrypy.server.start()
+        cherrypy.engine.start()
     except Exception as error:
-        log.error(error.message)
+        log.error('Start server: %s' % error.message)
         raise SystemExit(error.message)
-
-        os._exit(1)
     cherrypy.server.wait()
-
 
 def _Scheduler():
         #Here we keep the thread going and schedule the search rounds
     while True:
-        sleep(1)
+        sleep(60)
         Interval = time() - autosub.LASTRUN 
         if (Interval  > autosub.SEARCHINTERVAL and Interval > 43200):
             autosub.LASTRUN = time()
@@ -204,15 +202,14 @@ def stop(signum=None):
         logging.shutdown()
         os._exit(0)
     elif signum == 98 or signum == 99:
-        if time() - autosub.STARTTIME < 20:
+        if time() - autosub.STARTTIME < 15:
+                # assuming false positive (keyboard or user stutter)
             autosub.UPDATING = False
             return
         if signum == 98:
             log.info('Reboot at user request.')
         else:
             log.info('Reboot after updating.')
-        Result = WriteConfig()
-        log.debug('Config is saved now restarting')
         logging.shutdown()
             # Wait to finish writing subfile if it was busy
         while autosub.WRITELOCK:
@@ -223,7 +220,7 @@ def stop(signum=None):
         autosub.SEARCHSTOP = False
         autosub.SEARCHBUSY = False
         autosub.UPDATING = False
-        sleep(1)
+        sleep(2)
         os.execv(sys.executable, args)
     else:
         while autosub.WRITELOCK:

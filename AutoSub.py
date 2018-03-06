@@ -34,23 +34,25 @@ def signal_handler(signum, frame):
     autosub.Scheduler.stop(signum)
 
 def _daemon():
-    from os import fork,chdir,setsid,umask
-    from sys import exit,stdin
+    import os,sys
 
     try:
-        if fork() > 0:
-            exit(0)
+        if os.fork() > 0:
+            sys.exit(0)
     except OSError:
-        exit(1)
-    chdir("/")
-    setsid()
-    umask(0)
+        sys.exit(1)
+    os.chdir("/")
+    os.setsid()
+    os.umask(0)
     try:
-        if fork() > 0:
-            exit(0)
+        if os.fork() > 0:
+            sys.exit(0)
     except OSError:
-        exit(1)
-    stdin.close()
+        sys.exit(1)
+    sys.stdin.close()
+    Fpnull = open(os.devnull, 'w')
+    sys.stdout = Fpnull
+    sys.stderr = Fpnull
 
 def main(argv=None):
     import sys
@@ -100,7 +102,7 @@ def main(argv=None):
         # if we deamonise we lost the working directory so we set it back
     chdir(Cwd)
     autosub.PATH = unicode(Cwd, autosub.SYSENCODING)
-        # First we write the pidfile to the autosub folder
+    #    # First we write the pidfile to the autosub folder
     try:
         autosub.PID = str(getpid())
         with open(path.join(autosub.PATH,'autosub.pid') , "w") as fp:

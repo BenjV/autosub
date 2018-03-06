@@ -84,7 +84,7 @@ LASTRUN = float(0)
 SEARCHTIME= float(0)
 SEARCHBUSY = False
 SEARCHSTOP = False
-SCANDISK = None
+SCANDISK = False
 CHECKSUB = None
 WRITELOCK = False
 

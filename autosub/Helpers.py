@@ -68,7 +68,7 @@ def UpdateAutoSub():
     Update Autosub.
     '''
     autosub.MESSAGE = ''
-    if time.time() - autosub.STARTTIME < 30:
+    if time.time() - autosub.STARTTIME < 15:
         autosub.UPDATING = False
         return
     if autosub.SEARCHBUSY:

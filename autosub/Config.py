@@ -230,13 +230,6 @@ def ReadConfig():
     elif autosub.CONFIGVERSION > autosub.version.configversion:
         sys.stderr.write("Config: ERROR! Config version higher then this version of AutoSub supports. Update AutoSub!")
         os._exit(1)
-
-    if cfg.has_option('config', "updating") and cfg.getboolean('config', 'updating'):
-        autosub.UPDATING = False
-        Message = WriteConfig()
-        autosub.UPDATING = True
-    else:
-        autosub.UPDATING = False
     return
 
 def WriteConfig():
@@ -245,7 +238,6 @@ def WriteConfig():
 
     section = 'config'
     cfg.add_section(section)
-    cfg.set(section, "updating", str(autosub.UPDATING) )
     cfg.set(section, "path", autosub.PATH )
     cfg.set(section, "seriespath", str(autosub.SERIESPATH))
     cfg.set(section, "bckpath", str(autosub.BCKPATH))

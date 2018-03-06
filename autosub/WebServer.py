@@ -487,8 +487,6 @@ class Home:
             return str(tmpl)
         threading.Thread(target=autosub.checkSub.checkSub,args=(True,)).start()
         tmpl.message = "Auto-Sub is now checking for subtitles!"
-        tmpl.displaymessage = "Yes"
-        tmpl.modalheader = "Information"
         return str(tmpl)
 
     @cherrypy.expose
@@ -521,14 +519,15 @@ class Home:
     @cherrypy.expose
     def UpdateAutoSub(self):
         autosub.UPDATING = True
-        autosub.MESSAGE = 'Autosub is Updated!'
-        threading.Thread(target=autosub.Helpers.UpdateAutoSub).start()
         del autosub.WANTEDQUEUE[:]
-        tmpl = PageTemplate(file="interface/templates/status.tmpl")
+        tmpl = PageTemplate(file="interface/templates/home.tmpl")
+        tmpl.displaymessage = "Yes"
         tmpl.modalheader = "Information"
+        tmpl.message = 'Autosub is updated to version: ' + autosub.GITHUBVERSION
+            # Wait till autosub is ready downloading and wants to restart
+        threading.Thread(target=autosub.Helpers.UpdateAutoSub).start()
         while autosub.UPDATING:
-            sleep(0.1)
-        tmpl.message = "Autosub is updating..."
+            sleep(0.2)
         return str(tmpl)
 
     @cherrypy.expose
@@ -536,13 +535,15 @@ class Home:
         autosub.UPDATING = True
         autosub.MESSAGE = 'Autosub is rebooted!'
         threading.Thread(target=autosub.Scheduler.stop,args=(98,)).start()
-        tmpl = PageTemplate(file="interface/templates/status.tmpl")
-        tmpl.displaymessage = "Yes"
-        tmpl.modalheader = "Information"
-        while autosub.UPDATING:
-            sleep(0.1)
-        tmpl.message = "Autosub is rebooting..."
-        return str(tmpl)
+        tmpl = PageTemplate(file="interface/templates/home.tmpl")
+        if not autosub.LAUNCHBROWSER:
+            tmpl.displaymessage = "Yes"
+            tmpl.modalheader = "Information"
+            tmpl.message = "Autosub is rebooted"
+            while autosub.UPDATING:
+                sleep(0.1)
+            return str(tmpl)
+        return
 
     @cherrypy.expose
     def exitMini(self):
