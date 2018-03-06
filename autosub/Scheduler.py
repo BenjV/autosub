@@ -141,7 +141,7 @@ def StartCherrypy():
 def _Scheduler():
         #Here we keep the thread going and schedule the search rounds
     while True:
-        sleep(60)
+        sleep(1)
         Interval = time() - autosub.LASTRUN 
         if (Interval  > autosub.SEARCHINTERVAL and Interval > 43200):
             autosub.LASTRUN = time()
