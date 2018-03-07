@@ -1,4 +1,4 @@
-autosubversion='1.2.20'
+autosubversion='1.2.21'
 configversion=6
 dbversion=11
 rlsgrpdate='19-02-2018'
