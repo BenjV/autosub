@@ -143,7 +143,7 @@ def _Scheduler():
         Interval = time() - autosub.LASTRUN 
         if (Interval  > autosub.SEARCHINTERVAL and Interval > 43200):
             autosub.LASTRUN = time()
-            threading.Thread(target=checkSub).start()    
+            threading.Thread(target=autosub.checkSub.checkSub,args=(False,)).start()
 
 def start():
         #load configuration and the default settings.
