@@ -424,6 +424,7 @@ betamax
 bf1
 bff
 bg
+bge
 bgfr
 bhatti
 bia
@@ -490,6 +491,7 @@ brastemp
 break
 brein
 brg
+bribery
 brigand
 bright
 brisk
@@ -522,6 +524,7 @@ burnfre@k.tk-crew
 bux
 bvm
 bwb
+bwbp
 bysnoper
 byteshare
 bzingaz
@@ -602,6 +605,7 @@ chotab
 chronicles
 chrono
 chronos
+chs
 chupawake
 chuppi
 chwdgb
@@ -829,6 +833,7 @@ detvave
 deuterium
 deviant
 devise
+devoid
 dewstrr
 dfa
 dfe
@@ -982,6 +987,7 @@ efa
 efterlyst
 ehle
 ehmd
+eider
 eie
 eightbit
 eigo
@@ -1000,6 +1006,7 @@ emc
 emem
 emerald
 emeraldempire
+emg
 emlhdteam
 empirehd
 ena
@@ -1132,12 +1139,14 @@ finale
 finally
 fitty
 fixi0n
+fixie
 fixit
 fixtv
 fjall
 fk99
 fkkhd
 fkktv
+flacoff
 flair
 flaite
 flaket
@@ -1168,6 +1177,7 @@ forge
 forlorn
 form
 formula
+forsaken
 forward
 fourghd
 fov
@@ -1425,6 +1435,7 @@ hdencx
 hdex
 hdfire
 hdfl
+hdhome
 hdi
 hdil
 hdl
@@ -1440,6 +1451,7 @@ hdreactor
 hdrinvasion
 hdroad
 hds
+hdtracker
 hdu
 hdvd
 hdvision
@@ -1668,6 +1680,7 @@ japhson
 jarzka
 jaskier
 jason28
+jass
 jato
 jav-fans
 javliu
@@ -2163,6 +2176,7 @@ nate_666
 nathan69
 natty
 natv
+nayhtut
 nbs
 ncmt
 ncpx
@@ -2357,6 +2371,7 @@ ouija
 oursuperpilaencode
 outbreak
 outdated
+outerspace
 ouzo
 ov3rload
 overtime
@@ -2402,6 +2417,7 @@ pellucid
 pem
 pemoc
 penumbra
+perfect
 perfectionhd
 pfa
 phase
@@ -2519,6 +2535,7 @@ pure
 pure-anime.biz
 puri
 pushercrew
+pussyfoot
 puyasubs
 puzzle
 pvr
@@ -2766,6 +2783,7 @@ scared
 scd
 schitbusters
 schizo
+scorn
 scratch404
 scratched
 scream
@@ -3313,6 +3331,7 @@ vedett
 vegan
 vegapunk
 veggteppe
+vegito5001
 venue
 veritas
 verovenlo
@@ -3355,6 +3374,7 @@ vlis
 voa
 void
 volatile
+voldies
 vomit
 vostfr
 vox
@@ -3434,6 +3454,7 @@ worldvd
 wpi
 wrcr
 wrd
+wre
 wusiwug
 wzf
 x-death
