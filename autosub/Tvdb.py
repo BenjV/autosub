@@ -22,13 +22,6 @@ def _checkToken():
        return GetToken()
         # if token is about to expire refresh the token lease time
     elif time() - autosub.TVDBTIME > 80000:
-        try:
-            if not requests.head(autosub.TVDBAPI,verify=autosub.CERT,timeout=10).ok:
-                log.error('Tvdb website is not reachable')
-                return False
-        except Exception as error:
-                log.error(error.message)
-                return False
         autosub.TVDBTIME = time()
         try:
             TvdbResult = autosub.TVDBSESSION.get(autosub.TVDBAPI + '/refresh_token',data=autosub.TVDBSESSION.headers['Authorization'][7:],timeout=10).json()
