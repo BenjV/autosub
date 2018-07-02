@@ -513,6 +513,7 @@ btsfilms
 btt
 btvg
 btw
+bugsfunny
 bugz
 bugzbunny
 buld
@@ -613,6 +614,7 @@ chyuu
 cia
 cic
 cielo
+cielos
 cinebus
 cinefile
 cinefox
@@ -1666,6 +1668,7 @@ it00nz
 ita
 itg
 itoonz
+itsat
 itsdvd
 itz
 iy-a_excal
@@ -1940,6 +1943,7 @@ ltrg
 ltt
 ltu
 lu3ur
+lucidtv
 lucifer22
 lulusubs
 lum1x
@@ -2450,6 +2454,7 @@ pkf
 pl
 planet3
 plastkasse
+playhd
 playnow
 playready
 playsd
@@ -2570,6 +2575,7 @@ r&c
 r-b
 r-f
 r.knor
+r00t
 r0cked
 r10
 r2d2
