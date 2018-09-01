@@ -548,6 +548,7 @@ cache
 cadaver
 caelum
 caf
+caffeine
 cake
 camelot
 camera
@@ -734,6 +735,7 @@ curecom
 curecom-doremi
 curiosity
 cutting.edge
+cyber
 cyber12.com
 cybermen
 cybertyger
@@ -794,6 +796,7 @@ dd
 ddc
 dddc
 dddd
+ddn
 ddr
 de\[42\]
 dea
@@ -848,6 +851,7 @@ dgz
 dh
 dharma
 dhd
+diablo
 diamond
 diamonds
 dich
@@ -2381,6 +2385,7 @@ outbreak
 outdated
 outerspace
 ouzo
+ov3rl1f3
 ov3rload
 overtime
 oyhd
@@ -2425,6 +2430,7 @@ pellucid
 pem
 pemoc
 penumbra
+peppe
 perfect
 perfectionhd
 pfa
@@ -2449,6 +2455,7 @@ piner
 pinkpanters
 pioneer
 pipick
+piratemkv
 pitufo180
 pix
 pixelhd
@@ -2539,6 +2546,7 @@ pudding
 pufo
 pukka
 punch
+punisher694
 purana
 pure
 pure-anime.biz
@@ -2816,6 +2824,7 @@ septic
 sequa
 seriously
 serum
+seskapile
 sev
 sevcd
 seventwenty
@@ -3586,5 +3595,6 @@ zx
 zzgtv
 ~aa~
 ~invincible
+£egend63
 ßsz
 стс
