@@ -49,8 +49,8 @@ def GetToken(user=None,id=None):
         log.info("Tvdb verification test with user: %s and code: %s" %(user,id))
     else:
         Test = False
-        auth_data['username'] = autosub.TVDBUSER
-        auth_data['userkey']  = autosub.TVDBACCOUNTID   
+        #auth_data['username'] = autosub.TVDBUSER
+        #auth_data['userkey']  = autosub.TVDBACCOUNTID
     Data = dumps(auth_data)
     try:
         TvdbResult = autosub.TVDBSESSION.post(autosub.TVDBAPI + '/login',data=Data,verify=autosub.CERT,timeout=10).json()
@@ -81,7 +81,7 @@ def GetTvdbId(ShowName):
     if not(autosub.TVDBACCOUNTID and _checkToken()) :
         return None, None, ShowName
     try:
-        Result = autosub.TVDBSESSION.get(autosub.TVDBAPI + '/search/series?name=' + Name, data=autosub.TVDBSESSION.headers['Authorization'][7:],verify=autosub.CERT,timeout=10).json()
+        Result = autosub.TVDBSESSION.get(autosub.TVDBAPI + '/search/series?name=' + Name, verify=autosub.CERT,timeout=10).json()
         if 'Error' in Result:
             log.error("Tvdb returnd an error: %s" % Result['Error'])
             return None,None,ShowName
@@ -92,11 +92,12 @@ def GetTvdbId(ShowName):
     HighScore = 0
     HighName = None
     for Data in Result['data']:
-        Score = SM(None, Data['seriesName'].upper(), ShowName.upper()).ratio()
+        Score = SM(None, Data['seriesName'], ShowName).ratio()
         if Score >= HighScore and Score > 0.666 :
             TvdbId = str(Data['id'])
             HighScore = Score
             HighName = Data['seriesName']
+    Data = sorted(Data, key=itemgetter('score'), reverse=True)
     if HighName:
         try:
             Result = autosub.TVDBSESSION.get(autosub.TVDBAPI + '/series/' + TvdbId, data=autosub.TVDBSESSION.headers['Authorization'][7:],verify=autosub.CERT,timeout=10).json()
