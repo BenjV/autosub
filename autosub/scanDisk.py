@@ -77,17 +77,17 @@ def _getShowid(ShowName):
             if ImdbId:
                 UpdateCache = True
         # If an Id found try to find the addicId in mappings or on the addic7d website
+    if not AddicId: AddicId = 0
     if (ImdbNameMappingId or ImdbId) and not AddicId:
         Id = ImdbId if ImdbId else ImdbNameMappingId
-        AddicId = autosub.USERADDIC7EDMAPPING.get(Id)
+        AddicId = autosub.USERADDIC7EDMAPPING.get(Id,0)
         if not AddicId:
-            AddicId = autosub.ADDIC7EDMAPPING.get(Id)
-        if not AddicId:
+            AddicId = autosub.ADDIC7EDMAPPING.get(Id,0)
+        if not AddicId and autosub.ADDIC7ED:
             AddicId = autosub.ADDIC7EDAPI.geta7ID(TvdbShowName)
     if UpdateCache:
         autosub.IDCACHE.setId(TvdbShowName, ImdbId, AddicId, TvdbId)
     if ImdbNameMappingId: ImdbId = ImdbNameMappingId
-    if not AddicId: AddicId = 0
     log.debug("IMDB: %s, Addic7ed: %d, ShowName: %s, TvdbName: %s" %(ImdbId,AddicId,ShowName,TvdbShowName))
     return ImdbId, AddicId, TvdbId, TvdbShowName
 
