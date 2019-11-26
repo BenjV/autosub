@@ -209,7 +209,7 @@ def _OS_Search(Wanted,SubListNL,SubListEN):
         Subs = autosub.OPENSUBTITLESSERVER.SearchSubtitles(autosub.OPENSUBTITLESTOKEN, [Data])
     except Exception as error:
         autosub.OPENSUBTITLESTOKEN = None
-        log.error('Error from Opensubtitles. %s' % error)
+        log.error('Error from Opensubtitles: %s' % str(error))
         return
     if not Subs['status'] or Subs['status'] != '200 OK':
         log.debug('No subs found for %s on Opensubtitles.' % Wanted['file'])
@@ -264,23 +264,7 @@ def getSubLinks(Wanted):
         log.debug('No subtitle website selected in the config so nothing to do here!')
         return
 
-    if autosub.PODNAPISI:
-        sourceWebsites.append('podnapisi')
-    if autosub.SUBSCENE:
-        sourceWebsites.append('subscene')
-        # If podnapisi or subscene is choosen call subtitleseeker
-    if len(sourceWebsites) > 0 and not autosub.SEARCHSTOP:
-        _SS_Search(Wanted, sourceWebsites, SubListNL, SubListEN)
-
-        # Use Addic7ed if selected
-        # and check if Addic7ed download limit has been reached
-    if Wanted['A7Id'] and autosub.ADDIC7EDLOGGED_IN and not autosub.SEARCHSTOP:
-        if autosub.DOWNLOADS_A7 < autosub.DOWNLOADS_A7MAX:
-            _A7_Search(Wanted, SubListNL, SubListEN)
-        else:
-            log.debug("You have reached your 24h limit of %s  Addic7ed downloads!" % autosub.DOWNLOADS_A7MAX)
-
-        # Use OpenSubtitles if selected
+            # Use OpenSubtitles if selected
     if autosub.OPENSUBTITLES and autosub.OPENSUBTITLESTOKEN and Wanted['ImdbId'] and not autosub.SEARCHSTOP:
         _OS_Search(Wanted,SubListNL,SubListEN)
 

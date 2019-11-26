@@ -1,6 +1,6 @@
 import autosub
 import logging
-from time import time
+from time import time,sleep
 
 log = logging.getLogger('thelogger')
 
@@ -18,11 +18,10 @@ def OS_Login(opensubtitlesusername=None,opensubtitlespasswd=None):
         opensubtitlesusername = autosub.OPENSUBTITLESUSER
         opensubtitlespasswd   = autosub.OPENSUBTITLESPASSWD
         Test = False
-
     try:
         Result = autosub.OPENSUBTITLESSERVER.LogIn(opensubtitlesusername, opensubtitlespasswd, 'dut', autosub.OPENSUBTITLESUSERAGENT)
     except Exception as error:
-        log.error('Login with user %s failed. %s'  % (opensubtitlesusername,error.message))
+        log.error('Login with user %s failed. Reason: %s'  % (opensubtitlesusername, error.errmsg))
         autosub.OPENSUBTITLESTOKEN = None
         return False
     if Result['status'] == '200 OK':
@@ -47,8 +46,8 @@ def OS_Logout(Token=None):
     if Token:  
         try:
             Result = autosub.OPENSUBTITLESSERVER.LogOut(Token)
-        except:
-            log.error('OS logout failed. Probably a lost connection')
+        except Exception as error:
+            log.error('OS logout failed. Reason: %s'  % str(error))
             return False
         if Result['status'] == '200 OK':
             log.debug('OpenSubtitles logged out.')

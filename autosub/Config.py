@@ -83,7 +83,9 @@ def ReadConfig():
     if cfg.has_option(section, "skipfoldersnl"):        autosub.SKIPFOLDERSNL       = cfg.get(section, "skipfoldersnl")
     if cfg.has_option(section, "skipfoldersen"):        autosub.SKIPFOLDERSEN       = cfg.get(section, "skipfoldersen")
 
-
+    autosub.PODNAPISI = False
+    autosub.SUBSCENE = False
+    autosub.ADDIC7ED = False
 
     # *******************
     # * Logfile Section *

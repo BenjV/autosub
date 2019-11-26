@@ -1,4 +1,4 @@
-autosubversion='1.2.24'
+autosubversion='1.2.25'
 configversion=6
 dbversion=11
 A7mapdate='21-12-2018'
